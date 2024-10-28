@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-exec-page',
+  selector: 'exec-page',
   standalone: true,
   imports: [],
   templateUrl: './exec-page.component.html',
