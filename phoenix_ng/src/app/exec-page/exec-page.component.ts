@@ -5,7 +5,6 @@ import { Component } from '@angular/core';
   standalone: true,
   imports: [],
   templateUrl: './exec-page.component.html',
-  styleUrl: './exec-page.component.css'
 })
 export class ExecPageComponent {
 
