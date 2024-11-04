@@ -1,12 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, NgModule } from '@angular/core';
+import { NavBarComponent } from './nav-bar/nav-bar.component';
 import { RouterOutlet } from '@angular/router';
+import { BrowserModule } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, NavBarComponent],
   templateUrl: './app.component.html',
 })
+
 export class AppComponent {
   title = 'phoenix_ng';
 }
