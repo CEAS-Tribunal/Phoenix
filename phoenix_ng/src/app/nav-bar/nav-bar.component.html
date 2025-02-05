@@ -1,15 +1,57 @@
-<nav class="flex flex-row justify-between items-center mx-10 my-6 h-6"> 
-    <a routerLink="/" class="flex items-center">
-        <img src="/assets/images/tribunal_logo_color.png" alt="logo" class="h-10 mr-2 z-1" loading="lazy" />
-        
+<nav class="flex flex-row justify-between items-center mx-4 sm:mx-10 my-6"> 
+    <a (click)="navigateTo('/')" class="flex items-center hover:cursor-pointer">
+        <img src="/assets/images/tribunal_logo_color.png" alt="logo" class="h-8 sm:h-10 mr-2 z-1" loading="lazy" />
     </a>
+
+    <button 
+        class="md:hidden flex flex-col space-y-1"
+        (click)="toggleMenu()"
+        aria-label="Menu">
+        <span class="block w-6 h-0.5 bg-gray-800"></span>
+        <span class="block w-6 h-0.5 bg-gray-800"></span>
+        <span class="block w-6 h-0.5 bg-gray-800"></span>
+    </button>
  
-    <ul class="flex flex-row gap-x-10 text-base justify-center">
-        <li class="hover:border-solid hover:border-b-4 hover:border-red-500"><a routerLink="/career-fair">Career Fair</a></li>
-        <li class="hover:border-solid hover:border-b-4 hover:border-red-500"><a routerLink="/expo">CEAS EXPO</a></li>
-        <li class="hover:border-solid hover:border-b-4 hover:border-red-500"><a routerLink="/alumni">Alumni</a></li>
-        <li class="hover:border-solid hover:border-b-4 hover:border-red-500"><a routerLink="/exec">Executives</a></li>
+    <ul class="hidden md:flex flex-row gap-x-10 text-base justify-center">
+        <li (click)="navigateTo('/career-fair')" 
+            class="hover:border-solid hover:border-b-4 hover:border-red-500 hover:cursor-pointer">
+            Career Fair
+        </li>
+        <li (click)="navigateTo('/expo')" 
+            class="hover:border-solid hover:border-b-4 hover:border-red-500 hover:cursor-pointer">
+            CEAS EXPO
+        </li>
+        <li (click)="navigateTo('/alumni')" 
+            class="hover:border-solid hover:border-b-4 hover:border-red-500 hover:cursor-pointer">
+            Alumni
+        </li>
+        <li (click)="navigateTo('/exec')" 
+            class="hover:border-solid hover:border-b-4 hover:border-red-500 hover:cursor-pointer">
+            Executives
+        </li>
     </ul>
+
+    <div [ngClass]="{'hidden': !isMenuOpen}" 
+         class="absolute top-16 left-0 right-0 bg-white md:hidden z-50">
+        <ul class="flex flex-col items-center space-y-4 py-4">
+            <li (click)="navigateTo('/career-fair')" 
+                class="w-full text-center py-2 hover:bg-gray-100 hover:cursor-pointer">
+                Career Fair
+            </li>
+            <li (click)="navigateTo('/expo')" 
+                class="w-full text-center py-2 hover:bg-gray-100 hover:cursor-pointer">
+                CEAS EXPO
+            </li>
+            <li (click)="navigateTo('/alumni')" 
+                class="w-full text-center py-2 hover:bg-gray-100 hover:cursor-pointer">
+                Alumni
+            </li>
+            <li (click)="navigateTo('/exec')" 
+                class="w-full text-center py-2 hover:bg-gray-100 hover:cursor-pointer">
+                Executives
+            </li>
+        </ul>
+    </div>
 </nav>
 
 <router-outlet></router-outlet>
