@@ -1,12 +1,25 @@
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { RouterOutlet } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
-  selector: 'nav-bar',
-  standalone: true,
-  imports: [RouterModule],
+  selector: 'app-nav-bar',
   templateUrl: './nav-bar.component.html',
+  standalone: true,
+  imports: [ CommonModule, RouterOutlet ],
 })
 export class NavBarComponent {
-  logoUrl = './'
+  isMenuOpen = false;
+
+  constructor(private router: Router) {}
+
+  toggleMenu() {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  navigateTo(path: string) {
+    this.isMenuOpen = false;
+    this.router.navigate([path]);
+  }
 }
