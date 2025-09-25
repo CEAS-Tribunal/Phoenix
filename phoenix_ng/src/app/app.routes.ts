@@ -6,6 +6,7 @@ import { CareerFairPageComponent } from './career-fair-page/career-fair-page.com
 import { ExecMainPageComponent } from './exec-main-page/exec-main-page.component';
 import { ExecPageComponent } from './exec-page/exec-page.component';
 import { ReimbursementPageComponent } from './reimbursement/reimbursement-page.component';
+import { CommitteesPageComponent } from './committees-page/committees-page.component';
 
 export const routes: Routes = [
   { path: '', component: HomePageComponent }, //Home page routing and App Root
@@ -15,5 +16,6 @@ export const routes: Routes = [
   { path: 'exec', component: ExecMainPageComponent },
   { path: 'exec-info', component: ExecPageComponent },
   { path: 'reimbursement', component: ReimbursementPageComponent },
+  { path: 'committees', component: CommitteesPageComponent },
   { path: '**', redirectTo: '', pathMatch: 'full' }, // Wildcard route for a 404 page (optional)
 ];

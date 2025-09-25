@@ -6,6 +6,7 @@ import { ExpoPageComponent } from './expo-page/expo-page.component';
 import { CareerFairPageComponent } from './career-fair-page/career-fair-page.component';
 import { ExecMainPageComponent } from './exec-main-page/exec-main-page.component';
 import { ExecPageComponent } from './exec-page/exec-page.component';
+import { CommitteesPageComponent } from './committees-page/committees-page.component';
 
 const routes: Routes = [
   { path: '', component: HomePageComponent },
@@ -14,6 +15,7 @@ const routes: Routes = [
   { path: 'career-fair', component: CareerFairPageComponent },
   { path: 'exec', component: ExecMainPageComponent },
   { path: 'exec-info', component: ExecPageComponent },
+  { path: 'committess', component: CommitteesPageComponent },
   { path: '**', redirectTo: '', pathMatch: 'full' } // Wildcard route for a 404 page (optional)
 ];
 
