@@ -219,8 +219,8 @@ export default function CommitteesPage() {
       {/* Modal */}
       {showRolesModal && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
-          style={{ backdropFilter: 'blur(2px)' }}
+          className="fixed inset-0 bg-black/25 flex items-center justify-center z-50"
+          style={{ backdropFilter: 'blur(5px)' }}
           role="dialog"
           aria-modal="true"
           onMouseDown={(e) => {

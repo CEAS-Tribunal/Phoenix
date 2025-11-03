@@ -1,5 +1,4 @@
-// committeesService.ts
-// Replace the API URLs with your real backend routes.
+import axios from 'axios';
 
 export type CommitteeColor = 'indigo' | 'teal' | 'sky' | 'rose';
 
@@ -25,26 +24,21 @@ export interface Person {
   imgURL?: string;
 }
 
-async function json<T>(res: Response): Promise<T> {
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new Error(text || `Request failed: ${res.status}`);
-  }
-  return res.json() as Promise<T>;
-}
+const axiosInstance = axios.create({
+  baseURL: HOST_URL,
+  withCredentials: false,
+});
 
 export const CommitteesService = {
-  /** GET /api/committees -> Committee[] */
+  /** GET /dashboard/exec-role -> Committee[] */
   async getCommittees(): Promise<Committee[]> {
-    const res = await fetch(HOST_URL + '/dashboard/exec-role', { credentials: 'include' });
-    return json<Committee[]>(res);
+    const { data } = await axiosInstance.get<Committee[]>('/dashboard/exec-role');
+    return data;
   },
 
   /** GET /api/committees/roles/:roleId/members -> Person[] */
   async getMembers(roleId: number): Promise<Person[]> {
-    const res = await fetch(HOST_URL + `/api/committees/roles/${roleId}/members`, {
-      credentials: 'include',
-    });
-    return json<Person[]>(res);
+    const { data } = await axiosInstance.get<Person[]>(`/dashboard/exec-member/?roleId=${roleId}`);
+    return data;
   },
 };
