@@ -5,6 +5,7 @@ import LoadingFallback from '@/components/LoadingFallback';
 // Lazy load layout
 const HomePage = lazy(() => import('@/pages/HomePage'));
 const CommitteesPage = lazy(() => import('@/pages/CommitteesPage'));
+const ResumeReviewEmployer = lazy(() => import('@/pages/ResumeReviewEmployer'));
 
 export const router = createBrowserRouter([
   {
@@ -20,6 +21,14 @@ export const router = createBrowserRouter([
     element: (
       <Suspense fallback={<LoadingFallback />}>
         <CommitteesPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/resume-review-day/employers',
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <ResumeReviewEmployer />
       </Suspense>
     ),
   },
