@@ -8,6 +8,8 @@ import type {
   CommitteeColor,
 } from '@/services/ComitteesService';
 
+import Navbar from '@/components/Navbar';
+
 type TabKey = 'tab1' | 'tab2';
 
 function colorTextClass(color: CommitteeColor) {
@@ -153,6 +155,8 @@ export default function CommitteesPage() {
   );
 
   return (
+    <>
+    <Navbar />
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 px-4 py-10">
       <header className="mx-auto max-w-5xl text-center mb-10">
         <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-indigo-700">Tribunal Committees</h1>
@@ -304,5 +308,6 @@ export default function CommitteesPage() {
         </div>
       )}
     </div>
+  </>
   );
 }
