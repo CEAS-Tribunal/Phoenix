@@ -7,7 +7,7 @@ const NAV_LINKS = [
   { href: "/career-fair", label: "Career Fair" },
   { href: "/expo", label: "CEAS EXPO" },
   { href: "/alumni", label: "Alumni" },
-  { href: "/exec", label: "Executives" },
+  { href: "/committees", label: "Executives" },
 ];
 
 const Navbar: React.FC = () => {
