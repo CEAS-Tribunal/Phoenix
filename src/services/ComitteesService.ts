@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export type CommitteeColor = 'indigo' | 'teal' | 'sky' | 'rose';
 
-const HOST_URL = 'http://localhost:8000';
+const HOST_URL = process.env.HOST_URL as string;
 
 export interface CommitteeRole {
   id: number;
