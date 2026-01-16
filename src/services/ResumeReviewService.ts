@@ -1,5 +1,5 @@
 import axios from 'axios';
-const HOST_URL = process.env.HOST_URL as string;
+const HOST_URL = import.meta.env.VITE_HOST_URL as string;
 
 export interface CommitteeRole {
   id: number;

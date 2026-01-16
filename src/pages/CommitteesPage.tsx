@@ -1,12 +1,12 @@
 // CommitteesPage.tsx
 import { useEffect, useMemo, useState, useCallback } from 'react';
-import { CommitteesService } from '@/services/ComitteesService';
+import { CommitteesService } from '@/services/CommitteesService';
 import type {
   Committee,
   CommitteeRole,
   Person,
   CommitteeColor,
-} from '@/services/ComitteesService';
+} from '@/services/CommitteesService';
 
 import Navbar from '@/components/Navbar';
 
