@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export type CommitteeColor = 'indigo' | 'teal' | 'sky' | 'rose';
 
-const HOST_URL = process.env.HOST_URL as string;
+const HOST_URL = import.meta.env.VITE_HOST_URL as string;
 
 export interface CommitteeRole {
   id: number;
@@ -32,13 +32,14 @@ const axiosInstance = axios.create({
 export const CommitteesService = {
   /** GET /dashboard/exec-role -> Committee[] */
   async getCommittees(): Promise<Committee[]> {
-    const { data } = await axiosInstance.get<Committee[]>('/dashboard/exec-role');
+    console.log(HOST_URL + '/dashboard/exec-role');
+    const { data } = await axiosInstance.get<Committee[]>(HOST_URL + '/dashboard/exec-role');
     return data;
   },
 
   /** GET /api/committees/roles/:roleId/members -> Person[] */
   async getMembers(roleId: number): Promise<Person[]> {
-    const { data } = await axiosInstance.get<Person[]>(`/dashboard/exec-member/?roleId=${roleId}`);
+    const { data } = await axiosInstance.get<Person[]>(HOST_URL + `/dashboard/exec-member/?roleId=${roleId}`);
     return data;
   },
 };
