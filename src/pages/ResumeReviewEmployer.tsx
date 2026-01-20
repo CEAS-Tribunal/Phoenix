@@ -8,16 +8,21 @@ import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import { ResumeReviewDay } from '@/services/ResumeReviewService';
 
-const MAJOR_OPTIONS = [
-  "Aerospace Engineering",
-  "Architectural Engineering",
-  "Biomedical Engineering",
-  "Chemical Engineering",
-  "Civil Engineering",
-  "Computer Engineering",
-  "Computer Science",
-  "Construction Management",
-  // Add more majors as needed
+const MAJOR_OPTIONS: { value: string; label: string }[] = [
+  { value: 'aero', label: 'Aerospace Engineering' },
+  { value: 'arch', label: 'Architectural Engineering' },
+  { value: 'bmes', label: 'Biomedical Engineering' },
+  { value: 'chem', label: 'Chemical Engineering' },
+  { value: 'civil', label: 'Civil Engineering' },
+  { value: 'cs', label: 'Computer Science' },
+  { value: 'compe', label: 'Computer Engineering' },
+  { value: 'const', label: 'Construction Management' },
+  { value: 'cyber', label: 'Cybersecurity Engineering' },
+  { value: 'elec', label: 'Electrical Engineering' },
+  { value: 'elect', label: 'Electrical Engineering Technology' },
+  { value: 'ise', label: 'Industrial & Systems Engineering' },
+  { value: 'mech', label: 'Mechanical Engineering' },
+  { value: 'mecht', label: 'Mechanical Engineering Technology' },
 ];
 
 type FormValues = {
@@ -232,22 +237,22 @@ export default function ResumeReviewEmployer() {
               <label className="font-semibold mb-2 block">Select your major(s) of interest:</label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4">
                 {MAJOR_OPTIONS.map((major) => (
-                  <div key={major} className="flex items-center">
+                  <div key={major.value} className="flex items-center">
                     <Controller
                       control={control}
                       name="selected_majors"
                       render={({ field }) => (
                         <Checkbox
-                          checked={field.value.includes(major)}
+                          checked={field.value.includes(major.value)}
                           onCheckedChange={(checked: boolean) => {
-                            if (checked) field.onChange([...field.value, major]);
-                            else field.onChange(field.value.filter((v: string) => v !== major));
+                            if (checked) field.onChange([...field.value, major.value]);
+                            else field.onChange(field.value.filter((v: string) => v !== major.value));
                           }}
-                          id={major}
+                          id={major.value}
                         />
                       )}
                     />
-                    <label htmlFor={major} className="ml-3">{major}</label>
+                    <label htmlFor={major.value} className="ml-3">{major.label}</label>
                   </div>
                 ))}
               </div>
