@@ -1,5 +1,7 @@
 import { useForm, Controller } from 'react-hook-form';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { CheckCircle2, Home, UserPlus } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
@@ -41,33 +43,85 @@ export default function ResumeReviewEmployer() {
   });
 
   const [submitting, setSubmitting] = useState(false);
-  const [serverResponse, setServerResponse] = useState<null | { message?: string; error?: string }>(null);
+  const [serverResponse, setServerResponse] = useState<null | { message?: string; error?: string; status?: number }>(null);
 
   const onSubmit = async (data: FormValues) => {
     setSubmitting(true);
     setServerResponse(null);
 
-    // Prepare payload for backend
-    const payload = {
-      ...data,
-    };
+    const payload = { ...data };
 
     try {
       const res = await ResumeReviewDay.registerEmployer(payload);
-      setServerResponse({ message: res.message || 'Registered!' });
+      setServerResponse({ message: (res.data as { message?: string })?.message || 'Registered!', status: res.status });
       reset();
-    } catch (e: any) {
-      setServerResponse({ error: e.response?.data?.error || e.message || 'Submission failed' });
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { error?: string }; status?: number }; message?: string };
+      setServerResponse({ error: err.response?.data?.error || err.message || 'Submission failed', status: err.response?.status });
+      // Do not reset – keep form data filled so user can correct and resubmit
     } finally {
       setSubmitting(false);
     }
   };
+
+  const isSuccess = serverResponse && (serverResponse.status === 201);
+
+  if (isSuccess) {
+    return (
+      <>
+        <Navbar />
+        <div className="bg-gradient-to-b from-red-500/90 via-rose-600/85 to-red-700/90 pt-10 min-h-screen flex items-center justify-center px-4">
+          <div className="max-w-lg w-full bg-white dark:bg-slate-900/95 dark:border dark:border-slate-700/50 px-8 py-12 rounded-2xl shadow-2xl text-center animate-in fade-in zoom-in duration-500">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40 ring-4 ring-emerald-200/60 dark:ring-emerald-800/50">
+              <CheckCircle2 className="h-12 w-12 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+            </div>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+              You&apos;re all set!
+            </h1>
+            <p className="text-emerald-700 dark:text-emerald-300 font-medium mb-1">
+              {serverResponse?.message}
+            </p>
+            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-8">
+              We&apos;ve received your employer registration for Resume Review Day. Our team will reach out with further details and next steps.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                onClick={() => setServerResponse(null)}
+                className="border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800/80"
+              >
+                <UserPlus className="h-4 w-4" />
+                Register another employer
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                className="bg-red-500 hover:bg-red-600 text-white"
+              >
+                <Link to="/">
+                  <Home className="h-4 w-4" />
+                  Back to home
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
       <Navbar />
       <div className="bg-red-500/80 pt-10 min-h-screen">
         <div className="max-w-2xl mx-auto bg-white dark:bg-muted px-8 py-10 rounded-xl shadow-lg">
+          {serverResponse?.error && (
+            <div className="mb-6 p-4 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-800">
+              <span className="font-semibold">Error{serverResponse.status ? ` (${serverResponse.status})` : ''}:</span> {serverResponse.error}
+            </div>
+          )}
           <h1 className="text-2xl font-bold mb-6">Employer Registration</h1>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* Full Name */}
@@ -203,13 +257,6 @@ export default function ResumeReviewEmployer() {
               {submitting ? 'Submitting...' : 'Submit'}
             </Button>
           </form>
-          {/* User Feedback */}
-          {serverResponse?.message && (
-            <div className="mt-4 text-green-600">{serverResponse.message}</div>
-          )}
-          {serverResponse?.error && (
-            <div className="mt-4 text-rose-600">Error: {serverResponse.error}</div>
-          )}
         </div>
       </div>
     </>
