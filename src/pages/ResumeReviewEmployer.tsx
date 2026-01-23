@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import { ResumeReviewDay } from '@/services/ResumeReviewService';
 
 const MAJOR_OPTIONS: { value: string; label: string }[] = [
@@ -58,7 +59,7 @@ export default function ResumeReviewEmployer() {
 
     try {
       const res = await ResumeReviewDay.registerEmployer(payload);
-      setServerResponse({ message: (res.data as { message?: string })?.message || 'Registered!', status: res.status });
+      setServerResponse({ message: res.message.message || 'Registered!', status: res.status });
       reset();
     } catch (e: unknown) {
       const err = e as { response?: { data?: { error?: string }; status?: number }; message?: string };
@@ -75,7 +76,7 @@ export default function ResumeReviewEmployer() {
     return (
       <>
         <Navbar />
-        <div className="bg-gradient-to-b from-red-500/90 via-rose-600/85 to-red-700/90 pt-10 min-h-screen flex items-center justify-center px-4">
+        <div className="bg-gradient-to-b from-red-500/90 via-rose-600/85 to-red-700/90 py-10 min-h-screen flex items-center justify-center px-4">
           <div className="max-w-lg w-full bg-white dark:bg-slate-900/95 dark:border dark:border-slate-700/50 px-8 py-12 rounded-2xl shadow-2xl text-center animate-in fade-in zoom-in duration-500">
             <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40 ring-4 ring-emerald-200/60 dark:ring-emerald-800/50">
               <CheckCircle2 className="h-12 w-12 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
@@ -95,7 +96,7 @@ export default function ResumeReviewEmployer() {
                 variant="outline"
                 size="lg"
                 onClick={() => setServerResponse(null)}
-                className="border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800/80"
+                className="border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:text-gray-100 dark:hover:bg-slate-800/80"
               >
                 <UserPlus className="h-4 w-4" />
                 Register another employer
@@ -113,6 +114,8 @@ export default function ResumeReviewEmployer() {
             </div>
           </div>
         </div>
+
+        <Footer />
       </>
     );
   }
@@ -120,7 +123,7 @@ export default function ResumeReviewEmployer() {
   return (
     <>
       <Navbar />
-      <div className="bg-red-500/80 pt-10 min-h-screen">
+      <div className="bg-gradient-to-b from-red-500/90 via-rose-600/85 to-red-700/90 py-10 min-h-screen">
         <div className="max-w-2xl mx-auto bg-white dark:bg-muted px-8 py-10 rounded-xl shadow-lg">
           {serverResponse?.error && (
             <div className="mb-6 p-4 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-800">
@@ -164,7 +167,7 @@ export default function ResumeReviewEmployer() {
             </div>
             {/* Phone Number */}
             <div>
-              <label className="block font-medium mb-1">Phone Number (+x xxx-xxx-xxxx)</label>
+              <label className="block font-medium mb-1">Phone Number (xxx-xxx-xxxx)</label>
               <input
                 type="tel"
                 {...register("phone_number")}
@@ -264,6 +267,8 @@ export default function ResumeReviewEmployer() {
           </form>
         </div>
       </div>
+
+      <Footer />
     </>
   );
 }
