@@ -1,313 +1,291 @@
-// CommitteesPage.tsx
-import { useEffect, useMemo, useState, useCallback } from 'react';
-import { CommitteesService } from '@/services/CommitteesService';
-import type {
-  Committee,
-  CommitteeRole,
-  Person,
-  CommitteeColor,
-} from '@/services/CommitteesService';
+/**
+ * CommitteesPage - Modern bento grid layout showcasing CEAS Tribunal committees
+ * SEO: Displays 10 committees with descriptions, icons, and contact information
+ */
 
-import Navbar from '@/components/Navbar';
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
+import { Link } from "react-router-dom";
+import {
+  GraduationCap,
+  Briefcase,
+  Megaphone,
+  Users,
+  Calendar,
+  Rocket,
+  Lightbulb,
+  PartyPopper,
+  Sparkles,
+  Code,
+  ArrowRight,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import Navbar from "@/components/Navbar";
 
-type TabKey = 'tab1' | 'tab2';
-
-function colorTextClass(color: CommitteeColor) {
-  return {
-    indigo: 'text-indigo-700',
-    teal: 'text-teal-700',
-    sky: 'text-sky-700',
-    rose: 'text-rose-700',
-  }[color];
+interface Committee {
+  id: string;
+  name: string;
+  icon: React.ElementType;
+  accentColor: string;
+  description: string;
+  chair?: string;
+  gridClass: string;
 }
 
-function colorBorderClass(color: CommitteeColor) {
-  return {
-    indigo: 'border-indigo-100',
-    teal: 'border-teal-100',
-    sky: 'border-sky-100',
-    rose: 'border-rose-100',
-  }[color];
-}
+const committees: Committee[] = [
+  {
+    id: "academic-affairs",
+    name: "Academic Affairs",
+    icon: GraduationCap,
+    accentColor: "#E00122",
+    description:
+      "Organizes student participation on all CEAS-related committees. Liaison between students and administration.",
+    gridClass: "md:col-span-1 md:row-span-2",
+  },
+  {
+    id: "career-development",
+    name: "Career Development",
+    icon: Briefcase,
+    accentColor: "#1E40AF",
+    description:
+      "Hosts Resume Review Day and Technical Career Fair twice yearly. Connects employers with students.",
+    gridClass: "md:col-span-2",
+  },
+  {
+    id: "communications",
+    name: "Communications",
+    icon: Megaphone,
+    accentColor: "#7C3AED",
+    description:
+      "Manages social media, website, newsletters, and PR for CEAS Tribunal events.",
+    gridClass: "md:col-span-1",
+  },
+  {
+    id: "esoc",
+    name: "ESOC",
+    icon: Users,
+    accentColor: "#059669",
+    description:
+      "Coordinates all undergraduate student organizations in CEAS. Manages Baldwin Hall reservations.",
+    gridClass: "md:col-span-1",
+  },
+  {
+    id: "eweek",
+    name: "EWeek",
+    icon: Calendar,
+    accentColor: "#DC2626",
+    description:
+      "Plans and executes annual Engineers Week celebration with competitions and social events.",
+    gridClass: "md:col-span-1",
+  },
+  {
+    id: "feld",
+    name: "FELD",
+    icon: Rocket,
+    accentColor: "#EA580C",
+    description:
+      "Mentors freshman engineering students through leadership workshops and networking events.",
+    gridClass: "md:col-span-1 md:row-span-2",
+  },
+  {
+    id: "innovation",
+    name: "Innovation",
+    icon: Lightbulb,
+    accentColor: "#FBBF24",
+    description:
+      "Supports entrepreneurship, hackathons, and innovation challenges for engineering students.",
+    gridClass: "md:col-span-1",
+  },
+  {
+    id: "luau",
+    name: "Luau+",
+    icon: PartyPopper,
+    accentColor: "#EC4899",
+    description:
+      "Plans annual Luau celebration and other social events to build CEAS community.",
+    gridClass: "md:col-span-1",
+  },
+  {
+    id: "special-events",
+    name: "Special Events",
+    icon: Sparkles,
+    accentColor: "#8B5CF6",
+    description:
+      "Organizes CEAS EXPO, award ceremonies, and special college-wide events.",
+    gridClass: "md:col-span-1",
+  },
+  {
+    id: "technology",
+    name: "Technology",
+    icon: Code,
+    accentColor: "#06B6D4",
+    description:
+      "Maintains tribunal.uc.edu website, develops internal tools, and manages technical infrastructure.",
+    gridClass: "md:col-span-2",
+  },
+];
 
-function ringFocusClass(color: CommitteeColor) {
-  return {
-    indigo: 'focus-visible:ring-2 focus-visible:ring-indigo-400',
-    teal: 'focus-visible:ring-2 focus-visible:ring-teal-400',
-    sky: 'focus-visible:ring-2 focus-visible:ring-sky-400',
-    rose: 'focus-visible:ring-2 focus-visible:ring-rose-400',
-  }[color];
-}
+const CommitteeCard = ({
+  committee,
+  index,
+}: {
+  committee: Committee;
+  index: number;
+}) => {
+  const cardRef = useRef(null);
+  const isInView = useInView(cardRef, { once: true, margin: "-50px" });
+  const Icon = committee.icon;
 
-function rolePillClasses(color: CommitteeColor) {
-  const base = 'px-3 py-1.5 rounded-full border cursor-pointer transition focus-within:ring-2';
-  const byColor: Record<CommitteeColor, string> = {
-    indigo: 'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100 focus-within:ring-indigo-400',
-    teal: 'bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-100 focus-within:ring-teal-400',
-    sky: 'bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-100 focus-within:ring-sky-400',
-    rose: 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100 focus-within:ring-rose-400',
-  };
-  return `${base} ${byColor[color]}`;
-}
+  return (
+    <motion.div
+      ref={cardRef}
+      initial={{ opacity: 0, y: 20 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+      transition={{ duration: 0.5, delay: index * 0.05 }}
+      className={committee.gridClass}
+    >
+      <Card
+        className="h-full p-8 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl group cursor-pointer relative overflow-hidden"
+        style={{
+          borderColor: "rgb(229, 231, 235)",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = committee.accentColor;
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = "rgb(229, 231, 235)";
+        }}
+      >
+        {committee.chair && (
+          <div className="absolute top-4 right-4 bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full font-medium">
+            Chair: {committee.chair}
+          </div>
+        )}
 
-function tabUnderlineClasses(tab: TabKey, color: CommitteeColor) {
-  if (tab !== 'tab1') return '';
-  return {
-    indigo: 'border-b-2 text-indigo-600 border-indigo-500',
-    teal: 'border-b-2 text-teal-600 border-teal-500',
-    sky: 'border-b-2 text-sky-600 border-sky-500',
-    rose: 'border-b-2 text-rose-600 border-rose-500',
-  }[color];
-}
+        <div className="flex flex-col h-full">
+          <motion.div
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+          >
+            <Icon
+              size={40}
+              strokeWidth={1.5}
+              style={{ color: committee.accentColor }}
+            />
+          </motion.div>
 
-function tabUnderlineClasses2(tab: TabKey, color: CommitteeColor) {
-  if (tab !== 'tab2') return '';
-  return {
-    indigo: 'border-b-2 text-indigo-600 border-indigo-500',
-    teal: 'border-b-2 text-teal-600 border-teal-500',
-    sky: 'border-b-2 text-sky-600 border-sky-500',
-    rose: 'border-b-2 text-rose-600 border-rose-500',
-  }[color];
-}
+          <h3 className="text-2xl font-bold text-black mt-4">
+            {committee.name}
+          </h3>
+
+          <p className="text-[15px] text-gray-600 mt-3 leading-relaxed flex-grow">
+            {committee.description}
+          </p>
+
+          <Link
+            to={`/committees/${committee.id}`}
+            className="flex items-center gap-2 mt-6 font-medium hover:underline transition-all group-hover:translate-x-1"
+            style={{ color: committee.accentColor }}
+          >
+            Get Involved
+            <ArrowRight size={16} />
+          </Link>
+        </div>
+      </Card>
+    </motion.div>
+  );
+};
 
 export default function CommitteesPage() {
-  // Committees page state
-  const [committees, setCommittees] = useState<Committee[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  // Modal state
-  const [showRolesModal, setShowRolesModal] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabKey>('tab1');
-  const [selectedRole, setSelectedRole] = useState<CommitteeRole | null>(null);
-  const [selectedCommitteeColor, setSelectedCommitteeColor] = useState<CommitteeColor | null>(null);
-
-  // Members state for selected role
-  const [members, setMembers] = useState<Person[]>([]);
-  const [isMembersLoading, setIsMembersLoading] = useState(false);
-  const [membersError, setMembersError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setIsLoading(true);
-    setErrorMsg(null);
-    CommitteesService.getCommittees()
-      .then((data) => setCommittees(data))
-      .catch((err) => {
-        console.error('Error loading committees', err);
-        setErrorMsg('Failed to load committees. Please try again later.');
-      })
-      .finally(() => setIsLoading(false));
-  }, []);
-
-  const loadMembers = useCallback((roleId: number) => {
-    setIsMembersLoading(true);
-    setMembersError(null);
-    CommitteesService.getMembers(roleId)
-      .then((data) => {
-        setMembers(data);
-        // console.log(data);
-      })
-      .catch((err) => {
-        console.error('Failed to load members', err);
-        setMembersError('Could not load members. Please try again later.');
-      })
-      .finally(() => setIsMembersLoading(false));
-  }, []);
-
-  const openRolesModal = useCallback((role: CommitteeRole, color: CommitteeColor) => {
-    setSelectedRole(role);
-    setSelectedCommitteeColor(color);
-    setActiveTab('tab1');
-    setShowRolesModal(true);
-    loadMembers(role.id);
-  }, [loadMembers]);
-
-  const closeRolesModal = useCallback(() => {
-    setSelectedRole(null);
-    setSelectedCommitteeColor(null);
-    setShowRolesModal(false);
-    setMembers([]);
-    setMembersError(null);
-    setIsMembersLoading(false);
-  }, []);
-
-  // Close modal on ESC
-  useEffect(() => {
-    if (!showRolesModal) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') closeRolesModal();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [showRolesModal, closeRolesModal]);
-
-  const headerColorClass = useMemo(
-    () =>
-      selectedCommitteeColor
-        ? {
-            indigo: 'text-indigo-800',
-            teal: 'text-teal-800',
-            sky: 'text-sky-800',
-            rose: 'text-rose-800',
-          }[selectedCommitteeColor]
-        : '',
-    [selectedCommitteeColor]
-  );
+  const handleScrollToMeetings = () => {
+    // This would scroll to meetings section if available
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <>
-    <Navbar />
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 px-4 py-10">
-      <header className="mx-auto max-w-5xl text-center mb-10">
-        <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-indigo-700">Tribunal Committees</h1>
-        <p className="text-gray-600 mt-3 md:text-lg">
-          Browse each committee and the roles under it. Tap a role to learn more!
-        </p>
-      </header>
-
-      {/* Top nav quick-jumps */}
-      <nav className="mx-auto max-w-5xl flex flex-wrap justify-center gap-2 md:gap-3 mb-8">
-        {committees.map((c) => (
-          <a
-            key={c.id}
-            href={`/committees#${c.id}`}
-            className={`px-4 py-2 rounded-full bg-white shadow-sm border border-gray-200 text-gray-800 hover:shadow-md hover:-translate-y-px transition focus:outline-none ${ringFocusClass(c.color)}`}
-          >
-            {c.title}
-          </a>
-        ))}
-      </nav>
-
-      {/* Loading + error for committees */}
-      {isLoading && (
-        <div className="mx-auto max-w-5xl text-center text-gray-600 mb-6">Loading committees…</div>
-      )}
-      {errorMsg && (
-        <div className="mx-auto max-w-5xl text-center text-red-600 mb-6">{errorMsg}</div>
-      )}
-
-      {/* Committees grid */}
-      <section className="mx-auto max-w-5xl grid gap-6 md:grid-cols-2">
-        {committees.map((committee) => (
-          <article
-            id={committee.id}
-            key={committee.id}
-            className={`rounded-2xl bg-white border shadow-sm hover:shadow-md transition p-6 ${colorBorderClass(committee.color)}`}
-          >
-            <header>
-              <h2 className={`text-xl md:text-2xl font-bold flex items-center gap-2 ${colorTextClass(committee.color)}`}>
-                {committee.title}
-              </h2>
-              {committee.subtitle && <p className="text-gray-600 mt-1">{committee.subtitle}</p>}
-            </header>
-
-            <div className="mt-4">
-              <h3 className="text-sm font-semibold text-gray-700 mb-2">Roles</h3>
-              <div className="flex flex-wrap gap-2">
-                {committee.roles.map((role) => (
-                  <button
-                    key={role.id}
-                    type="button"
-                    className={rolePillClasses(committee.color)}
-                    onClick={() => openRolesModal(role, committee.color)}
-                  >
-                    {role.role}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </article>
-        ))}
-      </section>
-
-      {/* Modal */}
-      {showRolesModal && (
-        <div
-          className="fixed inset-0 bg-black/25 flex items-center justify-center z-50"
-          style={{ backdropFilter: 'blur(5px)' }}
-          role="dialog"
-          aria-modal="true"
-          onMouseDown={(e) => {
-            // close when clicking backdrop only (ignore clicks inside panel)
-            if (e.target === e.currentTarget) closeRolesModal();
-          }}
-        >
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 relative">
-            <button
-              className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl"
-              aria-label="Close"
-              onClick={closeRolesModal}
+      <Navbar />
+      <main className="min-h-screen bg-white">
+        {/* Hero Header Section */}
+        <section className="bg-gradient-to-b from-white to-gray-50 py-16">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <motion.h1
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-[48px] font-bold text-black"
             >
-              &times;
-            </button>
-
-            <h3 className={`text-lg font-semibold mb-4 ${headerColorClass}`}>
-              {selectedRole?.role}
-            </h3>
-
-            {/* Tabs */}
-            <div className="flex border-b mb-4">
-              <button
-                className={`px-4 py-2 font-semibold outline-none ${tabUnderlineClasses(activeTab, selectedCommitteeColor || 'indigo')}`}
-                onClick={() => setActiveTab('tab1')}
-              >
-                Overview
-              </button>
-              <button
-                className={`px-4 py-2 font-semibold outline-none ${tabUnderlineClasses2(activeTab, selectedCommitteeColor || 'indigo')}`}
-                onClick={() => setActiveTab('tab2')}
-              >
-                Details
-              </button>
-            </div>
-
-            {/* Tab content */}
-            {activeTab === 'tab1' && (
-              <p className="text-gray-700">{selectedRole?.description}</p>
-            )}
-
-            {activeTab === 'tab2' && (
-              <>
-                {isMembersLoading && (
-                  <div className="text-center text-gray-600">Loading members…</div>
-                )}
-                {membersError && (
-                  <div className="text-center text-red-600">{membersError}</div>
-                )}
-                {!isMembersLoading && !membersError && (
-                  <>
-                    {members.length === 0 ? (
-                      <div className="text-center text-gray-600">
-                        No members found for this role.
-                      </div>
-                    ) : (
-                      members.map((person, i) => (
-                        <div
-                          key={`${person.email}-${i}`}
-                          className={`flex items-center gap-x-4 gap-y-8 mb-4 justify-center ${i % 2 === 1 ? 'flex-row-reverse' : ''}`}
-                        >
-                          {person.imgURL && (
-                            <img
-                              src={person.imgURL}
-                              alt={person.name}
-                              className="w-32 h-32 rounded-full object-cover"
-                            />
-                          )}
-                          <div>
-                            <h2 className="font-semibold text-gray-800">{person.name}</h2>
-                            <p className="text-gray-600">{person.email}</p>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </>
-                )}
-              </>
-            )}
+              Our Committees
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-[20px] text-gray-600 mt-4 max-w-3xl mx-auto"
+            >
+              Join a committee and make an impact in the College of Engineering
+              & Applied Science
+            </motion.p>
+            <motion.p
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-[14px] text-gray-500 mt-2"
+            >
+              Click any committee to learn more and get involved
+            </motion.p>
           </div>
-        </div>
-      )}
-    </div>
-  </>
+        </section>
+
+        {/* Bento Grid Section */}
+        <section className="bg-white py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-fr">
+              {committees.map((committee, index) => (
+                <CommitteeCard
+                  key={committee.id}
+                  committee={committee}
+                  index={index}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="bg-gradient-to-b from-white to-red-50 py-16">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-[36px] font-bold text-black">
+                Ready to join a committee?
+              </h2>
+              <p className="text-[18px] text-gray-600 mt-4">
+                Contact us at{" "}
+                <a
+                  href="mailto:tribunal@uc.edu"
+                  className="text-[#E00122] hover:underline"
+                >
+                  tribunal@uc.edu
+                </a>{" "}
+                or attend our next general body meeting
+              </p>
+              <Button
+                onClick={handleScrollToMeetings}
+                className="bg-[#E00122] text-white hover:bg-[#c00115] shadow-md transition-colors mt-6"
+                size="lg"
+              >
+                Join General Body Meeting
+              </Button>
+            </motion.div>
+          </div>
+        </section>
+      </main>
+    </>
   );
 }
