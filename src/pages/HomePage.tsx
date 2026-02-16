@@ -1,11 +1,13 @@
 import Navbar from "@/components/Navbar";
+import HeroSection from "@/components/HeroSection";
 
 const HomePage = () => {
     return (
         <div className="bg-white">
 
             <Navbar />
-            <div className="bg-red-500 py-8 text-white">
+            <HeroSection />
+            <div id="meetings" className="bg-red-500 py-8 text-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 className="text-2xl font-bold">Join our General Body meetings</h2>
                     <p className="mt-2">Based on the days and times shown below</p>
