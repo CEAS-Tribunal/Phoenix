@@ -80,9 +80,8 @@ const Navbar: React.FC = () => {
 
   return (
     <motion.nav
-      className={`sticky top-0 z-40 w-full bg-white transition-shadow duration-300 ${
-        isScrolled ? "shadow-md" : "shadow-sm"
-      }`}
+      className={`sticky top-0 z-40 w-full bg-white transition-shadow duration-300 ${isScrolled ? "shadow-md" : "shadow-sm"
+        }`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.3 }}
@@ -101,9 +100,7 @@ const Navbar: React.FC = () => {
               className="h-10 w-auto"
               loading="eager"
             />
-            <span className="text-[#E00122] text-xl font-bold hidden sm:block">
-              CEAS TRIBUNAL
-            </span>
+
           </Link>
 
           {/* Desktop Navigation - Center */}
@@ -116,11 +113,10 @@ const Navbar: React.FC = () => {
               <li key={href}>
                 <Link
                   to={href}
-                  className={`text-[15px] font-medium transition-colors duration-200 relative ${
-                    isActiveRoute(href)
+                  className={`text-[15px] font-medium transition-colors duration-200 relative ${isActiveRoute(href)
                       ? "text-[#E00122]"
                       : "text-gray-700 hover:text-[#E00122]"
-                  }`}
+                    }`}
                 >
                   {label}
                   {isActiveRoute(href) && (
@@ -176,11 +172,10 @@ const Navbar: React.FC = () => {
               <Link
                 key={href}
                 to={href}
-                className={`flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  isActiveRoute(href)
+                className={`flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 ${isActiveRoute(href)
                     ? "bg-[#E00122] text-white"
                     : "text-gray-700 hover:bg-gray-100"
-                }`}
+                  }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 <Icon className="h-5 w-5" />
