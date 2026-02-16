@@ -19,13 +19,13 @@ export interface EmployerData {
   selected_majors: string[];
 }
 
-export interface StudentData{
-  full_name: string
-  email: string
-  grad_year: number
-  major: string
-  resume: File
-  timeslot: string[]
+export interface StudentData {
+  full_name: string;
+  email: string;
+  grad_year: number;
+  major: string;
+  resume: File;
+  timeslots: string[]; // Timeslot IDs
 }
 
 export interface StudentResponse {
@@ -76,7 +76,16 @@ export const ResumeReviewDay = {
   },
 
   async registerStudent(data: StudentData) {
-    const response = await axiosInstance.post<StudentResponse>('/api/resume-review-day/student/', data);
-    return { data: response.data, status: response.status}
+    const formData = new FormData();
+    formData.append('full_name', data.full_name);
+    formData.append('email', data.email);
+    formData.append('grad_year', String(data.grad_year));
+    formData.append('major', data.major);
+    formData.append('resume', data.resume);
+    formData.append('timeslots', data.timeslots.join(','));
+    const response = await axiosInstance.post<StudentResponse>('/api/resume-review-day/student/', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return { data: response.data, status: response.status };
   }
 };
