@@ -1,13 +1,7 @@
-import { useForm, Controller } from 'react-hook-form';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { CheckCircle2, Home, UserPlus } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Switch } from '@/components/ui/switch';
-import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { ResumeReviewDay } from '@/services/ResumeReviewService';
+import { ResumeReviewDay, type EmployerTimeslot } from '@/services/ResumeReviewService';
 
 const MAJOR_OPTIONS: { value: string; label: string }[] = [
   { value: 'aero', label: 'Aerospace Engineering' },
@@ -48,40 +42,34 @@ const TIMESLOTS: { time: string }[] = [
     { time: '3:00 PM' }
 ]
 
-const INTERVIEW_SLOTS: {type: string}[] = [
+const INTERVIEW_SLOTS: { type: string }[] = [
     { type: 'In-Person' },
-]
-
-type FormValues = {
-    major: string
-    timeslots: string
-    interview_type: string
-}
+];
 
 export default function ResumeReviewStudent() {
-    const { register, handleSubmit, control, formState: { errors }, reset } = useForm<FormValues>({});
-
     const [selectedInterviewStyle, setSelectedInterviewStyle] = useState<string>('');
     const [selectedMajor, setSelectedMajor] = useState<string>('');
-    const [selectedTimeslot, setSelectedTimeslot] = useState<string>('');
+    const [selectedTimeslot, setSelectedTimeslot] = useState<string[]>([]);
+    const [results, setResults] = useState<EmployerTimeslot[] | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    const [submitting, setSubmitting] = useState(false);
-    const [serverResponse, setServerResponse] = useState<null | { message?: string; error?: string; status?: number }>(null);
-
-    const onSubmit = async (data: FormValues) => {
-        setSubmitting(true);
-        setServerResponse(null);
-
-        const payload = { ...data };
-
+    async function handleFilter() {
+        setError(null);
+        setLoading(true);
         try {
-            console.log(selectedMajor, selectedTimeslot, selectedInterviewStyle)
-        } catch (e: unknown) {
-
+            const data = await ResumeReviewDay.getTimeslots({
+                major: selectedMajor || undefined,
+                time: selectedTimeslot.length > 0 ? selectedTimeslot : undefined,
+            });
+            setResults(data);
+        } catch (e) {
+            setError(e instanceof Error ? e.message : 'Failed to load timeslots');
+            setResults(null);
         } finally {
-        setSubmitting(false);
+            setLoading(false);
         }
-    };
+    }
 
     return (
         <>
@@ -105,7 +93,7 @@ export default function ResumeReviewStudent() {
                     <p>If you have any questions, please contact us at <a href='mailto:uccareerfair@gmail.com' className='text-amber-200 hover:text-amber-100 hover:underline hover:underline-offset-[3px]'>uccareerfair@gmail.com</a>.</p>
                 </div>
 
-                <form className='bg-orange-100 w-2/5 flex flex-col my-6 rounded-lg p-6 gap-y-4' onSubmit={handleSubmit(onSubmit)}>
+                <div className='bg-orange-100 w-2/5 flex flex-col my-6 rounded-lg p-6 gap-y-4'>
                     <div className=''>
                         <label className='block text-gray-700 font-medium mb-2'>Major</label>
                         <select
@@ -121,42 +109,30 @@ export default function ResumeReviewStudent() {
                             ))}
                         </select>
                     </div>
-                    {/* Multi-select chips UI for timeslot selection, max 2, no long dropdown */}
                     <div>
                         <label className="block text-gray-700 font-medium mb-2">
                             Select up to <span className="font-bold">2</span> Timeslot(s)
                         </label>
                         <div className="flex flex-wrap gap-2 items-center">
-                            {Array.isArray(selectedTimeslot) && selectedTimeslot.length > 0 ? (
+                            {selectedTimeslot.length > 0 &&
                                 selectedTimeslot.map((ts) => (
                                     <span key={ts} className="flex items-center bg-red-200 text-red-900 px-3 py-1 rounded-full text-sm mr-2">
-                                        {/* Show only HH:MM format */}
-                                        {typeof ts === 'string' ? ts : ''}
+                                        {ts}
                                         <button
                                             type="button"
                                             aria-label="Remove"
                                             className="ml-2 text-red-700 hover:text-red-900 focus:outline-none"
-                                            onClick={() => {
-                                                // Remove the time string from the array, keeping HH:MM format only
-                                                const left = selectedTimeslot.filter((t) => t !== ts);
-                                                setSelectedTimeslot(left);
-                                            }}
+                                            onClick={() => setSelectedTimeslot((prev) => prev.filter((t) => t !== ts))}
                                         >
                                             &times;
                                         </button>
                                     </span>
-                                ))
-                            ) : null}
+                                ))}
                         </div>
                         <div className="grid grid-cols-2 gap-2 mt-2 max-h-60 overflow-y-auto border border-gray-200 rounded-lg p-2 bg-white">
                             {TIMESLOTS.map((slot, idx) => {
-                                const value: string[] = Array.isArray(selectedTimeslot)
-                                    ? selectedTimeslot
-                                    : typeof selectedTimeslot === 'string' && selectedTimeslot
-                                        ? [selectedTimeslot]
-                                        : [];
-                                const checked = value.includes(slot.time);
-                                const disabled = !checked && value.length >= 2;
+                                const checked = selectedTimeslot.includes(slot.time);
+                                const disabled = !checked && selectedTimeslot.length >= 2;
                                 return (
                                     <label
                                         key={slot.time || idx}
@@ -168,13 +144,11 @@ export default function ResumeReviewStudent() {
                                             checked={checked}
                                             disabled={disabled}
                                             onChange={() => {
-                                                let newVal: string[];
                                                 if (checked) {
-                                                    newVal = value.filter((t) => t !== slot.time);
+                                                    setSelectedTimeslot((prev) => prev.filter((t) => t !== slot.time));
                                                 } else {
-                                                    newVal = [...value, slot.time];
+                                                    setSelectedTimeslot((prev) => [...prev, slot.time]);
                                                 }
-                                                setSelectedTimeslot(newVal);
                                             }}
                                             className="mr-2"
                                         />
@@ -184,7 +158,7 @@ export default function ResumeReviewStudent() {
                             })}
                         </div>
                         <div className="text-xs text-gray-500 mt-1">
-                            {Array.isArray(selectedTimeslot) && selectedTimeslot.length === 2 ? "Maximum of 2 timeslots selected." : ""}
+                            {selectedTimeslot.length === 2 ? 'Maximum of 2 timeslots selected.' : ''}
                         </div>
                     </div>
                     <div className=''>
@@ -203,13 +177,29 @@ export default function ResumeReviewStudent() {
                         </select>
                     </div>
 
-                    <button 
-                        type='submit' 
-                        className='bg-slate-700 text-2xl rounded-full w-2/5 text-white py-2 mx-auto hover:cursor-pointer'
+                    <button
+                        type="button"
+                        onClick={handleFilter}
+                        disabled={loading}
+                        className='bg-slate-700 text-2xl rounded-full w-2/5 text-white py-2 mx-auto hover:cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed'
                     >
-                        Filter
+                        {loading ? 'Loading…' : 'Filter'}
                     </button>
-                </form>
+                </div>
+
+                {error && (
+                    <p className="text-red-600 font-medium mt-4 w-2/5 text-center">{error}</p>
+                )}
+
+                {results && (
+                    <div className='w-2/5'>
+                        {results.map((result) => (
+                            <div key={result.id}>
+                                {result.full_name}
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             <Footer />

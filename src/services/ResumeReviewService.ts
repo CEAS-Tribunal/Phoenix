@@ -44,7 +44,8 @@ export interface EmployerTimeslot {
 
 export interface Timeslot {
     id: string
-    time: string
+    time?: string
+    timeslot?: string  // API returns this for TimeField
 }
 
 
@@ -53,9 +54,19 @@ const axiosInstance = axios.create({
   withCredentials: false,
 });
 
+export interface GetTimeslotsParams {
+  major?: string;
+  time?: string[];
+}
+
 export const ResumeReviewDay = {
-  async getTimeslots(): Promise<EmployerTimeslot[]> {
-    const { data } = await axiosInstance.get<EmployerTimeslot[]>('/api/resume-review-day/timeslots');
+  async getTimeslots(params?: GetTimeslotsParams): Promise<EmployerTimeslot[]> {
+    const searchParams = new URLSearchParams();
+    if (params?.major) searchParams.set('major', params.major);
+    if (params?.time?.length) params.time.forEach((t) => searchParams.append('time', t));
+    const query = searchParams.toString();
+    const url = query ? `/api/resume-review-day/timeslots?${query}` : '/api/resume-review-day/timeslots';
+    const { data } = await axiosInstance.get<EmployerTimeslot[]>(url);
     return data;
   },
 
