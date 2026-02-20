@@ -146,33 +146,34 @@ export default function ResumeReviewStudent() {
         <>
             <Navbar />
 
-            <div className='flex flex-col items-center justify-center'>
-                <div className='bg-linear-to-b from-red-500/90 via-rose-600/85 to-red-700/90 flex flex-col items-center py-10'>
-                <div className='text-white flex flex-col items-center w-3/5 gap-y-4'>
-                    <h1 className='text-5xl border-b-4 pb-2 text-center w-full'>Resume Review Day Student Registration</h1>
-                    <p>Resume Review Day is an event hosted by the College of Engineering and Applied Science 
+            <div className='flex flex-col items-center justify-center bg-white'>
+                <div className='flex flex-col items-center py-12 px-6 w-full'>
+                <div className='text-black flex flex-col items-center w-3/5 gap-y-6'>
+                    <div className='text-red-600 text-sm uppercase tracking-wide font-medium'>Resume Review Day</div>
+                    <h1 className='text-5xl font-bold text-black text-center leading-tight'>Resume Review Day Student Registration</h1>
+                    <p className='text-lg text-black/90 text-center leading-relaxed'>Resume Review Day is an event hosted by the College of Engineering and Applied Science 
                         Tribunal in order to help prepare students for the Career Fair. This event gives students 
                         the opportunity to sign up for 20 minute intervals to receive resume feedback from industry 
                         leaders and also gives students the ability to network with employers before the Technical 
                         Career Fair. Resume Review Day takes place on Monday, February 2nd, 2026 in Rhodes 800.
                     </p>
-                    <p>
+                    <p className='text-base text-black/80 text-center leading-relaxed'>
                         Select a timeslot with an employer by browsing all of the available options or filter by major, 
                         a desired time (if applicable), and a desired review method. You are able to register for up to 
                         2 different employer(s). The last day to sign up will be on Wednesday, January 28th, 2026. Further 
                         instructions will be sent to your email after signing up.
                     </p>
-                    <p>If you have any questions, please contact us at <a href='mailto:uccareerfair@gmail.com' className='text-amber-200 hover:text-amber-100 hover:underline hover:underline-offset-[3px]'>uccareerfair@gmail.com</a>.</p>
+                    <p className='text-base text-black/80 text-center'>If you have any questions, please contact us at <a href='mailto:uccareerfair@gmail.com' className='text-red-600 hover:text-red-700 hover:underline hover:underline-offset-[3px]'>uccareerfair@gmail.com</a>.</p>
                 </div>
 
                 {!submitSuccess && (
-                <div className='bg-orange-100 w-2/5 flex flex-col my-6 rounded-lg p-6 gap-y-4'>
+                <div className='bg-white w-2/5 flex flex-col my-8 rounded-xl p-6 gap-y-4 shadow-lg border border-white/50'>
                     <div className=''>
-                        <label className='block text-gray-700 font-medium mb-2'>Major</label>
+                        <label className='block text-slate-700 font-medium mb-2'>Major</label>
                         <select
                             value={selectedMajor}
                             onChange={(e) => setSelectedMajor(e.target.value)}
-                            className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 bg-white'
+                            className='w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 bg-white'
                         >
                             <option value=''>Select major</option>
                             {MAJOR_OPTIONS.map((major) => (
@@ -183,18 +184,18 @@ export default function ResumeReviewStudent() {
                         </select>
                     </div>
                     <div>
-                        <label className="block text-gray-700 font-medium mb-2">
+                        <label className="block text-slate-700 font-medium mb-2">
                             Select up to <span className="font-bold">2</span> Timeslot(s)
                         </label>
                         <div className="flex flex-wrap gap-2 items-center">
                             {selectedTimeslot.length > 0 &&
                                 selectedTimeslot.map((ts) => (
-                                    <span key={ts} className="flex items-center bg-red-200 text-red-900 px-3 py-1 rounded-full text-sm mr-2">
+                                    <span key={ts} className="flex items-center bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm mr-2 border border-red-200">
                                         {ts}
                                         <button
                                             type="button"
                                             aria-label="Remove"
-                                            className="ml-2 text-red-700 hover:text-red-900 focus:outline-none"
+                                            className="ml-2 text-red-600 hover:text-red-800 focus:outline-none"
                                             onClick={() => setSelectedTimeslot((prev) => prev.filter((t) => t !== ts))}
                                         >
                                             &times;
@@ -202,14 +203,14 @@ export default function ResumeReviewStudent() {
                                     </span>
                                 ))}
                         </div>
-                        <div className="grid grid-cols-2 gap-2 mt-2 max-h-60 overflow-y-auto border border-gray-200 rounded-lg p-2 bg-white">
+                        <div className="grid grid-cols-2 gap-2 mt-2 max-h-60 overflow-y-auto border border-slate-200 rounded-lg p-2 bg-white">
                             {TIMESLOTS.map((slot, idx) => {
                                 const checked = selectedTimeslot.includes(slot.time);
                                 const disabled = !checked && selectedTimeslot.length >= 2;
                                 return (
                                     <label
                                         key={slot.time || idx}
-                                        className={`flex items-center px-2 py-1 rounded cursor-pointer ${checked ? 'bg-red-100' : ''} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        className={`flex items-center px-2 py-1 rounded cursor-pointer transition-colors ${checked ? 'bg-red-100 text-red-800' : 'hover:bg-slate-50'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     >
                                         <input
                                             type="checkbox"
@@ -230,16 +231,16 @@ export default function ResumeReviewStudent() {
                                 );
                             })}
                         </div>
-                        <div className="text-xs text-gray-500 mt-1">
+                        <div className="text-xs text-slate-500 mt-1">
                             {selectedTimeslot.length === 2 ? 'Maximum of 2 timeslots selected.' : ''}
                         </div>
                     </div>
                     <div className=''>
-                        <label className='block text-gray-700 font-medium mb-2'>Interview Style</label>
+                        <label className='block text-slate-700 font-medium mb-2'>Interview Style</label>
                         <select
                             value={selectedInterviewStyle}
                             onChange={(e) => setSelectedInterviewStyle(e.target.value)}
-                            className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 bg-white'
+                            className='w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 bg-white'
                         >
                             <option value=''>Select interview style</option>
                             {INTERVIEW_SLOTS.map((slot, index) => (
@@ -254,7 +255,7 @@ export default function ResumeReviewStudent() {
                         type="button"
                         onClick={handleFilter}
                         disabled={loading}
-                        className='bg-slate-700 text-2xl rounded-full w-2/5 text-white py-2 mx-auto hover:cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed'
+                        className='bg-red-600 hover:bg-red-700 text-white text-lg font-semibold rounded-lg w-2/5 py-3 mx-auto transition-colors disabled:opacity-60 disabled:cursor-not-allowed'
                     >
                         {loading ? 'Loading…' : 'Filter'}
                     </button>
@@ -282,7 +283,9 @@ export default function ResumeReviewStudent() {
                 )}
 
                 {!submitSuccess && results && results.length > 0 && (
-                    <div className="w-full px-6 sm:px-8 md:px-12 my-6 space-y-4">
+                    <>
+                        <div className="w-3/5 my-10 border-t border-slate-200" aria-hidden />
+                        <div className="w-full px-6 sm:px-8 md:px-12 my-6 space-y-4">
                         <h2 className="text-2xl font-bold text-black">Available Employers</h2>
                         <p className="text-black/90 text-sm">Select one timeslot per employer (up to {MAX_EMPLOYERS} employers).</p>
 
@@ -428,10 +431,11 @@ export default function ResumeReviewStudent() {
                             </form>
                         )}
                     </div>
+                    </>
                 )}
 
                 {!submitSuccess && results && results.length === 0 && (
-                    <p className="text-white/90 my-6 w-full px-6 sm:px-8 md:px-12 text-center">No available timeslots match your filters.</p>
+                    <p className="text-black/80 my-6 w-full px-6 sm:px-8 md:px-12 text-center">No available timeslots match your filters.</p>
                 )}
             </div>
 
