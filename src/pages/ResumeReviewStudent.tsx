@@ -9,6 +9,27 @@ function getSlotTime(slot: Timeslot): string {
   return slot.timeslot ?? slot.time ?? '';
 }
 
+/** Parse "9:00 AM" / "12:20 PM" style string to minutes since midnight for sorting */
+function parseTimeToMinutes(timeStr: string): number {
+  const match = timeStr.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!match) return 0;
+  let hours = parseInt(match[1], 10);
+  const minutes = parseInt(match[2], 10);
+  const pm = match[3].toUpperCase() === 'PM';
+  if (hours === 12) hours = pm ? 12 : 0;
+  else if (pm) hours += 12;
+  return hours * 60 + minutes;
+}
+
+/** Sort timeslots chronologically by their display time */
+function sortTimeslots<T extends Timeslot>(slots: T[]): T[] {
+  return [...slots].sort((a, b) => {
+    const timeA = getSlotTime(a);
+    const timeB = getSlotTime(b);
+    return parseTimeToMinutes(timeA) - parseTimeToMinutes(timeB);
+  });
+}
+
 /** Selected slot: one per employer, max 2 employers */
 type SelectedSlots = Record<string, { timeslotId: string; time: string }>;
 
@@ -101,10 +122,22 @@ export default function ResumeReviewStudent() {
             const next = { ...prev };
             const existingCount = Object.keys(prev).length;
             const alreadySelected = employerId in prev;
+            
+            // Check if this time is already selected for another employer
+            const timeAlreadySelected = Object.values(prev).some(
+                (slot) => slot.time === time && slot.timeslotId !== timeslotId
+            );
+            
             if (alreadySelected && prev[employerId].timeslotId === timeslotId) {
                 delete next[employerId];
                 return next;
             }
+            
+            // Prevent selection if time is already taken by another employer
+            if (timeAlreadySelected) {
+                return prev;
+            }
+            
             if (alreadySelected || existingCount < MAX_EMPLOYERS) {
                 next[employerId] = { timeslotId, time };
                 return next;
@@ -287,7 +320,7 @@ export default function ResumeReviewStudent() {
                         <div className="w-3/5 my-10 border-t border-slate-200" aria-hidden />
                         <div className="w-full px-6 sm:px-8 md:px-12 my-6 space-y-4">
                         <h2 className="text-2xl font-bold text-black">Available Employers</h2>
-                        <p className="text-black/90 text-sm">Select one timeslot per employer (up to {MAX_EMPLOYERS} employers).</p>
+                        <p className="text-black/90 text-sm">Select one timeslot per employer (up to {MAX_EMPLOYERS} employers). Each timeslot can only be selected once.</p>
 
                         <div className="flex flex-wrap gap-4">
                             {results.map((employer) => {
@@ -327,10 +360,14 @@ export default function ResumeReviewStudent() {
                                                 Available times
                                             </p>
                                             <ul className="flex flex-wrap gap-2">
-                                                {employer.timeslots.map((slot) => {
+                                                {sortTimeslots(employer.timeslots).map((slot) => {
                                                     const time = getSlotTime(slot);
                                                     const isSelected = selected?.timeslotId === slot.id;
-                                                    const disabled = !canSelect && !isSelected;
+                                                    // Check if this time is already selected for another employer
+                                                    const timeAlreadySelected = Object.values(selectedSlots).some(
+                                                        (s) => s.time === time && s.timeslotId !== slot.id
+                                                    );
+                                                    const disabled = (!canSelect && !isSelected) || (timeAlreadySelected && !isSelected);
 
                                                     return (
                                                         <li key={slot.id}>
