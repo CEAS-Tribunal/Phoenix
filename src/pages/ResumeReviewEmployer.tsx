@@ -59,7 +59,7 @@ export default function ResumeReviewEmployer() {
 
     try {
       const res = await ResumeReviewDay.registerEmployer(payload);
-      setServerResponse({ message: res.message.message || 'Registered!', status: res.status });
+      setServerResponse({ message: res.data.message || 'Registered!', status: res.status });
       reset();
     } catch (e: unknown) {
       const err = e as { response?: { data?: { error?: string }; status?: number }; message?: string };
