@@ -9,6 +9,7 @@ const ResumeReviewEmployer = lazy(() => import('@/pages/ResumeReviewEmployer'));
 const ResumeReviewStudent = lazy(() => import('@/pages/ResumeReviewStudent'));
 const CareerFairPage = lazy(() => import('@/pages/CareerFairPage'));
 
+
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -25,6 +26,14 @@ export const router = createBrowserRouter([
         <CommitteesPage />
       </Suspense>
     ),
+  },
+  {
+    path: '/career-fair',
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <CareerFairPage />
+      </Suspense>
+    )
   },
   {
     path: '/resume-review-day/employers',
