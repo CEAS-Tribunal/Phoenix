@@ -1,0 +1,7 @@
+# Bun configuration for Phoenix UI
+# https://bun.com/docs/runtime/bunfig
+# Scripts use bunx --bun for Vite (see package.json).
+
+[install]
+# Keep text-based lockfile for readable diffs
+saveTextLockfile = true
