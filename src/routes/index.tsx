@@ -6,6 +6,8 @@ import LoadingFallback from '@/components/LoadingFallback';
 const HomePage = lazy(() => import('@/pages/HomePage'));
 const CommitteesPage = lazy(() => import('@/pages/CommitteesPage'));
 const CareerFairPage = lazy(() => import('@/pages/CareerFairPage'));
+const ExpoPage = lazy(() => import('@/pages/ExpoPage'));
+const AlumniPage = lazy(() => import('@/pages/AlumniPage'));
 const ResumeReviewEmployer = lazy(() => import('@/pages/ResumeReviewEmployer'));
 
 export const router = createBrowserRouter([
@@ -34,20 +36,32 @@ export const router = createBrowserRouter([
     )
   },
   {
+    path: '/expo',
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <ExpoPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/executives',
+    element: <Navigate to="/committees" replace />,
+  },
+  {
+    path: '/alumni',
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <AlumniPage />
+      </Suspense>
+    ),
+  },
+  {
     path: '/resume-review-day/employers',
     element: (
       <Suspense fallback={<LoadingFallback />}>
         <ResumeReviewEmployer />
       </Suspense>
     )
-  },
-  {
-    path: '/career-fair',
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <CareerFairPage />
-      </Suspense>
-    ),
   },
   {
     path: '*',

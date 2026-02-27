@@ -57,4 +57,6 @@ function Button({
   )
 }
 
+// shadcn pattern: export variants for use in other components
+// eslint-disable-next-line react-refresh/only-export-components -- buttonVariants is a shared constant
 export { Button, buttonVariants }
