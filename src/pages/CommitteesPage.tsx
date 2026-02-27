@@ -27,6 +27,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 interface Committee {
   id: string;
@@ -454,6 +455,7 @@ export default function CommitteesPage() {
           </div>
         </section>
       </main>
+      <Footer />
     </>
   );
 }
