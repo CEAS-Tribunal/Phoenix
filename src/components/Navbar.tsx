@@ -3,12 +3,10 @@ import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Menu,
-  X,
   Home,
   Briefcase,
   Award,
   Users,
-  UserCircle,
   GraduationCap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,7 +23,6 @@ const NAV_LINKS = [
   { href: "/career-fair", label: "Career Fair", icon: Briefcase },
   { href: "/expo", label: "CEAS EXPO", icon: Award },
   { href: "/committees", label: "Committees", icon: Users },
-  { href: "/executives", label: "Executives", icon: UserCircle },
   { href: "/alumni", label: "Alumni", icon: GraduationCap },
 ];
 

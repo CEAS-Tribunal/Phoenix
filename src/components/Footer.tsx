@@ -35,7 +35,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/ceas-expo"
+                  to="/expo"
                   className="text-gray-400 text-sm hover:text-white transition-colors"
                 >
                   CEAS EXPO
@@ -51,19 +51,21 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/executives"
+                  to="/alumni"
                   className="text-gray-400 text-sm hover:text-white transition-colors"
                 >
-                  Executives
+                  Alumni
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/meeting-minutes"
+                <a
+                  href="https://tribunal.uc.edu/"
+                  target="_blank"
+                  rel="noreferrer"
                   className="text-gray-400 text-sm hover:text-white transition-colors"
                 >
                   Meeting Minutes
-                </Link>
+                </a>
               </li>
             </ul>
           </div>
@@ -75,52 +77,64 @@ const Footer = () => {
             </h4>
             <ul className="space-y-2">
               <li>
-                <Link
-                  to="/baldwin-table"
+                <a
+                  href="https://tribunal.uc.edu/"
+                  target="_blank"
+                  rel="noreferrer"
                   className="text-gray-400 text-sm hover:text-white transition-colors"
                 >
                   Baldwin Table Reservations
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
-                  to="/funding-guide"
+                <a
+                  href="https://tribunal.uc.edu/"
+                  target="_blank"
+                  rel="noreferrer"
                   className="text-gray-400 text-sm hover:text-white transition-colors"
                 >
                   Funding Guide
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
-                  to="/tv-ad"
+                <a
+                  href="https://tribunal.uc.edu/"
+                  target="_blank"
+                  rel="noreferrer"
                   className="text-gray-400 text-sm hover:text-white transition-colors"
                 >
                   TV Ad Submission
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
-                  to="/bill-of-rights"
+                <a
+                  href="https://tribunal.uc.edu/"
+                  target="_blank"
+                  rel="noreferrer"
                   className="text-gray-400 text-sm hover:text-white transition-colors"
                 >
                   Student Bill of Rights
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
-                  to="/bylaws"
+                <a
+                  href="https://tribunal.uc.edu/"
+                  target="_blank"
+                  rel="noreferrer"
                   className="text-gray-400 text-sm hover:text-white transition-colors"
                 >
                   Tribunal ByLaws
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
-                  to="/constitution"
+                <a
+                  href="https://tribunal.uc.edu/"
+                  target="_blank"
+                  rel="noreferrer"
                   className="text-gray-400 text-sm hover:text-white transition-colors"
                 >
                   Tribunal Constitution
-                </Link>
+                </a>
               </li>
             </ul>
           </div>
@@ -167,14 +181,16 @@ const Footer = () => {
             >
               tribunal@uc.edu
             </a>
-            {/* Login Link */}
+            {/* Login Link - legacy site until Phoenix auth exists */}
             <div className="mt-4">
-              <Link
-                to="/login"
+              <a
+                href="https://tribunal.uc.edu/"
+                target="_blank"
+                rel="noreferrer"
                 className="text-[#E00122] text-sm font-medium hover:underline"
               >
                 Already an exec? Log in →
-              </Link>
+              </a>
             </div>
           </div>
         </div>
