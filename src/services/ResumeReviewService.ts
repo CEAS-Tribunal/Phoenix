@@ -30,7 +30,7 @@ export const ResumeReviewDay = {
     return data;
   },
 
-  async registerEmployer(data) {
+  async registerEmployer(data: Record<string, unknown>) {
     const response = await axiosInstance.post('/api/resume-review-day/employer/', data);
     return { data: response.data, status: response.status };
   },
