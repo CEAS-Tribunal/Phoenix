@@ -1,5 +1,10 @@
 import axios from 'axios';
-const HOST_URL = import.meta.env.VITE_HOST_URL as string;
+
+const HOST_URL = import.meta.env.VITE_HOST_URL as string | undefined;
+const baseURL =
+  HOST_URL !== undefined && HOST_URL !== ''
+    ? HOST_URL
+    : ''; // In dev with no env, use same origin so Vite proxy handles /api
 
 export interface EmployerResponse {
   message: string 
@@ -50,7 +55,7 @@ export interface Timeslot {
 
 
 const axiosInstance = axios.create({
-  baseURL: HOST_URL,
+  baseURL,
   withCredentials: false,
 });
 
