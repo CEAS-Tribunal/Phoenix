@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { isAdminAuthenticated, setAdminAuthenticated } from "@/components/AdminGuard";
 import { motion } from "framer-motion";
 import {
   Menu,
@@ -8,6 +9,7 @@ import {
   Award,
   Users,
   GraduationCap,
+  LogIn,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,12 +26,22 @@ const NAV_LINKS = [
   { href: "/expo", label: "CEAS EXPO", icon: Award },
   { href: "/committees", label: "Committees", icon: Users },
   { href: "/alumni", label: "Alumni", icon: GraduationCap },
+  { href: "/admin/login", label: "Admin Login", icon: LogIn },
 ];
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const isAdmin = location.pathname.startsWith("/admin") && location.pathname !== "/admin/login";
+  const showLogout = isAdmin && isAdminAuthenticated();
+
+  const handleLogout = () => {
+    setAdminAuthenticated(false);
+    navigate("/admin/login", { replace: true });
+    setIsMenuOpen(false);
+  };
 
   // Scroll detection
   useEffect(() => {
@@ -128,14 +140,25 @@ const Navbar: React.FC = () => {
             ))}
           </ul>
 
-          {/* Desktop CTA Button */}
+          {/* Desktop CTA / Log out */}
           <div className="hidden lg:block">
-            <Button
-              asChild
-              className="bg-[#E00122] text-white hover:bg-[#c00115] rounded-full px-6 transition-colors"
-            >
-              <Link to="/committees">Get Involved</Link>
-            </Button>
+            {showLogout ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-full px-6 border-gray-300 text-gray-700 hover:bg-gray-100"
+                onClick={handleLogout}
+              >
+                Log out
+              </Button>
+            ) : (
+              <Button
+                asChild
+                className="bg-[#E00122] text-white hover:bg-[#c00115] rounded-full px-6 transition-colors"
+              >
+                <Link to="/committees">Get Involved</Link>
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -181,16 +204,27 @@ const Navbar: React.FC = () => {
             ))}
           </nav>
 
-          {/* Mobile CTA Button */}
+          {/* Mobile CTA / Log out */}
           <div className="mt-8 pt-8 border-t border-gray-200">
-            <Button
-              asChild
-              className="w-full bg-[#E00122] text-white hover:bg-[#c00115] rounded-full transition-colors"
-            >
-              <Link to="/committees" onClick={() => setIsMenuOpen(false)}>
-                Get Involved
-              </Link>
-            </Button>
+            {showLogout ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full rounded-full border-gray-300"
+                onClick={handleLogout}
+              >
+                Log out
+              </Button>
+            ) : (
+              <Button
+                asChild
+                className="w-full bg-[#E00122] text-white hover:bg-[#c00115] rounded-full transition-colors"
+              >
+                <Link to="/committees" onClick={() => setIsMenuOpen(false)}>
+                  Get Involved
+                </Link>
+              </Button>
+            )}
           </div>
         </SheetContent>
       </Sheet>
