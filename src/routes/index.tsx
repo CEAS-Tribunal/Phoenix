@@ -10,6 +10,7 @@ const CareerFairPage = lazy(() => import('@/pages/CareerFairPage'));
 const ExpoPage = lazy(() => import('@/pages/ExpoPage'));
 const AlumniPage = lazy(() => import('@/pages/AlumniPage'));
 const ResumeReviewEmployer = lazy(() => import('@/pages/ResumeReviewEmployer'));
+const ResourcesPage = lazy(() => import('@/pages/ResourcesPage'));
 
 // Admin pages
 const AdminLoginPage = lazy(() => import('@/pages/admin/AdminLoginPage'));
@@ -17,6 +18,7 @@ const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage')
 const AdminReimbursementsPage = lazy(() => import('@/pages/admin/AdminReimbursementsPage'));
 const AdminRepresentativeSignInPage = lazy(() => import('@/pages/admin/AdminRepresentativeSignInPage'));
 const AdminTagsPrintingPage = lazy(() => import('@/pages/admin/AdminTagsPrintingPage'));
+const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 
 export const router = createBrowserRouter([
   {
@@ -71,6 +73,14 @@ export const router = createBrowserRouter([
       </Suspense>
     )
   },
+  {
+    path: '/resources',
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <ResourcesPage />
+      </Suspense>
+    ),
+  },
   // Admin (public)
   {
     path: '/admin/login',
@@ -123,7 +133,11 @@ export const router = createBrowserRouter([
   },
   {
     path: '*',
-    element: <Navigate to="/" replace />,
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <NotFoundPage />
+      </Suspense>
+    ),
   },
 ]);
 
