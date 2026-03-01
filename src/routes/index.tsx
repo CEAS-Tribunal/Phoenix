@@ -1,14 +1,22 @@
 import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import LoadingFallback from '@/components/LoadingFallback';
+import { AdminGuard } from '@/components/AdminGuard';
 
-// Lazy load layout
+// Lazy load pages
 const HomePage = lazy(() => import('@/pages/HomePage'));
 const CommitteesPage = lazy(() => import('@/pages/CommitteesPage'));
 const CareerFairPage = lazy(() => import('@/pages/CareerFairPage'));
 const ExpoPage = lazy(() => import('@/pages/ExpoPage'));
 const AlumniPage = lazy(() => import('@/pages/AlumniPage'));
 const ResumeReviewEmployer = lazy(() => import('@/pages/ResumeReviewEmployer'));
+
+// Admin pages
+const AdminLoginPage = lazy(() => import('@/pages/admin/AdminLoginPage'));
+const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage'));
+const AdminReimbursementsPage = lazy(() => import('@/pages/admin/AdminReimbursementsPage'));
+const AdminRepresentativeSignInPage = lazy(() => import('@/pages/admin/AdminRepresentativeSignInPage'));
+const AdminTagsPrintingPage = lazy(() => import('@/pages/admin/AdminTagsPrintingPage'));
 
 export const router = createBrowserRouter([
   {
@@ -62,6 +70,56 @@ export const router = createBrowserRouter([
         <ResumeReviewEmployer />
       </Suspense>
     )
+  },
+  // Admin (public)
+  {
+    path: '/admin/login',
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <AdminLoginPage />
+      </Suspense>
+    ),
+  },
+  // Admin (protected)
+  {
+    path: '/admin',
+    element: (
+      <AdminGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <AdminDashboardPage />
+        </Suspense>
+      </AdminGuard>
+    ),
+  },
+  {
+    path: '/admin/reimbursements',
+    element: (
+      <AdminGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <AdminReimbursementsPage />
+        </Suspense>
+      </AdminGuard>
+    ),
+  },
+  {
+    path: '/admin/career-fair/representative-sign-in',
+    element: (
+      <AdminGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <AdminRepresentativeSignInPage />
+        </Suspense>
+      </AdminGuard>
+    ),
+  },
+  {
+    path: '/admin/career-fair/tags',
+    element: (
+      <AdminGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <AdminTagsPrintingPage />
+        </Suspense>
+      </AdminGuard>
+    ),
   },
   {
     path: '*',
