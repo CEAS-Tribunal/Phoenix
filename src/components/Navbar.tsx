@@ -10,6 +10,7 @@ import {
   Users,
   GraduationCap,
   LogIn,
+  BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +27,7 @@ const NAV_LINKS = [
   { href: "/expo", label: "CEAS EXPO", icon: Award },
   { href: "/committees", label: "Committees", icon: Users },
   { href: "/alumni", label: "Alumni", icon: GraduationCap },
+  { href: "/resources", label: "Resources", icon: BookOpen },
   { href: "/admin/login", label: "Admin Login", icon: LogIn },
 ];
 

@@ -36,7 +36,7 @@ const UpcomingEventsSection: React.FC<UpcomingEventsSectionProps> = ({
   };
 
   return (
-    <section className="w-full bg-white py-16">
+    <section id="upcoming-events" className="w-full bg-white py-16">
       <div ref={ref} className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Facebook, Twitter, Instagram } from "lucide-react";
+import wheelLogo from "@/assets/wheel.png";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -15,8 +16,11 @@ const Footer = () => {
             <p className="text-gray-400 text-sm mt-2">
               Serving students since 1908
             </p>
-            {/* UC Logo Placeholder */}
-            <div className="mt-6 w-[150px] h-[40px] bg-gray-700 rounded"></div>
+            <img
+              src={wheelLogo}
+              alt=""
+              className="mt-6 h-10 w-auto opacity-90"
+            />
           </div>
 
           {/* Column 2 - Quick Links */}
@@ -75,66 +79,60 @@ const Footer = () => {
             <h4 className="text-white text-xs font-semibold uppercase tracking-wide mb-4">
               RESOURCES
             </h4>
-            <ul className="space-y-2">
+            <Link
+              to="/resources"
+              className="text-[#E00122] text-sm font-medium hover:underline"
+            >
+              View all resources →
+            </Link>
+            <ul className="space-y-2 mt-3">
               <li>
-                <a
-                  href="https://tribunal.uc.edu/"
-                  target="_blank"
-                  rel="noreferrer"
+                <Link
+                  to="/tribunal/baldwin"
                   className="text-gray-400 text-sm hover:text-white transition-colors"
                 >
                   Baldwin Table Reservations
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="https://tribunal.uc.edu/"
-                  target="_blank"
-                  rel="noreferrer"
+                <Link
+                  to="/tribunal/funding-guide"
                   className="text-gray-400 text-sm hover:text-white transition-colors"
                 >
                   Funding Guide
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="https://tribunal.uc.edu/"
-                  target="_blank"
-                  rel="noreferrer"
+                <Link
+                  to="/tribunal/tv-ad"
                   className="text-gray-400 text-sm hover:text-white transition-colors"
                 >
                   TV Ad Submission
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="https://tribunal.uc.edu/"
-                  target="_blank"
-                  rel="noreferrer"
+                <Link
+                  to="/tribunal/student-bill-of-rights"
                   className="text-gray-400 text-sm hover:text-white transition-colors"
                 >
                   Student Bill of Rights
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="https://tribunal.uc.edu/"
-                  target="_blank"
-                  rel="noreferrer"
+                <Link
+                  to="/tribunal/bylaws"
                   className="text-gray-400 text-sm hover:text-white transition-colors"
                 >
-                  Tribunal ByLaws
-                </a>
+                  Tribunal Bylaws
+                </Link>
               </li>
               <li>
-                <a
-                  href="https://tribunal.uc.edu/"
-                  target="_blank"
-                  rel="noreferrer"
+                <Link
+                  to="/tribunal/constitution"
                   className="text-gray-400 text-sm hover:text-white transition-colors"
                 >
                   Tribunal Constitution
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
