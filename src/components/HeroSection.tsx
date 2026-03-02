@@ -14,9 +14,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({ className = "" }) => {
   const isStatsInView = useInView(statsRef, { once: true, margin: "-100px" });
 
   const handleScrollToMeetings = () => {
-    const meetingsSection = document.getElementById("meetings");
-    if (meetingsSection) {
-      meetingsSection.scrollIntoView({ behavior: "smooth" });
+    const section = document.getElementById("upcoming-events");
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
     }
   };
 

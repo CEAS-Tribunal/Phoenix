@@ -1,8 +1,18 @@
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
+import NewsTickerSection from "@/components/NewsTickerSection";
 import AboutMissionSection from "@/components/AboutMissionSection";
 import UpcomingEventsSection from "@/components/UpcomingEventsSection";
 import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+
+const NEWS_ITEMS = [
+  { title: "General Body Meeting — next session Feb 20", date: "Feb 20, 2026", link: "/#upcoming-events" },
+  { title: "CEAS Career Fair registration now open", date: "Mar 5, 2026", link: "/career-fair" },
+  { title: "CEAS EXPO 2026 — submit your project", date: "Mar 15, 2026", link: "/expo" },
+  { title: "Tribunal resources page now live", date: "Feb 2026", link: "/resources" },
+];
 
 const HomePage = () => {
     return (
@@ -10,19 +20,8 @@ const HomePage = () => {
 
             <Navbar />
             <HeroSection />
-            
-            {/* Meetings Section */}
-            <div id="meetings" className="bg-red-500 py-8 text-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <h2 className="text-2xl font-bold">Join our General Body meetings</h2>
-                    <p className="mt-2">Based on the days and times shown below</p>
-                    <button className="mt-4 bg-white text-red-500 px-4 py-2 rounded-md hover:bg-red-600 hover:text-white">
-                    Join Teams Meeting
-                    </button>
-                </div>
-            </div>
-            
-            {/* About and Mission Section */}
+
+            <NewsTickerSection items={NEWS_ITEMS} />
             <AboutMissionSection />
             
             {/* Upcoming Events Section */}
@@ -48,18 +47,22 @@ const HomePage = () => {
                     }
                 ]}
             />
-            
-            {/* CTA Section */}
-            <div className="bg-red-500 py-8 text-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <h2 className="text-2xl font-bold">Want an opportunity to contribute within CEAS</h2>
-                    <button className="bg-white text-red-500 px-4 py-2 rounded-md hover:bg-red-600 hover:text-white">
-                        Get Involved
-                    </button>
+
+            {/* CTA – home only, minimal */}
+            <section className="py-12 bg-white">
+                <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <p className="text-[#333333] text-lg font-medium">
+                        Want to contribute within CEAS?
+                    </p>
+                    <Button
+                        asChild
+                        className="mt-4 bg-[#E00122] text-white hover:bg-[#c00115] rounded-full px-6 transition-colors"
+                    >
+                        <Link to="/committees">Get Involved</Link>
+                    </Button>
                 </div>
-            </div>
-            
-            {/* Footer */}
+            </section>
+
             <Footer />
         </div>
     );
