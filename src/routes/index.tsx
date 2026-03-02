@@ -92,9 +92,15 @@ export const router = createBrowserRouter([
           ),
         },
         {
-          path: '*',
-          element: <Navigate to="/" replace />,
+          path: 'resources',
+          element: <ResourcesPage />,
         },
+        {
+          path: '*',
+          element: <NotFoundPage />,
+        },
+        
+
       ],
     },
 ]);
