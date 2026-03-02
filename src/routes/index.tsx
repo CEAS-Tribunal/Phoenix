@@ -21,124 +21,82 @@ const AdminTagsPrintingPage = lazy(() => import('@/pages/admin/AdminTagsPrinting
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 
 export const router = createBrowserRouter([
-  {
-    path: '/',
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <HomePage />
-      </Suspense>
-    ),
-  },
-  {
-    path: '/committees',
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <CommitteesPage />
-      </Suspense>
-    ),
-  },
-  {
-    path: '/career-fair',
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <CareerFairPage />
-      </Suspense>
-    )
-  },
-  {
-    path: '/expo',
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ExpoPage />
-      </Suspense>
-    ),
-  },
-  {
-    path: '/executives',
-    element: <Navigate to="/committees" replace />,
-  },
-  {
-    path: '/alumni',
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <AlumniPage />
-      </Suspense>
-    ),
-  },
-  {
-    path: '/resume-review-day/employers',
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ResumeReviewEmployer />
-      </Suspense>
-    )
-  },
-  {
-    path: '/resources',
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ResourcesPage />
-      </Suspense>
-    ),
-  },
-  // Admin (public)
-  {
-    path: '/admin/login',
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <AdminLoginPage />
-      </Suspense>
-    ),
-  },
-  // Admin (protected)
-  {
-    path: '/admin',
-    element: (
-      <AdminGuard>
-        <Suspense fallback={<LoadingFallback />}>
-          <AdminDashboardPage />
-        </Suspense>
-      </AdminGuard>
-    ),
-  },
-  {
-    path: '/admin/reimbursements',
-    element: (
-      <AdminGuard>
-        <Suspense fallback={<LoadingFallback />}>
-          <AdminReimbursementsPage />
-        </Suspense>
-      </AdminGuard>
-    ),
-  },
-  {
-    path: '/admin/career-fair/representative-sign-in',
-    element: (
-      <AdminGuard>
-        <Suspense fallback={<LoadingFallback />}>
-          <AdminRepresentativeSignInPage />
-        </Suspense>
-      </AdminGuard>
-    ),
-  },
-  {
-    path: '/admin/career-fair/tags',
-    element: (
-      <AdminGuard>
-        <Suspense fallback={<LoadingFallback />}>
-          <AdminTagsPrintingPage />
-        </Suspense>
-      </AdminGuard>
-    ),
-  },
-  {
-    path: '*',
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <NotFoundPage />
-      </Suspense>
-    ),
-  },
+    {
+      path: '/',
+      element: <RootLayout />,
+      children: [
+        {
+          index: true,
+          element: <HomePage />,
+        },
+        {
+          path: 'committees',
+          element: <CommitteesPage />,
+        },
+        {
+          path: 'career-fair',
+          element: <CareerFairPage />,
+        },
+        {
+          path: 'expo',
+          element: <ExpoPage />,
+        },
+        {
+          path: 'executives',
+          element: <Navigate to="/committees" replace />,
+        },
+        {
+          path: 'alumni',
+          element: <AlumniPage />,
+        },
+        {
+          path: 'resume-review-day/employers',
+          element: <ResumeReviewEmployer />,
+        },
+        // Admin (public)
+        {
+          path: 'admin/login',
+          element: <AdminLoginPage />,
+        },
+        // Admin (protected)
+        {
+          path: 'admin',
+          element: (
+            <AdminGuard>
+              <AdminDashboardPage />
+            </AdminGuard>
+          ),
+        },
+        {
+          path: 'admin/reimbursements',
+          element: (
+            <AdminGuard>
+              <AdminReimbursementsPage />
+            </AdminGuard>
+          ),
+        },
+        {
+          path: 'admin/career-fair/representative-sign-in',
+          element: (
+            <AdminGuard>
+              <AdminRepresentativeSignInPage />
+            </AdminGuard>
+          ),
+        },
+        {
+          path: 'admin/career-fair/tags',
+          element: (
+            <AdminGuard>
+              <AdminTagsPrintingPage />
+            </AdminGuard>
+          ),
+        },
+        {
+          path: '*',
+          element: <Navigate to="/" replace />,
+        },
+      ],
+    },
 ]);
 
 export default router;
