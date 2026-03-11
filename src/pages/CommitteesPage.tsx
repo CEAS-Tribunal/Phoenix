@@ -1,367 +1,228 @@
 /**
- * CommitteesPage - Committees with expandable executive placeholders per committee
- * Keeps existing bento design; "View members" shows placeholder exec board per committee.
+ * CommitteesPage - All roles as separate cards; each card has a dropdown for its members.
+ * No section grouping; one flat grid of role cards. Colors and icons vary per card.
  */
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import {
-  ClipboardList,
-  HeartHandshake,
-  GraduationCap,
-  MapPin,
-  Briefcase,
-  Megaphone,
-  Presentation,
-  Users,
-  Calendar,
-  Rocket,
-  Lightbulb,
-  PartyPopper,
-  Sparkles,
-  Code,
-  ArrowRight,
   ChevronDown,
   User,
+  GraduationCap,
+  Users,
+  Briefcase,
+  Megaphone,
+  Award,
+  ClipboardList,
+  HeartHandshake,
+  Lightbulb,
+  Rocket,
+  Star,
+  Target,
+  type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import {
+  CommitteesService,
+  type ExecRoleSection,
+  type ExecRoleItem,
+  type ExecMemberPerson,
+} from "@/services/CommitteesService";
 
-interface Committee {
-  id: string;
-  name: string;
-  icon: React.ElementType;
-  accentColor: string;
-  description: string;
-  chair?: string;
-  gridClass: string;
-}
-
-interface Executive {
-  id: string;
-  name: string;
-  role: string;
-  major?: string;
-  year?: string;
-  bio: string;
-}
-
-/** Placeholder executives by committee id; replace with API when ready. */
-const EXECUTIVES_BY_COMMITTEE: Record<string, Executive[]> = {
-  "academic-affairs": [
-    { id: "aa-1", name: "Executive Name", role: "Chair", major: "Engineering", year: "2026", bio: "Short bio placeholder. Replace with real exec info when available." },
-    { id: "aa-2", name: "Executive Name", role: "Member", major: "Computer Science", year: "2027", bio: "Short bio placeholder." },
-  ],
-  "career-development": [
-    { id: "cd-1", name: "Executive Name", role: "Chair", major: "Mechanical Engineering", year: "2026", bio: "Short bio placeholder. Connects students with employers and supports Career Fair." },
-  ],
-  "college-wide-events": [],
-  communications: [
-    { id: "com-1", name: "Executive Name", role: "Chair", bio: "Short bio placeholder. Manages Tribunal branding and events record." },
-  ],
-  esoc: [
-    { id: "esoc-1", name: "Executive Name", role: "Chair", bio: "Short bio placeholder. Coordinates student organizations." },
-  ],
-  "equity-inclusion": [],
-  "e-week": [],
-  expo: [],
-  "first-year-engagement": [],
-  innovation: [
-    { id: "inn-1", name: "Executive Name", role: "Chair", bio: "Short bio placeholder." },
-  ],
-  internship: [],
-  "pre-engineering": [],
-  secretary: [],
-  "social-events": [],
-  technology: [
-    { id: "tech-1", name: "Executive Name", role: "Chair", major: "Computer Science", year: "2026", bio: "Short bio placeholder. Leads website and tech initiatives." },
-  ],
-};
-
-const committees: Committee[] = [
-  {
-    id: "academic-affairs",
-    name: "Academic Affairs",
-    icon: GraduationCap,
-    accentColor: "#E00122",
-    description:
-      "This committee shall organize and assure student participation on all College of Engineering and Applied Science related committees.",
-    gridClass: "md:col-span-1 md:row-span-2",
-  },
-  {
-    id: "career-development",
-    name: "Career Development",
-    icon: Briefcase,
-    accentColor: "#1E40AF",
-    description:
-      "The Career Development committee is responsible for all career-related events hosted by the CEAS Tribunal.",
-    gridClass: "md:col-span-2",
-  },
-  {
-    id: "college-wide-events",
-    name: "College Wide Events",
-    icon: Calendar,
-    accentColor: "#DC2626",
-    description:
-      "Be actively involved in events hosted and ran by CEAS Tribunal throughout the semester, including Career Fair and other college-wide programs.",
-    gridClass: "md:col-span-1",
-  },
-  {
-    id: "communications",
-    name: "Communications",
-    icon: Megaphone,
-    accentColor: "#7C3AED",
-    description:
-      "This committee shall publicize Tribunal events, maintain and promote Tribunal branding, and create a yearly record of Tribunal events.",
-    gridClass: "md:col-span-1",
-  },
-  {
-    id: "esoc",
-    name: "ESOC",
-    icon: Users,
-    accentColor: "#059669",
-    description:
-      "This committee is responsible for coordinating student organizations within the college and their relations with administration and student government.",
-    gridClass: "md:col-span-1",
-  },
-  {
-    id: "equity-inclusion",
-    name: "Equity & Inclusion",
-    icon: HeartHandshake,
-    accentColor: "#EC4899",
-    description:
-      "Responsible for reviewing and researching issues pertinent to ensuring the protection and promotion of diversity and student rights within CEAS.",
-    gridClass: "md:col-span-1 md:row-span-2",
-  },
-  {
-    id: "e-week",
-    name: "E-Week",
-    icon: PartyPopper,
-    accentColor: "#EA580C",
-    description:
-      "Engineering Week is dedicated to celebrating engineers with events, competitions, and community programming throughout the week.",
-    gridClass: "md:col-span-1",
-  },
-  {
-    id: "expo",
-    name: "EXPO",
-    icon: Presentation,
-    accentColor: "#8B5CF6",
-    description:
-      "The EXPO Chair serves as the main event manager for CEAS EXPO, where graduating seniors present capstone projects to judges and attendees.",
-    gridClass: "md:col-span-1",
-  },
-  {
-    id: "first-year-engagement",
-    name: "First Year Engagement",
-    icon: Rocket,
-    accentColor: "#06B6D4",
-    description:
-      "Sponsors programs that promote freshmen interaction through social events, leadership development, community service, and college engagement.",
-    gridClass: "md:col-span-1",
-  },
-  {
-    id: "innovation",
-    name: "Innovation",
-    icon: Lightbulb,
-    accentColor: "#FBBF24",
-    description:
-      "Responsible for initiatives that broaden CEAS Tribunal outreach through new programs and campus engagement.",
-    gridClass: "md:col-span-1",
-  },
-  {
-    id: "internship",
-    name: "Internship",
-    icon: Briefcase,
-    accentColor: "#1E40AF",
-    description:
-      "Applications are open for CEAS Tribunal’s Internship Program, pairing first-year students with executive board members to support initiatives throughout the year.",
-    gridClass: "md:col-span-2",
-  },
-  {
-    id: "pre-engineering",
-    name: "Pre-Engineering",
-    icon: MapPin,
-    accentColor: "#059669",
-    description:
-      "Connects CEAS students at UC Blue Ash and UC Clermont with UC Main Campus, CEAS, and CEAS Tribunal, and supports satellite-campus programming.",
-    gridClass: "md:col-span-1",
-  },
-  {
-    id: "secretary",
-    name: "Secretary",
-    icon: ClipboardList,
-    accentColor: "#6B7280",
-    description:
-      "Responsible for taking attendance at meetings, recording meeting minutes, and supporting meeting operations.",
-    gridClass: "md:col-span-1",
-  },
-  {
-    id: "social-events",
-    name: "Social Events",
-    icon: Sparkles,
-    accentColor: "#7C3AED",
-    description:
-      "Plans social and community service events to engage members within CEAS and supports key semester programs like Exam Week Breakfast.",
-    gridClass: "md:col-span-1",
-  },
-  {
-    id: "technology",
-    name: "Technology",
-    icon: Code,
-    accentColor: "#E00122",
-    description:
-      "Maintains proper function of CEAS Tribunal technology assets and leads modernization of web and event technology initiatives.",
-    gridClass: "md:col-span-2 md:row-span-2",
-  },
+/** Palette of accent colors for role cards (varied, deterministic per role). */
+const CARD_COLORS = [
+  "#E00122", // red (brand)
+  "#4F46E5", // indigo
+  "#0D9488", // teal
+  "#0284C7", // sky
+  "#E11D48", // rose
+  "#EA580C", // orange
+  "#7C3AED", // violet
+  "#059669", // emerald
+  "#DC2626", // red-6
+  "#2563EB", // blue
+  "#CA8A04", // yellow
+  "#DB2777", // pink
 ];
 
-function ExecutiveCard({ exec }: { exec: Executive }) {
+/** Icons for role cards (shuffled assignment by index). */
+const CARD_ICONS: LucideIcon[] = [
+  GraduationCap,
+  Users,
+  Briefcase,
+  Megaphone,
+  Award,
+  ClipboardList,
+  HeartHandshake,
+  Lightbulb,
+  Rocket,
+  Star,
+  Target,
+];
+
+/** Deterministic index for color/icon from role id and list index (stable across renders). */
+function getCardStyle(roleId: number, index: number): { color: string; Icon: LucideIcon } {
+  const seed = roleId * 31 + index;
+  return {
+    color: CARD_COLORS[Math.abs(seed) % CARD_COLORS.length],
+    Icon: CARD_ICONS[Math.abs(seed) % CARD_ICONS.length],
+  };
+}
+
+/** Card for API-driven exec member (id, name, email, imgURL). */
+function ExecMemberCard({ member }: { member: ExecMemberPerson }) {
   return (
     <div className="flex gap-3 rounded-lg border border-gray-200 bg-[#F9FAFB] p-4">
-      <div className="shrink-0 w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
-        <User className="h-5 w-5 text-gray-400" />
+      <div className="shrink-0 w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center overflow-hidden">
+        {member.imgURL ? (
+          <img
+            src={member.imgURL}
+            alt=""
+            className="w-10 h-10 rounded-full object-cover"
+          />
+        ) : (
+          <User className="h-5 w-5 text-gray-400" />
+        )}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="font-semibold text-[#333333] text-sm">{exec.name}</p>
-        <p className="text-xs font-medium text-[#E00122]">{exec.role}</p>
-        {(exec.major || exec.year) && (
-          <p className="text-xs text-gray-500 mt-0.5">
-            {[exec.major, exec.year].filter(Boolean).join(" · ")}
-          </p>
-        )}
-        <p className="mt-1.5 text-xs leading-relaxed text-gray-600">{exec.bio}</p>
+        <p className="font-semibold text-[#333333] text-sm">{member.name}</p>
+        <a
+          href={`mailto:${member.email}`}
+          className="text-xs text-[#E00122] hover:underline"
+        >
+          {member.email}
+        </a>
       </div>
     </div>
   );
 }
 
-const CommitteeCard = ({
-  committee,
+/** Single role card: icon + color, role name + description; dropdown reveals members in that role. */
+function RoleCard({
+  role,
   index,
-  isExpanded,
-  onToggle,
-  executives,
+  isMembersExpanded,
+  onToggleMembers,
 }: {
-  committee: Committee;
+  role: ExecRoleItem;
   index: number;
-  isExpanded: boolean;
-  onToggle: () => void;
-  executives: Executive[];
-}) => {
+  isMembersExpanded: boolean;
+  onToggleMembers: () => void;
+}) {
   const cardRef = useRef(null);
   const isInView = useInView(cardRef, { once: true, margin: "-50px" });
-  const Icon = committee.icon;
-  const mailtoHref = `mailto:tribunal@uc.edu?subject=${encodeURIComponent(
-    `Committee interest: ${committee.name}`
-  )}`;
+  const members = role.members ?? [];
+  const { color, Icon } = getCardStyle(role.id, index);
 
   return (
     <motion.div
       ref={cardRef}
       initial={{ opacity: 0, y: 20 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-      transition={{ duration: 0.5, delay: index * 0.05 }}
-      className={committee.gridClass}
+      transition={{ duration: 0.4, delay: index * 0.03 }}
+      className="rounded-xl border-2 bg-white p-6 shadow-sm transition-all hover:shadow-md hover:scale-[1.02]"
+      style={{
+        borderColor: isMembersExpanded ? color : "rgb(229, 231, 235)",
+      }}
+      onMouseEnter={(e) => {
+        if (!isMembersExpanded) e.currentTarget.style.borderColor = color;
+      }}
+      onMouseLeave={(e) => {
+        if (!isMembersExpanded) e.currentTarget.style.borderColor = "rgb(229, 231, 235)";
+      }}
     >
-      <Card
-        className="h-full p-8 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl group relative overflow-hidden"
-        style={{
-          borderColor: isExpanded ? committee.accentColor : "rgb(229, 231, 235)",
-        }}
-        onMouseEnter={(e) => {
-          if (!isExpanded) e.currentTarget.style.borderColor = committee.accentColor;
-        }}
-        onMouseLeave={(e) => {
-          if (!isExpanded) e.currentTarget.style.borderColor = "rgb(229, 231, 235)";
-        }}
+      <motion.div
+        className="mb-4"
+        whileHover={{ scale: 1.1, rotate: 5 }}
+        transition={{ type: "spring", stiffness: 400, damping: 10 }}
       >
-        {committee.chair && (
-          <div className="absolute top-4 right-4 bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full font-medium">
-            Chair: {committee.chair}
-          </div>
-        )}
-
-        <div className="flex flex-col h-full">
+        <Icon size={40} strokeWidth={1.5} style={{ color }} />
+      </motion.div>
+      <h3 className="text-xl font-bold text-gray-900">{role.role}</h3>
+      {role.description && (
+        <p className="text-sm text-gray-600 mt-2 leading-relaxed">{role.description}</p>
+      )}
+      <Button
+        variant="ghost"
+        size="sm"
+        className="mt-4 w-fit -ml-2 text-gray-600"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onToggleMembers();
+        }}
+        style={isMembersExpanded ? { color } : undefined}
+      >
+        {isMembersExpanded ? "Hide members" : "View members"}
+        <motion.span
+          animate={{ rotate: isMembersExpanded ? 180 : 0 }}
+          className="inline-block ml-1"
+        >
+          <ChevronDown className="h-4 w-4" />
+        </motion.span>
+      </Button>
+      <AnimatePresence initial={false}>
+        {isMembersExpanded && (
           <motion.div
-            whileHover={{ scale: 1.1, rotate: 5 }}
-            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
           >
-            <Icon
-              size={40}
-              strokeWidth={1.5}
-              style={{ color: committee.accentColor }}
-            />
+            <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
+              {members.length > 0 ? (
+                members.map((m) => <ExecMemberCard key={m.id} member={m} />)
+              ) : (
+                <p className="text-sm text-gray-500 italic">No members listed.</p>
+              )}
+            </div>
           </motion.div>
-
-          <h3 className="text-2xl font-bold text-black mt-4">
-            {committee.name}
-          </h3>
-
-          <p className="text-[15px] text-gray-600 mt-3 leading-relaxed flex-grow">
-            {committee.description}
-          </p>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            className="mt-4 w-fit -ml-2 text-gray-600 hover:text-[#E00122]"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onToggle();
-            }}
-            style={isExpanded ? { color: committee.accentColor } : undefined}
-          >
-            {isExpanded ? "Hide members" : "View members"}
-            <motion.span animate={{ rotate: isExpanded ? 180 : 0 }} className="inline-block ml-1">
-              <ChevronDown className="h-4 w-4" />
-            </motion.span>
-          </Button>
-
-          <AnimatePresence initial={false}>
-            {isExpanded && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.25 }}
-                className="mt-4 space-y-3 overflow-hidden"
-              >
-                <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Committee members
-                </p>
-                {executives.length > 0 ? (
-                  <div className="space-y-3">
-                    {executives.map((exec) => (
-                      <ExecutiveCard key={exec.id} exec={exec} />
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-500 italic">Member info coming soon.</p>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <a
-            href={mailtoHref}
-            className="flex items-center gap-2 mt-6 font-medium hover:underline transition-all group-hover:translate-x-1"
-            style={{ color: committee.accentColor }}
-          >
-            Get Involved
-            <ArrowRight size={16} />
-          </a>
-        </div>
-      </Card>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
-};
+}
 
 export default function CommitteesPage() {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [sections, setSections] = useState<ExecRoleSection[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [expandedRoleId, setExpandedRoleId] = useState<number | null>(null);
+
+  /** President and Chief of Staff first, then all other roles in their original order. */
+  const allRoles = (() => {
+    const flat = sections.flatMap((section) => section.roles);
+    const president = flat.find((r) => r.role === "President");
+    const chiefOfStaff = flat.find((r) => r.role === "Chief of Staff");
+    const rest = flat.filter(
+      (r) => r.role !== "President" && r.role !== "Chief of Staff" 
+    );
+    return [president, chiefOfStaff, ...rest].filter(
+      (r): r is NonNullable<typeof r> => r != null
+    );
+  })();
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    CommitteesService.getExecRoleSectionsWithMembers()
+      .then((data) => {
+        if (!cancelled) setSections(data);
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err?.message ?? "Failed to load committees.");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleScrollToMeetings = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -397,28 +258,35 @@ export default function CommitteesPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-[14px] text-gray-500 mt-2"
             >
-              Click any committee to learn more; use View members to see the board.
+              Each role is listed below; use View members on a role to see who holds it.
             </motion.p>
           </div>
         </section>
 
-        {/* Bento Grid Section */}
+        {/* Flat grid of role cards; each role is separate, dropdown shows its members */}
         <section className="bg-white py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-fr">
-              {committees.map((committee, index) => (
-                <CommitteeCard
-                  key={committee.id}
-                  committee={committee}
-                  index={index}
-                  isExpanded={expandedId === committee.id}
-                  onToggle={() =>
-                    setExpandedId((id) => (id === committee.id ? null : committee.id))
-                  }
-                  executives={EXECUTIVES_BY_COMMITTEE[committee.id] ?? []}
-                />
-              ))}
-            </div>
+            {loading ? (
+              <div className="text-center py-12 text-gray-500">Loading roles…</div>
+            ) : error ? (
+              <div className="text-center py-12 text-red-600">{error}</div>
+            ) : allRoles.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">No roles yet.</div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {allRoles.map((role, index) => (
+                  <RoleCard
+                    key={role.id}
+                    role={role}
+                    index={index}
+                    isMembersExpanded={expandedRoleId === role.id}
+                    onToggleMembers={() =>
+                      setExpandedRoleId((id) => (id === role.id ? null : role.id))
+                    }
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
