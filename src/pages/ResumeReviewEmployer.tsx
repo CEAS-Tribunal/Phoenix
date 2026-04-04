@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import { ResumeReviewDay } from '@/services/ResumeReviewService';
 
 const MAJOR_OPTIONS: { value: string; label: string }[] = [
@@ -58,7 +59,7 @@ export default function ResumeReviewEmployer() {
 
     try {
       const res = await ResumeReviewDay.registerEmployer(payload);
-      setServerResponse({ message: (res.data as { message?: string })?.message || 'Registered!', status: res.status });
+      setServerResponse({ message: res.data.message || 'Registered!', status: res.status });
       reset();
     } catch (e: unknown) {
       const err = e as { response?: { data?: { error?: string }; status?: number }; message?: string };
@@ -75,44 +76,48 @@ export default function ResumeReviewEmployer() {
     return (
       <>
         <Navbar />
-        <div className="bg-gradient-to-b from-red-500/90 via-rose-600/85 to-red-700/90 pt-10 min-h-screen flex items-center justify-center px-4">
-          <div className="max-w-lg w-full bg-white dark:bg-slate-900/95 dark:border dark:border-slate-700/50 px-8 py-12 rounded-2xl shadow-2xl text-center animate-in fade-in zoom-in duration-500">
-            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40 ring-4 ring-emerald-200/60 dark:ring-emerald-800/50">
-              <CheckCircle2 className="h-12 w-12 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
-            </div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
-              You&apos;re all set!
-            </h1>
-            <p className="text-emerald-700 dark:text-emerald-300 font-medium mb-1">
-              {serverResponse?.message}
-            </p>
-            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-8">
-              We&apos;ve received your employer registration for Resume Review Day. Our team will reach out with further details and next steps.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                onClick={() => setServerResponse(null)}
-                className="border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800/80"
-              >
-                <UserPlus className="h-4 w-4" />
-                Register another employer
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                className="bg-red-500 hover:bg-red-600 text-white"
-              >
-                <Link to="/">
-                  <Home className="h-4 w-4" />
-                  Back to home
-                </Link>
-              </Button>
+        <div className="flex flex-col items-center justify-center bg-white">
+          <div className="flex flex-col items-center py-12 px-6 w-full">
+            <div className="w-2/5 my-6 p-8 rounded-2xl bg-emerald-50 border border-emerald-200 text-center shadow-lg">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 ring-4 ring-emerald-200/70">
+                <CheckCircle2 className="h-10 w-10 text-emerald-600" strokeWidth={2} />
+              </div>
+              <h1 className="text-2xl font-bold text-emerald-900 mb-2">
+                You&apos;re all set!
+              </h1>
+              <p className="text-emerald-800 font-medium mb-1">
+                {serverResponse?.message}
+              </p>
+              <p className="text-slate-700 text-sm leading-relaxed mb-6">
+                We&apos;ve received your employer registration for Resume Review Day. Our team will reach out with further details and next steps.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  onClick={() => setServerResponse(null)}
+                  className="bg-white text-emerald-800 border border-emerald-300 hover:bg-emerald-100 hover:text-emerald-900"
+                >
+                  <UserPlus className="h-4 w-4" />
+                  Register another employer
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-slate-900 hover:bg-slate-800 text-white"
+                >
+                  <Link to="/">
+                    <Home className="h-4 w-4" />
+                    Back to home
+                  </Link>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
+
+        <Footer />
       </>
     );
   }
@@ -120,150 +125,199 @@ export default function ResumeReviewEmployer() {
   return (
     <>
       <Navbar />
-      <div className="bg-red-500/80 pt-10 min-h-screen">
-        <div className="max-w-2xl mx-auto bg-white dark:bg-muted px-8 py-10 rounded-xl shadow-lg">
-          {serverResponse?.error && (
-            <div className="mb-6 p-4 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-800">
-              <span className="font-semibold">Error{serverResponse.status ? ` (${serverResponse.status})` : ''}:</span> {serverResponse.error}
-            </div>
-          )}
-          <h1 className="text-2xl font-bold mb-6">Employer Registration</h1>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* Full Name */}
-            <div>
-              <label className="block font-medium mb-1">Full Name</label>
-              <input
-                type="text"
-                {...register("full_name", { required: true })}
-                className="w-full input input-bordered rounded-lg py-2 px-3 border focus:ring-primary-500"
-                placeholder="Full Name"
-              />
-              {errors.full_name && <p className="text-rose-500 text-sm mt-1">This field is required</p>}
-            </div>
-            {/* Company Name */}
-            <div>
-              <label className="block font-medium mb-1">Company Name</label>
-              <input
-                type="text"
-                {...register("company_name", { required: true })}
-                className="w-full input input-bordered rounded-lg py-2 px-3 border focus:ring-primary-500"
-                placeholder="Company Name"
-              />
-              {errors.company_name && <p className="text-rose-500 text-sm mt-1">This field is required</p>}
-            </div>
-            {/* Email */}
-            <div>
-              <label className="block font-medium mb-1">Email</label>
-              <input
-                type="email"
-                {...register("email", { required: true })}
-                className="w-full input input-bordered rounded-lg py-2 px-3 border focus:ring-primary-500"
-                placeholder="Email"
-              />
-              {errors.email && <p className="text-rose-500 text-sm mt-1">This field is required</p>}
-            </div>
-            {/* Phone Number */}
-            <div>
-              <label className="block font-medium mb-1">Phone Number (+x xxx-xxx-xxxx)</label>
-              <input
-                type="tel"
-                {...register("phone_number")}
-                className="w-full input input-bordered rounded-lg py-2 px-3 border focus:ring-primary-500"
-                placeholder="Phone Number"
-              />
-            </div>
-            {/* Dietary Restrictions */}
-            <div>
-              <label className="block font-medium mb-1">Dietary Restrictions (if applicable)</label>
-              <input
-                type="text"
-                {...register("diet_restriction")}
-                className="w-full input input-bordered rounded-lg py-2 px-3 border focus:ring-primary-500"
-                placeholder="Dietary Restriction"
-              />
-            </div>
-            {/* Start Time */}
-            <div>
-              <label className="block font-medium mb-1">Start Time</label>
-              <input
-                type="time"
-                {...register("start_time", { required: true })}
-                className="w-full input input-bordered rounded-lg py-2 px-3 border focus:ring-primary-500"
-              />
-              {errors.start_time && <p className="text-rose-500 text-sm mt-1">This field is required</p>}
-            </div>
-            {/* End Time */}
-            <div>
-              <label className="block font-medium mb-1">End Time</label>
-              <input
-                type="time"
-                {...register("end_time", { required: true })}
-                className="w-full input input-bordered rounded-lg py-2 px-3 border focus:ring-primary-500"
-              />
-              {errors.end_time && <p className="text-rose-500 text-sm mt-1">This field is required</p>}
-            </div>
-            {/* Max Resumes */}
-            <div>
-              <label className="block font-medium mb-1">Maximum Resumes (max 20)</label>
-              <input
-                type="number"
-                {...register("max_resumes", { required: true, min: 1, max: 20 })}
-                className="w-full input input-bordered rounded-lg py-2 px-3 border focus:ring-primary-500"
-                placeholder="Max number of resumes"
-                min={1}
-                max={100}
-              />
-              {errors.max_resumes && (
-                <p className="text-rose-500 text-sm mt-1">
-                  Must be between 1 and 100
-                </p>
-              )}
-            </div>
-            {/* UC Alumnus */}
-            <div className="flex items-center mt-4">
-              <Controller
-                control={control}
-                name="uc_alumni"
-                render={({ field }) => (
-                  <>
-                    <Switch checked={field.value} onCheckedChange={field.onChange} id="uc_alumni" />
-                    <label htmlFor="uc_alumni" className="ml-3 font-medium">UC Alumnus</label>
-                  </>
-                )}
-              />
-            </div>
-            {/* Majors */}
-            <div className="mt-6">
-              <label className="font-semibold mb-2 block">Select your major(s) of interest:</label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4">
-                {MAJOR_OPTIONS.map((major) => (
-                  <div key={major.value} className="flex items-center">
-                    <Controller
-                      control={control}
-                      name="selected_majors"
-                      render={({ field }) => (
-                        <Checkbox
-                          checked={field.value.includes(major.value)}
-                          onCheckedChange={(checked: boolean) => {
-                            if (checked) field.onChange([...field.value, major.value]);
-                            else field.onChange(field.value.filter((v: string) => v !== major.value));
-                          }}
-                          id={major.value}
-                        />
-                      )}
-                    />
-                    <label htmlFor={major.value} className="ml-3">{major.label}</label>
-                  </div>
-                ))}
+      <div className="flex flex-col items-center justify-center bg-white">
+        <div className="flex flex-col items-center py-12 px-6 w-full">
+          <div className="text-black flex flex-col items-center w-3/5 gap-y-6">
+            <div className="text-sky-600 text-sm uppercase tracking-wide font-medium">Resume Review Day</div>
+            <h1 className="text-5xl font-bold text-black text-center leading-tight">
+              Resume Review Day Employer Registration
+            </h1>
+            <p className="text-lg text-black/90 text-center leading-relaxed">
+              Partner with the College of Engineering and Applied Science Tribunal to provide 20-minute resume
+              review sessions for students preparing for the Technical Career Fair. Share your insights, connect
+              with emerging talent, and help students put their best foot forward.
+            </p>
+            <p className="text-base text-black/80 text-center leading-relaxed">
+              Select the time window you will be available, the maximum number of resumes you would like to review,
+              and the majors you are most interested in meeting with. Once submitted, our team will confirm your
+              schedule and send you additional details.
+            </p>
+            <p className="text-base text-black/80 text-center">
+              If you have any questions, please contact us at{' '}
+              <a
+                href="mailto:uccareerfair@gmail.com"
+                className="text-sky-600 hover:text-sky-700 hover:underline hover:underline-offset-[3px]"
+              >
+                uccareerfair@gmail.com
+              </a>
+              .
+            </p>
+          </div>
+
+          <div className="bg-white w-full max-w-2xl md:w-2/5 flex flex-col my-8 rounded-xl p-6 gap-y-4 shadow-lg border border-white/50">
+            {serverResponse?.error && (
+              <div className="mb-2 p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-sm">
+                <span className="font-semibold">Error{serverResponse.status ? ` (${serverResponse.status})` : ''}:</span>{' '}
+                {serverResponse.error}
               </div>
-            </div>
-            {/* Submit */}
-            <Button type="submit" className="w-full bg-red-500 hover:bg-red-700 mt-6" disabled={submitting}>
-              {submitting ? 'Submitting...' : 'Submit'}
-            </Button>
-          </form>
+            )}
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    {...register("full_name", { required: true })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white"
+                    placeholder="Full name"
+                  />
+                  {errors.full_name && <p className="text-rose-500 text-xs mt-1">This field is required</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Company Name</label>
+                  <input
+                    type="text"
+                    {...register("company_name", { required: true })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white"
+                    placeholder="Company name"
+                  />
+                  {errors.company_name && <p className="text-rose-500 text-xs mt-1">This field is required</p>}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                  <input
+                    type="email"
+                    {...register("email", { required: true })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white"
+                    placeholder="name@company.com"
+                  />
+                  {errors.email && <p className="text-rose-500 text-xs mt-1">This field is required</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Phone Number (xxx-xxx-xxxx)</label>
+                  <input
+                    type="tel"
+                    {...register("phone_number")}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white"
+                    placeholder="555-555-5555"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Dietary Restrictions <span className="font-normal text-slate-500">(if applicable)</span>
+                </label>
+                <input
+                  type="text"
+                  {...register("diet_restriction")}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white"
+                  placeholder="e.g. vegetarian, gluten-free, none"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Start Time</label>
+                  <input
+                    type="time"
+                    {...register("start_time", { required: true })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white"
+                  />
+                  {errors.start_time && <p className="text-rose-500 text-xs mt-1">This field is required</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">End Time</label>
+                  <input
+                    type="time"
+                    {...register("end_time", { required: true })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white"
+                  />
+                  {errors.end_time && <p className="text-rose-500 text-xs mt-1">This field is required</p>}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Maximum Resumes (max 20)</label>
+                <input
+                  type="number"
+                  {...register("max_resumes", { required: true, min: 1, max: 20 })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white"
+                  placeholder="Number of students you can see"
+                  min={1}
+                  max={100}
+                />
+                {errors.max_resumes && (
+                  <p className="text-rose-500 text-xs mt-1">
+                    Must be between 1 and 100
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-slate-50 border border-slate-200">
+                <div className="flex items-center">
+                  <Controller
+                    control={control}
+                    name="uc_alumni"
+                    render={({ field }) => (
+                      <>
+                        <Switch checked={field.value} onCheckedChange={field.onChange} id="uc_alumni" />
+                        <label htmlFor="uc_alumni" className="ml-3 text-sm font-medium text-slate-800">
+                          UC Alumni
+                        </label>
+                      </>
+                    )}
+                  />
+                </div>
+                <p className="hidden sm:block text-xs text-slate-500">
+                  Let us know if you&apos;re a UC graduate.
+                </p>
+              </div>
+
+              <div className="mt-4">
+                <label className="text-sm font-semibold mb-2 block text-slate-800">
+                  Majors you&apos;re most interested in:
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4">
+                  {MAJOR_OPTIONS.map((major) => (
+                    <div key={major.value} className="flex items-center">
+                      <Controller
+                        control={control}
+                        name="selected_majors"
+                        render={({ field }) => (
+                          <Checkbox
+                            checked={field.value.includes(major.value)}
+                            onCheckedChange={(checked: boolean) => {
+                              if (checked) field.onChange([...field.value, major.value]);
+                              else field.onChange(field.value.filter((v: string) => v !== major.value));
+                            }}
+                            id={major.value}
+                          />
+                        )}
+                      />
+                      <label htmlFor={major.value} className="ml-3 text-sm text-slate-700">{major.label}</label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full mt-4 py-3 bg-sky-600 hover:bg-sky-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={submitting}
+              >
+                {submitting ? 'Submitting...' : 'Submit registration'}
+              </Button>
+            </form>
+          </div>
         </div>
       </div>
+
+      <Footer />
     </>
   );
 }
