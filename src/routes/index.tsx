@@ -73,6 +73,14 @@ export const router = createBrowserRouter([
       </Suspense>
     )
   },
+   {
+    path: '/resume-review-day/students',
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <ResumeReviewStudent />
+      </Suspense>
+    )
+  },
   {
     path: '/resources',
     element: (
