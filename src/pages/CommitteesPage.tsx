@@ -1,313 +1,329 @@
-// CommitteesPage.tsx
-import { useEffect, useMemo, useState, useCallback } from 'react';
-import { CommitteesService } from '@/services/CommitteesService';
-import type {
-  Committee,
-  CommitteeRole,
-  Person,
-  CommitteeColor,
-} from '@/services/CommitteesService';
+/**
+ * CommitteesPage - All roles as separate cards; each card has a dropdown for its members.
+ * No section grouping; one flat grid of role cards. Colors and icons vary per card.
+ */
 
-import Navbar from '@/components/Navbar';
+import { useState, useRef, useEffect } from "react";
+import { motion, useInView, AnimatePresence } from "framer-motion";
+import {
+  ChevronDown,
+  User,
+  GraduationCap,
+  Users,
+  Briefcase,
+  Megaphone,
+  Award,
+  ClipboardList,
+  HeartHandshake,
+  Lightbulb,
+  Rocket,
+  Star,
+  Target,
+  type LucideIcon,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import {
+  CommitteesService,
+  type ExecRoleSection,
+  type ExecRoleItem,
+  type ExecMemberPerson,
+} from "@/services/CommitteesService";
 
-type TabKey = 'tab1' | 'tab2';
+/** Palette of accent colors for role cards (varied, deterministic per role). */
+const CARD_COLORS = [
+  "#E00122", // red (brand)
+  "#4F46E5", // indigo
+  "#0D9488", // teal
+  "#0284C7", // sky
+  "#E11D48", // rose
+  "#EA580C", // orange
+  "#7C3AED", // violet
+  "#059669", // emerald
+  "#DC2626", // red-6
+  "#2563EB", // blue
+  "#CA8A04", // yellow
+  "#DB2777", // pink
+];
 
-function colorTextClass(color: CommitteeColor) {
+/** Icons for role cards (shuffled assignment by index). */
+const CARD_ICONS: LucideIcon[] = [
+  GraduationCap,
+  Users,
+  Briefcase,
+  Megaphone,
+  Award,
+  ClipboardList,
+  HeartHandshake,
+  Lightbulb,
+  Rocket,
+  Star,
+  Target,
+];
+
+/** Deterministic index for color/icon from role id and list index (stable across renders). */
+function getCardStyle(roleId: number, index: number): { color: string; Icon: LucideIcon } {
+  const seed = roleId * 31 + index;
   return {
-    indigo: 'text-indigo-700',
-    teal: 'text-teal-700',
-    sky: 'text-sky-700',
-    rose: 'text-rose-700',
-  }[color];
-}
-
-function colorBorderClass(color: CommitteeColor) {
-  return {
-    indigo: 'border-indigo-100',
-    teal: 'border-teal-100',
-    sky: 'border-sky-100',
-    rose: 'border-rose-100',
-  }[color];
-}
-
-function ringFocusClass(color: CommitteeColor) {
-  return {
-    indigo: 'focus-visible:ring-2 focus-visible:ring-indigo-400',
-    teal: 'focus-visible:ring-2 focus-visible:ring-teal-400',
-    sky: 'focus-visible:ring-2 focus-visible:ring-sky-400',
-    rose: 'focus-visible:ring-2 focus-visible:ring-rose-400',
-  }[color];
-}
-
-function rolePillClasses(color: CommitteeColor) {
-  const base = 'px-3 py-1.5 rounded-full border cursor-pointer transition focus-within:ring-2';
-  const byColor: Record<CommitteeColor, string> = {
-    indigo: 'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100 focus-within:ring-indigo-400',
-    teal: 'bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-100 focus-within:ring-teal-400',
-    sky: 'bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-100 focus-within:ring-sky-400',
-    rose: 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100 focus-within:ring-rose-400',
+    color: CARD_COLORS[Math.abs(seed) % CARD_COLORS.length],
+    Icon: CARD_ICONS[Math.abs(seed) % CARD_ICONS.length],
   };
-  return `${base} ${byColor[color]}`;
 }
 
-function tabUnderlineClasses(tab: TabKey, color: CommitteeColor) {
-  if (tab !== 'tab1') return '';
-  return {
-    indigo: 'border-b-2 text-indigo-600 border-indigo-500',
-    teal: 'border-b-2 text-teal-600 border-teal-500',
-    sky: 'border-b-2 text-sky-600 border-sky-500',
-    rose: 'border-b-2 text-rose-600 border-rose-500',
-  }[color];
+/** Card for API-driven exec member (id, name, email, imgURL). */
+function ExecMemberCard({ member }: { member: ExecMemberPerson }) {
+  return (
+    <div className="flex gap-3 rounded-lg border border-gray-200 bg-[#F9FAFB] p-4">
+      <div className="shrink-0 w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center overflow-hidden">
+        {member.imgURL ? (
+          <img
+            src={member.imgURL}
+            alt=""
+            className="w-10 h-10 rounded-full object-cover"
+          />
+        ) : (
+          <User className="h-5 w-5 text-gray-400" />
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="font-semibold text-[#333333] text-sm">{member.name}</p>
+        <a
+          href={`mailto:${member.email}`}
+          className="text-xs text-[#E00122] hover:underline"
+        >
+          {member.email}
+        </a>
+      </div>
+    </div>
+  );
 }
 
-function tabUnderlineClasses2(tab: TabKey, color: CommitteeColor) {
-  if (tab !== 'tab2') return '';
-  return {
-    indigo: 'border-b-2 text-indigo-600 border-indigo-500',
-    teal: 'border-b-2 text-teal-600 border-teal-500',
-    sky: 'border-b-2 text-sky-600 border-sky-500',
-    rose: 'border-b-2 text-rose-600 border-rose-500',
-  }[color];
+/** Single role card: icon + color, role name + description; dropdown reveals members in that role. */
+function RoleCard({
+  role,
+  index,
+  isMembersExpanded,
+  onToggleMembers,
+}: {
+  role: ExecRoleItem;
+  index: number;
+  isMembersExpanded: boolean;
+  onToggleMembers: () => void;
+}) {
+  const cardRef = useRef(null);
+  const isInView = useInView(cardRef, { once: true, margin: "-50px" });
+  const members = role.members ?? [];
+  const { color, Icon } = getCardStyle(role.id, index);
+
+  return (
+    <motion.div
+      ref={cardRef}
+      initial={{ opacity: 0, y: 20 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+      transition={{ duration: 0.4, delay: index * 0.03 }}
+      className="rounded-xl border-2 bg-white p-6 shadow-sm transition-all hover:shadow-md hover:scale-[1.02]"
+      style={{
+        borderColor: isMembersExpanded ? color : "rgb(229, 231, 235)",
+      }}
+      onMouseEnter={(e) => {
+        if (!isMembersExpanded) e.currentTarget.style.borderColor = color;
+      }}
+      onMouseLeave={(e) => {
+        if (!isMembersExpanded) e.currentTarget.style.borderColor = "rgb(229, 231, 235)";
+      }}
+    >
+      <motion.div
+        className="mb-4"
+        whileHover={{ scale: 1.1, rotate: 5 }}
+        transition={{ type: "spring", stiffness: 400, damping: 10 }}
+      >
+        <Icon size={40} strokeWidth={1.5} style={{ color }} />
+      </motion.div>
+      <h3 className="text-xl font-bold text-gray-900">{role.role}</h3>
+      {role.description && (
+        <p className="text-sm text-gray-600 mt-2 leading-relaxed">{role.description}</p>
+      )}
+      <Button
+        variant="ghost"
+        size="sm"
+        className="mt-4 w-fit -ml-2 text-gray-600"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onToggleMembers();
+        }}
+        style={isMembersExpanded ? { color } : undefined}
+      >
+        {isMembersExpanded ? "Hide members" : "View members"}
+        <motion.span
+          animate={{ rotate: isMembersExpanded ? 180 : 0 }}
+          className="inline-block ml-1"
+        >
+          <ChevronDown className="h-4 w-4" />
+        </motion.span>
+      </Button>
+      <AnimatePresence initial={false}>
+        {isMembersExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
+              {members.length > 0 ? (
+                members.map((m) => <ExecMemberCard key={m.id} member={m} />)
+              ) : (
+                <p className="text-sm text-gray-500 italic">No members listed.</p>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
 }
 
 export default function CommitteesPage() {
-  // Committees page state
-  const [committees, setCommittees] = useState<Committee[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [sections, setSections] = useState<ExecRoleSection[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [expandedRoleId, setExpandedRoleId] = useState<number | null>(null);
 
-  // Modal state
-  const [showRolesModal, setShowRolesModal] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabKey>('tab1');
-  const [selectedRole, setSelectedRole] = useState<CommitteeRole | null>(null);
-  const [selectedCommitteeColor, setSelectedCommitteeColor] = useState<CommitteeColor | null>(null);
-
-  // Members state for selected role
-  const [members, setMembers] = useState<Person[]>([]);
-  const [isMembersLoading, setIsMembersLoading] = useState(false);
-  const [membersError, setMembersError] = useState<string | null>(null);
+  /** President and Chief of Staff first, then all other roles in their original order. */
+  const allRoles = (() => {
+    const flat = sections.flatMap((section) => section.roles);
+    const president = flat.find((r) => r.role === "President");
+    const chiefOfStaff = flat.find((r) => r.role === "Chief of Staff");
+    const rest = flat.filter(
+      (r) => r.role !== "President" && r.role !== "Chief of Staff" 
+    );
+    return [president, chiefOfStaff, ...rest].filter(
+      (r): r is NonNullable<typeof r> => r != null
+    );
+  })();
 
   useEffect(() => {
-    setIsLoading(true);
-    setErrorMsg(null);
-    CommitteesService.getCommittees()
-      .then((data) => setCommittees(data))
-      .catch((err) => {
-        console.error('Error loading committees', err);
-        setErrorMsg('Failed to load committees. Please try again later.');
-      })
-      .finally(() => setIsLoading(false));
-  }, []);
-
-  const loadMembers = useCallback((roleId: number) => {
-    setIsMembersLoading(true);
-    setMembersError(null);
-    CommitteesService.getMembers(roleId)
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    CommitteesService.getExecRoleSectionsWithMembers()
       .then((data) => {
-        setMembers(data);
-        // console.log(data);
+        if (!cancelled) setSections(data);
       })
       .catch((err) => {
-        console.error('Failed to load members', err);
-        setMembersError('Could not load members. Please try again later.');
+        if (!cancelled) setError(err?.message ?? "Failed to load committees.");
       })
-      .finally(() => setIsMembersLoading(false));
-  }, []);
-
-  const openRolesModal = useCallback((role: CommitteeRole, color: CommitteeColor) => {
-    setSelectedRole(role);
-    setSelectedCommitteeColor(color);
-    setActiveTab('tab1');
-    setShowRolesModal(true);
-    loadMembers(role.id);
-  }, [loadMembers]);
-
-  const closeRolesModal = useCallback(() => {
-    setSelectedRole(null);
-    setSelectedCommitteeColor(null);
-    setShowRolesModal(false);
-    setMembers([]);
-    setMembersError(null);
-    setIsMembersLoading(false);
-  }, []);
-
-  // Close modal on ESC
-  useEffect(() => {
-    if (!showRolesModal) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') closeRolesModal();
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [showRolesModal, closeRolesModal]);
+  }, []);
 
-  const headerColorClass = useMemo(
-    () =>
-      selectedCommitteeColor
-        ? {
-            indigo: 'text-indigo-800',
-            teal: 'text-teal-800',
-            sky: 'text-sky-800',
-            rose: 'text-rose-800',
-          }[selectedCommitteeColor]
-        : '',
-    [selectedCommitteeColor]
-  );
+  const handleScrollToMeetings = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <>
-    <Navbar />
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 px-4 py-10">
-      <header className="mx-auto max-w-5xl text-center mb-10">
-        <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-indigo-700">Tribunal Committees</h1>
-        <p className="text-gray-600 mt-3 md:text-lg">
-          Browse each committee and the roles under it. Tap a role to learn more!
-        </p>
-      </header>
+      <Navbar />
+      <main className="min-h-screen bg-white">
+        {/* Hero Header Section */}
+        <section className="bg-gradient-to-b from-white to-gray-50 py-16">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <motion.h1
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-[48px] font-bold text-black"
+            >
+              Our Committees
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-[20px] text-gray-600 mt-4 max-w-3xl mx-auto"
+            >
+              Join a committee and make an impact in the College of Engineering
+              & Applied Science
+            </motion.p>
+            <motion.p
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-[14px] text-gray-500 mt-2"
+            >
+              Each role is listed below; use View members on a role to see who holds it.
+            </motion.p>
+          </div>
+        </section>
 
-      {/* Top nav quick-jumps */}
-      <nav className="mx-auto max-w-5xl flex flex-wrap justify-center gap-2 md:gap-3 mb-8">
-        {committees.map((c) => (
-          <a
-            key={c.id}
-            href={`/committees#${c.id}`}
-            className={`px-4 py-2 rounded-full bg-white shadow-sm border border-gray-200 text-gray-800 hover:shadow-md hover:-translate-y-px transition focus:outline-none ${ringFocusClass(c.color)}`}
-          >
-            {c.title}
-          </a>
-        ))}
-      </nav>
-
-      {/* Loading + error for committees */}
-      {isLoading && (
-        <div className="mx-auto max-w-5xl text-center text-gray-600 mb-6">Loading committees…</div>
-      )}
-      {errorMsg && (
-        <div className="mx-auto max-w-5xl text-center text-red-600 mb-6">{errorMsg}</div>
-      )}
-
-      {/* Committees grid */}
-      <section className="mx-auto max-w-5xl grid gap-6 md:grid-cols-2">
-        {committees.map((committee) => (
-          <article
-            id={committee.id}
-            key={committee.id}
-            className={`rounded-2xl bg-white border shadow-sm hover:shadow-md transition p-6 ${colorBorderClass(committee.color)}`}
-          >
-            <header>
-              <h2 className={`text-xl md:text-2xl font-bold flex items-center gap-2 ${colorTextClass(committee.color)}`}>
-                {committee.title}
-              </h2>
-              {committee.subtitle && <p className="text-gray-600 mt-1">{committee.subtitle}</p>}
-            </header>
-
-            <div className="mt-4">
-              <h3 className="text-sm font-semibold text-gray-700 mb-2">Roles</h3>
-              <div className="flex flex-wrap gap-2">
-                {committee.roles.map((role) => (
-                  <button
+        {/* Flat grid of role cards; each role is separate, dropdown shows its members */}
+        <section className="bg-white py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {loading ? (
+              <div className="text-center py-12 text-gray-500">Loading roles…</div>
+            ) : error ? (
+              <div className="text-center py-12 text-red-600">{error}</div>
+            ) : allRoles.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">No roles yet.</div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {allRoles.map((role, index) => (
+                  <RoleCard
                     key={role.id}
-                    type="button"
-                    className={rolePillClasses(committee.color)}
-                    onClick={() => openRolesModal(role, committee.color)}
-                  >
-                    {role.role}
-                  </button>
+                    role={role}
+                    index={index}
+                    isMembersExpanded={expandedRoleId === role.id}
+                    onToggleMembers={() =>
+                      setExpandedRoleId((id) => (id === role.id ? null : role.id))
+                    }
+                  />
                 ))}
               </div>
-            </div>
-          </article>
-        ))}
-      </section>
-
-      {/* Modal */}
-      {showRolesModal && (
-        <div
-          className="fixed inset-0 bg-black/25 flex items-center justify-center z-50"
-          style={{ backdropFilter: 'blur(5px)' }}
-          role="dialog"
-          aria-modal="true"
-          onMouseDown={(e) => {
-            // close when clicking backdrop only (ignore clicks inside panel)
-            if (e.target === e.currentTarget) closeRolesModal();
-          }}
-        >
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 relative">
-            <button
-              className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl"
-              aria-label="Close"
-              onClick={closeRolesModal}
-            >
-              &times;
-            </button>
-
-            <h3 className={`text-lg font-semibold mb-4 ${headerColorClass}`}>
-              {selectedRole?.role}
-            </h3>
-
-            {/* Tabs */}
-            <div className="flex border-b mb-4">
-              <button
-                className={`px-4 py-2 font-semibold outline-none ${tabUnderlineClasses(activeTab, selectedCommitteeColor || 'indigo')}`}
-                onClick={() => setActiveTab('tab1')}
-              >
-                Overview
-              </button>
-              <button
-                className={`px-4 py-2 font-semibold outline-none ${tabUnderlineClasses2(activeTab, selectedCommitteeColor || 'indigo')}`}
-                onClick={() => setActiveTab('tab2')}
-              >
-                Details
-              </button>
-            </div>
-
-            {/* Tab content */}
-            {activeTab === 'tab1' && (
-              <p className="text-gray-700">{selectedRole?.description}</p>
-            )}
-
-            {activeTab === 'tab2' && (
-              <>
-                {isMembersLoading && (
-                  <div className="text-center text-gray-600">Loading members…</div>
-                )}
-                {membersError && (
-                  <div className="text-center text-red-600">{membersError}</div>
-                )}
-                {!isMembersLoading && !membersError && (
-                  <>
-                    {members.length === 0 ? (
-                      <div className="text-center text-gray-600">
-                        No members found for this role.
-                      </div>
-                    ) : (
-                      members.map((person, i) => (
-                        <div
-                          key={`${person.email}-${i}`}
-                          className={`flex items-center gap-x-4 gap-y-8 mb-4 justify-center ${i % 2 === 1 ? 'flex-row-reverse' : ''}`}
-                        >
-                          {person.imgURL && (
-                            <img
-                              src={person.imgURL}
-                              alt={person.name}
-                              className="w-32 h-32 rounded-full object-cover"
-                            />
-                          )}
-                          <div>
-                            <h2 className="font-semibold text-gray-800">{person.name}</h2>
-                            <p className="text-gray-600">{person.email}</p>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </>
-                )}
-              </>
             )}
           </div>
-        </div>
-      )}
-    </div>
-  </>
+        </section>
+
+        {/* CTA Section */}
+        <section className="bg-gradient-to-b from-white to-red-50 py-16">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-[36px] font-bold text-black">
+                Ready to join a committee?
+              </h2>
+              <p className="text-[18px] text-gray-600 mt-4">
+                Contact us at{" "}
+                <a
+                  href="mailto:tribunal@uc.edu"
+                  className="text-[#E00122] hover:underline"
+                >
+                  tribunal@uc.edu
+                </a>{" "}
+                or attend our next general body meeting
+              </p>
+              <Button
+                onClick={handleScrollToMeetings}
+                className="bg-[#E00122] text-white hover:bg-[#c00115] shadow-md transition-colors mt-6"
+                size="lg"
+              >
+                Join General Body Meeting
+              </Button>
+            </motion.div>
+          </div>
+        </section>
+      </main>
+      <Footer />
+    </>
   );
 }

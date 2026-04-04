@@ -1,56 +1,68 @@
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
+import HeroSection from "@/components/HeroSection";
+import NewsTickerSection from "@/components/NewsTickerSection";
+import AboutMissionSection from "@/components/AboutMissionSection";
+import UpcomingEventsSection from "@/components/UpcomingEventsSection";
 import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+
+const NEWS_ITEMS = [
+  { title: "General Body Meeting — next session Feb 20", date: "Feb 20, 2026", link: "/#upcoming-events" },
+  { title: "CEAS Career Fair registration now open", date: "Mar 5, 2026", link: "/career-fair" },
+  { title: "CEAS EXPO 2026 — submit your project", date: "Mar 15, 2026", link: "/expo" },
+  { title: "Tribunal resources page now live", date: "Feb 2026", link: "/resources" },
+];
 
 const HomePage = () => {
     return (
         <div className="bg-white">
 
             <Navbar />
-            <div className="bg-red-500 py-8 text-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <h2 className="text-2xl font-bold">Join our General Body meetings</h2>
-                    <p className="mt-2">Based on the days and times shown below</p>
-                    <button className="mt-4 bg-white text-red-500 px-4 py-2 rounded-md hover:bg-red-600 hover:text-white">
-                    Join Teams Meeting
-                    </button>
-                </div>
-            </div>
+            <HeroSection />
+
+            <NewsTickerSection items={NEWS_ITEMS} />
+            <AboutMissionSection />
             
-            <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-                <h2 className="text-3xl font-bold text-red-500 pb-2 border-b-4 border-red-500 inline-block">About Us</h2>
-                <p className="mt-4 text-gray-700">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut risus in augue luctus venenatis.
-                </p>
-            </div>
-        
-            <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 flex">
-                <div className="w-2/3">
-                    <h2 className="text-3xl font-bold text-red-500 pb-2 border-b-4 border-red-500 inline-block">Our Mission</h2>
-                    <p className="mt-4 text-gray-700">
-                        Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.
+            {/* Upcoming Events Section */}
+            <UpcomingEventsSection 
+                events={[
+                    {
+                        date: "FEB 20, 2026",
+                        title: "General Body Meeting",
+                        description: "Join us for our monthly meeting to discuss upcoming events and initiatives",
+                        link: "/events/general-body"
+                    },
+                    {
+                        date: "MAR 5, 2026",
+                        title: "CEAS Career Fair",
+                        description: "Connect with leading employers and explore career opportunities in engineering",
+                        link: "/events/career-fair"
+                    },
+                    {
+                        date: "MAR 15, 2026",
+                        title: "CEAS EXPO",
+                        description: "Showcase your projects and innovations at our annual engineering expo",
+                        link: "/events/ceas-expo"
+                    }
+                ]}
+            />
+
+            {/* CTA – home only, minimal */}
+            <section className="py-12 bg-white">
+                <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <p className="text-[#333333] text-lg font-medium">
+                        Want to contribute within CEAS?
                     </p>
+                    <Button
+                        asChild
+                        className="mt-4 bg-[#E00122] text-white hover:bg-[#c00115] rounded-full px-6 transition-colors"
+                    >
+                        <Link to="/committees">Get Involved</Link>
+                    </Button>
                 </div>
-                <div className="w-1/3 flex justify-center items-center">
-                    <img src="/api/placeholder/300/200" alt="Exec Board" className="rounded-md shadow-lg" />
-                </div>
-            </div>
-        
-            <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-                <h2 className="text-3xl font-bold text-red-500 pb-2 border-b-4 border-red-500 inline-block">Our Events</h2>
-                <div className="mt-6">
-                    <img src="/api/placeholder/800/600" alt="Calendar" className="w-full rounded-md shadow-lg" />
-                </div>
-            </div>
-        
-            <div className="bg-red-500 py-8 text-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-                    <h2 className="text-2xl font-bold">Want an opportunity to contribute within CEAS</h2>
-                    <button className="bg-white text-red-500 px-4 py-2 rounded-md hover:bg-red-600 hover:text-white">
-                        Get Involved
-                    </button>
-                </div>
-            </div>
-            
+            </section>
+
             <Footer />
         </div>
     );

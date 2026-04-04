@@ -1,14 +1,24 @@
 import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import LoadingFallback from '@/components/LoadingFallback';
+import { AdminGuard } from '@/components/AdminGuard';
 
-// Lazy load layout
+// Lazy load pages
 const HomePage = lazy(() => import('@/pages/HomePage'));
 const CommitteesPage = lazy(() => import('@/pages/CommitteesPage'));
-const ResumeReviewEmployer = lazy(() => import('@/pages/ResumeReviewEmployer'));
-const ResumeReviewStudent = lazy(() => import('@/pages/ResumeReviewStudent'));
 const CareerFairPage = lazy(() => import('@/pages/CareerFairPage'));
+const ExpoPage = lazy(() => import('@/pages/ExpoPage'));
+const AlumniPage = lazy(() => import('@/pages/AlumniPage'));
+const ResumeReviewEmployer = lazy(() => import('@/pages/ResumeReviewEmployer'));
+const ResourcesPage = lazy(() => import('@/pages/ResourcesPage'));
 
+// Admin pages
+const AdminLoginPage = lazy(() => import('@/pages/admin/AdminLoginPage'));
+const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage'));
+const AdminReimbursementsPage = lazy(() => import('@/pages/admin/AdminReimbursementsPage'));
+const AdminRepresentativeSignInPage = lazy(() => import('@/pages/admin/AdminRepresentativeSignInPage'));
+const AdminTagsPrintingPage = lazy(() => import('@/pages/admin/AdminTagsPrintingPage'));
+const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 
 export const router = createBrowserRouter([
   {
@@ -36,6 +46,26 @@ export const router = createBrowserRouter([
     )
   },
   {
+    path: '/expo',
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <ExpoPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/executives',
+    element: <Navigate to="/committees" replace />,
+  },
+  {
+    path: '/alumni',
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <AlumniPage />
+      </Suspense>
+    ),
+  },
+  {
     path: '/resume-review-day/employers',
     element: (
       <Suspense fallback={<LoadingFallback />}>
@@ -44,24 +74,70 @@ export const router = createBrowserRouter([
     )
   },
   {
-    path: '/resume-review-day/students',
+    path: '/resources',
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ResumeReviewStudent />
+        <ResourcesPage />
       </Suspense>
-    )
+    ),
+  },
+  // Admin (public)
+  {
+    path: '/admin/login',
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <AdminLoginPage />
+      </Suspense>
+    ),
+  },
+  // Admin (protected)
+  {
+    path: '/admin',
+    element: (
+      <AdminGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <AdminDashboardPage />
+        </Suspense>
+      </AdminGuard>
+    ),
   },
   {
-    path: '/career-fair',
+    path: '/admin/reimbursements',
     element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <CareerFairPage />
-      </Suspense>
+      <AdminGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <AdminReimbursementsPage />
+        </Suspense>
+      </AdminGuard>
+    ),
+  },
+  {
+    path: '/admin/career-fair/representative-sign-in',
+    element: (
+      <AdminGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <AdminRepresentativeSignInPage />
+        </Suspense>
+      </AdminGuard>
+    ),
+  },
+  {
+    path: '/admin/career-fair/tags',
+    element: (
+      <AdminGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <AdminTagsPrintingPage />
+        </Suspense>
+      </AdminGuard>
     ),
   },
   {
     path: '*',
-    element: <Navigate to="/" replace />,
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <NotFoundPage />
+      </Suspense>
+    ),
   },
 ]);
 
