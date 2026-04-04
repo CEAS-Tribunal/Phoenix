@@ -10,6 +10,7 @@ const CareerFairPage = lazy(() => import('@/pages/CareerFairPage'));
 const ExpoPage = lazy(() => import('@/pages/ExpoPage'));
 const AlumniPage = lazy(() => import('@/pages/AlumniPage'));
 const ResumeReviewEmployer = lazy(() => import('@/pages/ResumeReviewEmployer'));
+const ResumeReviewStudent = lazy(() => import('@/pages/ResumeReviewStudent'));
 const ResourcesPage = lazy(() => import('@/pages/ResourcesPage'));
 
 // Admin pages
