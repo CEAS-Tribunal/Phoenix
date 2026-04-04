@@ -1,4 +1,5 @@
 import { useMemo, useRef } from "react";
+import { Link } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 import {
   Briefcase,
@@ -285,11 +286,8 @@ export default function CareerFairPage() {
                   opens.
                 </p>
                 <div className="mt-6">
-                  <Button
-                    className="bg-[#E00122] hover:bg-[#B8011C] text-white"
-                    disabled
-                  >
-                    Join
+                  <Button asChild className="bg-[#E00122] hover:bg-[#B8011C] text-white">
+                    <Link to="/resume-review-day/students">Join</Link>
                   </Button>
                 </div>
               </Card>
@@ -473,11 +471,8 @@ export default function CareerFairPage() {
                   workshop to further develop and refine their resumes.
                 </p>
                 <div className="mt-6">
-                  <Button
-                    className="bg-[#E00122] hover:bg-[#B8011C] text-white"
-                    disabled
-                  >
-                    Join
+                  <Button asChild className="bg-[#E00122] hover:bg-[#B8011C] text-white">
+                    <Link to="/resume-review-day/students">Join</Link>
                   </Button>
                 </div>
               </Card>

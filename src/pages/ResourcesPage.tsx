@@ -184,9 +184,10 @@ function ResourceCard({
     );
   }
 
+  const internalTo = 'to' in linkProps && linkProps.to != null ? linkProps.to : '/';
   return (
     <Link
-      to={linkProps.to}
+      to={internalTo}
       className="flex gap-4 p-5 rounded-xl border border-gray-200 bg-white hover:shadow-md hover:border-gray-300 transition-all duration-200 text-left group"
     >
       {content}

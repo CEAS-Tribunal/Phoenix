@@ -50,27 +50,20 @@ const MAJOR_OPTIONS: { value: string; label: string }[] = [
   { value: 'mecht', label: 'Mechanical Engineering Technology' },
 ];
 
-const TIMESLOTS: { time: string }[] = [
-    { time: '9:00 AM' },
-    { time: '9:20 AM' },
-    { time: '9:40 AM' },
-    { time: '10:00 AM' },
-    { time: '10:20 AM' },
-    { time: '10:40 AM' },
-    { time: '11:00 AM' },
-    { time: '11:20 AM' },
-    { time: '11:40 AM' },
-    { time: '12:00 PM' },
-    { time: '12:20 PM' },
-    { time: '12:40 PM' },
-    { time: '1:00 PM' },
-    { time: '1:20 PM' },
-    { time: '1:40 PM' },
-    { time: '2:00 PM' },
-    { time: '2:20 PM' },
-    { time: '2:40 PM' },
-    { time: '3:00 PM' }
-]
+/** Hourly ranges for the filter step; each expands to 20-minute slots the API understands */
+const TIME_RANGES: { id: string; label: string; times: string[] }[] = [
+    { id: '9-10', label: '9:00 AM – 10:00 AM', times: ['9:00 AM', '9:20 AM', '9:40 AM'] },
+    { id: '10-11', label: '10:00 AM – 11:00 AM', times: ['10:00 AM', '10:20 AM', '10:40 AM'] },
+    { id: '11-12', label: '11:00 AM – 12:00 PM', times: ['11:00 AM', '11:20 AM', '11:40 AM'] },
+    { id: '12-1', label: '12:00 PM – 1:00 PM', times: ['12:00 PM', '12:20 PM', '12:40 PM'] },
+    { id: '1-2', label: '1:00 PM – 2:00 PM', times: ['1:00 PM', '1:20 PM', '1:40 PM'] },
+    { id: '2-3', label: '2:00 PM – 3:00 PM', times: ['2:00 PM', '2:20 PM', '2:40 PM'] },
+];
+
+function timesFromSelectedRanges(rangeIds: string[]): string[] {
+    const expanded = rangeIds.flatMap((id) => TIME_RANGES.find((r) => r.id === id)?.times ?? []);
+    return [...new Set(expanded)];
+}
 
 const INTERVIEW_SLOTS: { type: string }[] = [
     { type: 'In-Person' },
@@ -81,7 +74,8 @@ const MAX_EMPLOYERS = 2;
 export default function ResumeReviewStudent() {
     const [selectedInterviewStyle, setSelectedInterviewStyle] = useState<string>('');
     const [selectedMajor, setSelectedMajor] = useState<string>('');
-    const [selectedTimeslot, setSelectedTimeslot] = useState<string[]>([]);
+    /** Selected hour-range ids for the initial filter (any number of ranges) */
+    const [selectedTimeRanges, setSelectedTimeRanges] = useState<string[]>([]);
     const [results, setResults] = useState<EmployerTimeslot[] | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -104,9 +98,10 @@ export default function ResumeReviewStudent() {
         setError(null);
         setLoading(true);
         try {
+            const expandedTimes = timesFromSelectedRanges(selectedTimeRanges);
             const data = await ResumeReviewDay.getTimeslots({
                 major: selectedMajor || undefined,
-                time: selectedTimeslot.length > 0 ? selectedTimeslot : undefined,
+                time: expandedTimes.length > 0 ? expandedTimes : undefined,
             });
             setResults(data);
         } catch (e) {
@@ -191,10 +186,9 @@ export default function ResumeReviewStudent() {
                         Career Fair. Resume Review Day takes place on Monday, February 2nd, 2026 in Rhodes 800.
                     </p>
                     <p className='text-base text-black/80 text-center leading-relaxed'>
-                        Select a timeslot with an employer by browsing all of the available options or filter by major, 
-                        a desired time (if applicable), and a desired review method. You are able to register for up to 
-                        2 different employer(s). The last day to sign up will be on Wednesday, January 28th, 2026. Further 
-                        instructions will be sent to your email after signing up.
+                        Filter by major, optional time ranges, and review method, then choose specific 20-minute times with
+                        up to two employers (one slot per employer). The last day to sign up will be on Wednesday,
+                        January 28th, 2026. Further instructions will be sent to your email after signing up.
                     </p>
                     <p className='text-base text-black/80 text-center'>If you have any questions, please contact us at <a href='mailto:uccareerfair@gmail.com' className='text-red-600 hover:text-red-700 hover:underline hover:underline-offset-[3px]'>uccareerfair@gmail.com</a>.</p>
                 </div>
@@ -218,54 +212,57 @@ export default function ResumeReviewStudent() {
                     </div>
                     <div>
                         <label className="block text-slate-700 font-medium mb-2">
-                            Select up to <span className="font-bold">2</span> Timeslot(s)
+                            Time availability <span className="text-slate-500 font-normal">(optional)</span>
                         </label>
+                        <p className="text-xs text-slate-500 mb-2">
+                            Choose hour ranges you are available. Leave none selected to see all times. After you filter,
+                            you will pick exact 20-minute slots with each employer.
+                        </p>
                         <div className="flex flex-wrap gap-2 items-center">
-                            {selectedTimeslot.length > 0 &&
-                                selectedTimeslot.map((ts) => (
-                                    <span key={ts} className="flex items-center bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm mr-2 border border-red-200">
-                                        {ts}
+                            {selectedTimeRanges.length > 0 &&
+                                selectedTimeRanges.map((rid) => {
+                                    const r = TIME_RANGES.find((x) => x.id === rid);
+                                    if (!r) return null;
+                                    return (
+                                    <span key={rid} className="flex items-center bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm mr-2 border border-red-200">
+                                        {r.label}
                                         <button
                                             type="button"
                                             aria-label="Remove"
                                             className="ml-2 text-red-600 hover:text-red-800 focus:outline-none"
-                                            onClick={() => setSelectedTimeslot((prev) => prev.filter((t) => t !== ts))}
+                                            onClick={() => setSelectedTimeRanges((prev) => prev.filter((id) => id !== rid))}
                                         >
                                             &times;
                                         </button>
                                     </span>
-                                ))}
+                                    );
+                                })}
                         </div>
-                        <div className="grid grid-cols-2 gap-2 mt-2 max-h-60 overflow-y-auto border border-slate-200 rounded-lg p-2 bg-white">
-                            {TIMESLOTS.map((slot, idx) => {
-                                const checked = selectedTimeslot.includes(slot.time);
-                                const disabled = !checked && selectedTimeslot.length >= 2;
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 border border-slate-200 rounded-lg p-2 bg-white">
+                            {TIME_RANGES.map((range) => {
+                                const checked = selectedTimeRanges.includes(range.id);
                                 return (
                                     <label
-                                        key={slot.time || idx}
-                                        className={`flex items-center px-2 py-1 rounded cursor-pointer transition-colors ${checked ? 'bg-red-100 text-red-800' : 'hover:bg-slate-50'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        key={range.id}
+                                        className={`flex items-center px-2 py-2 rounded cursor-pointer transition-colors ${checked ? 'bg-red-100 text-red-800' : 'hover:bg-slate-50'}`}
                                     >
                                         <input
                                             type="checkbox"
-                                            value={slot.time}
+                                            value={range.id}
                                             checked={checked}
-                                            disabled={disabled}
                                             onChange={() => {
                                                 if (checked) {
-                                                    setSelectedTimeslot((prev) => prev.filter((t) => t !== slot.time));
+                                                    setSelectedTimeRanges((prev) => prev.filter((id) => id !== range.id));
                                                 } else {
-                                                    setSelectedTimeslot((prev) => [...prev, slot.time]);
+                                                    setSelectedTimeRanges((prev) => [...prev, range.id]);
                                                 }
                                             }}
-                                            className="mr-2"
+                                            className="mr-2 shrink-0"
                                         />
-                                        {slot.time}
+                                        {range.label}
                                     </label>
                                 );
                             })}
-                        </div>
-                        <div className="text-xs text-slate-500 mt-1">
-                            {selectedTimeslot.length === 2 ? 'Maximum of 2 timeslots selected.' : ''}
                         </div>
                     </div>
                     <div className=''>
@@ -320,7 +317,11 @@ export default function ResumeReviewStudent() {
                         <div className="w-3/5 my-10 border-t border-slate-200" aria-hidden />
                         <div className="w-full px-6 sm:px-8 md:px-12 my-6 space-y-4">
                         <h2 className="text-2xl font-bold text-black">Available Employers</h2>
-                        <p className="text-black/90 text-sm">Select one timeslot per employer (up to {MAX_EMPLOYERS} employers). Each timeslot can only be selected once.</p>
+                        <p className="text-black/90 text-sm">
+                            Choose specific 20-minute times below: one slot per employer, at most {MAX_EMPLOYERS} employers
+                            total, and at least one slot to register. You cannot pick the same clock time with two
+                            different employers.
+                        </p>
 
                         <div className="flex flex-wrap gap-4">
                             {results.map((employer) => {
@@ -397,9 +398,13 @@ export default function ResumeReviewStudent() {
                             })}
                         </div>
 
-                        {Object.keys(selectedSlots).length > 0 && (
-                            <form onSubmit={handleSignup} className="mt-8 p-6 rounded-xl bg-white/95 shadow-lg border border-white/50 space-y-4 w-full">
+                        <form onSubmit={handleSignup} className="mt-8 p-6 rounded-xl bg-white/95 shadow-lg border border-white/50 space-y-4 w-full">
                                 <h3 className="text-lg font-semibold text-slate-800">Complete your registration</h3>
+                                {Object.keys(selectedSlots).length === 0 && (
+                                    <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                                        Select at least one time with an employer above before submitting.
+                                    </p>
+                                )}
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-slate-700 mb-1">Full name</label>
@@ -460,13 +465,12 @@ export default function ResumeReviewStudent() {
                                 </div>
                                 <button
                                     type="submit"
-                                    disabled={submitting}
+                                    disabled={submitting || Object.keys(selectedSlots).length === 0}
                                     className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
                                     {submitting ? 'Submitting…' : 'Submit registration'}
                                 </button>
                             </form>
-                        )}
                     </div>
                     </>
                 )}
