@@ -1,5 +1,6 @@
 import { useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { motion, useInView } from "framer-motion";
 import {
   Briefcase,
@@ -17,6 +18,7 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import careerFairBanner from "@/assets/tribunal-career-fair-banner.jpg";
+import { ResumeReviewDay } from "@/services/ResumeReviewService";
 
 type EventCard = {
   title: string;
@@ -57,6 +59,11 @@ function SectionHeader({
 export default function CareerFairPage() {
   const heroRef = useRef(null);
   const inView = useInView(heroRef, { once: true, margin: "-100px" });
+
+  const employersQuery = useQuery({
+    queryKey: ["rrd-employers"],
+    queryFn: () => ResumeReviewDay.getEmployers(),
+  });
 
   const careerWeekCards = useMemo<EventCard[]>(
     () => [
@@ -499,6 +506,86 @@ export default function CareerFairPage() {
                 </div>
               </Card>
             </div>
+          </div>
+        </section>
+
+        {/* Resume Review Day — employers signed up (public API) */}
+        <section className="py-16 lg:py-24 bg-white">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={fadeInUp}
+              transition={{ duration: 0.6 }}
+            >
+              <SectionHeader
+                eyebrow="Resume Review Day"
+                title="Signed up employers"
+                description="Industry partners registered for Engineering Resume Review Day. Open slots are 20-minute sessions still available for students to book."
+              />
+            </motion.div>
+
+            {employersQuery.isPending ? (
+              <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3].map((i) => (
+                  <Card
+                    key={i}
+                    className="p-6 lg:p-8 border-gray-200 overflow-hidden"
+                  >
+                    <div className="h-5 w-2/3 rounded bg-gray-200 animate-pulse" />
+                    <div className="mt-4 h-4 w-1/2 rounded bg-gray-100 animate-pulse" />
+                    <div className="mt-6 flex flex-wrap gap-2">
+                      <div className="h-6 w-20 rounded-full bg-gray-100 animate-pulse" />
+                      <div className="h-6 w-24 rounded-full bg-gray-100 animate-pulse" />
+                    </div>
+                    <div className="mt-4 h-4 w-28 rounded bg-gray-100 animate-pulse" />
+                  </Card>
+                ))}
+              </div>
+            ) : employersQuery.isError ? (
+              <div className="mt-10 rounded-xl border border-rose-200 bg-rose-50 px-4 py-6 text-center text-sm text-rose-800">
+                We couldn&apos;t load the employer list. Please try again later.
+              </div>
+            ) : employersQuery.data?.length === 0 ? (
+              <Card className="mt-10 p-8 lg:p-10 border-gray-200 text-center">
+                <p className="text-gray-600">
+                  No employers signed up yet. Check back as Resume Review Day
+                  approaches.
+                </p>
+              </Card>
+            ) : (
+              <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {employersQuery.data?.map((emp) => (
+                  <Card
+                    key={emp.id}
+                    className="p-6 lg:p-8 border-gray-200 flex flex-col h-full"
+                  >
+                    <h3 className="text-lg font-bold text-[#333333] leading-snug">
+                      {emp.company_name}
+                    </h3>
+                    <p className="mt-2 text-sm text-gray-600">{emp.full_name}</p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {emp.selected_majors.map((major) => (
+                        <span
+                          key={major}
+                          className="inline-flex items-center rounded-full border border-gray-200 bg-[#F9FAFB] px-2.5 py-0.5 text-xs font-medium text-gray-700"
+                        >
+                          {major}
+                        </span>
+                      ))}
+                    </div>
+                    <p className="mt-auto pt-4 text-sm text-gray-600">
+                      <span className="font-semibold text-[#333333]">
+                        {emp.available_slots}
+                      </span>{" "}
+                      open slot
+                      {emp.available_slots === 1 ? "" : "s"}
+                    </p>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
