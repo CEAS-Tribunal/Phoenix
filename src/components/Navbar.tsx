@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { isAdminAuthenticated, setAdminAuthenticated } from "@/components/AdminGuard";
+import { isAuthenticated, logout } from "@/services/AuthService";
 import { motion } from "framer-motion";
 import {
   Menu,
@@ -37,10 +37,10 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const isAdmin = location.pathname.startsWith("/admin") && location.pathname !== "/admin/login";
-  const showLogout = isAdmin && isAdminAuthenticated();
+  const showLogout = isAdmin && isAuthenticated();
 
   const handleLogout = () => {
-    setAdminAuthenticated(false);
+    logout();
     navigate("/admin/login", { replace: true });
     setIsMenuOpen(false);
   };
