@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { LogIn } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -9,36 +10,71 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { setAdminAuthenticated, isAdminAuthenticated } from "@/components/AdminGuard";
-
-const HARDCODED_EMAIL = "123";
-const HARDCODED_PASSWORD = "123";
+import {
+  formatErrorMessage,
+  isAuthenticated,
+  login,
+  logout,
+  refreshMe,
+} from "@/services/AuthService";
 
 export default function AdminLoginPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
 
+  const loginMutation = useMutation({
+    mutationFn: () => login(username, password),
+    onSuccess: (result) => {
+      if (result.mustChangePassword) {
+        navigate("/admin/change-password", { replace: true });
+      } else {
+        navigate("/admin", { replace: true });
+      }
+    },
+    onError: (err: unknown) => {
+      setError(formatErrorMessage(err));
+    },
+  });
+
   useEffect(() => {
-    if (isAdminAuthenticated()) {
-      navigate("/admin", { replace: true });
-    }
+    if (!isAuthenticated()) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const me = await refreshMe();
+        if (cancelled) return;
+        if (!me.is_staff) {
+          logout();
+          navigate("/", { replace: true });
+          return;
+        }
+        if (me.must_change_password) {
+          navigate("/admin/change-password", { replace: true });
+        } else {
+          navigate("/admin", { replace: true });
+        }
+      } catch {
+        if (!cancelled) {
+          logout();
+          navigate("/admin/login", { replace: true });
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [navigate]);
 
-  if (isAdminAuthenticated()) {
+  if (isAuthenticated()) {
     return null;
   }
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    if (email === HARDCODED_EMAIL && password === HARDCODED_PASSWORD) {
-      setAdminAuthenticated(true);
-      navigate("/admin", { replace: true });
-    } else {
-      setError("Invalid email or password. Use 123 / 123 for demo.");
-    }
+    loginMutation.mutate();
   }
 
   return (
@@ -60,23 +96,24 @@ export default function AdminLoginPage() {
                     <CardTitle className="text-2xl font-bold tracking-tight">Admin Login</CardTitle>
                   </div>
                   <CardDescription className="text-gray-600">
-                    Sign in with your executive credentials to access the admin dashboard.
+                    Staff sign-in: use your executive username (6+2) and password (same as Django admin).
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="admin-email" className="text-[#333333]">
-                        Email
+                      <Label htmlFor="admin-username" className="text-[#333333]">
+                        Username
                       </Label>
                       <Input
-                        id="admin-email"
+                        id="admin-username"
                         type="text"
-                        placeholder="Enter email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Your 6+2"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
                         className="border-gray-200 focus-visible:ring-[#E00122]/50"
                         autoComplete="username"
+                        disabled={loginMutation.isPending}
                       />
                     </div>
                     <div className="space-y-2">
@@ -91,6 +128,7 @@ export default function AdminLoginPage() {
                         onChange={(e) => setPassword(e.target.value)}
                         className="border-gray-200 focus-visible:ring-[#E00122]/50"
                         autoComplete="current-password"
+                        disabled={loginMutation.isPending}
                       />
                     </div>
                     {error && (
@@ -101,8 +139,9 @@ export default function AdminLoginPage() {
                     <Button
                       type="submit"
                       className="w-full bg-[#E00122] text-white hover:bg-[#B8011C] rounded-md"
+                      disabled={loginMutation.isPending || !username.trim() || !password}
                     >
-                      Sign in
+                      {loginMutation.isPending ? "Signing in…" : "Sign in"}
                     </Button>
                   </form>
                 </CardContent>

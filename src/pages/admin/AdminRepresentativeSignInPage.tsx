@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Link } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { UserPlus, ArrowLeft, CheckCircle } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -10,6 +11,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  CAREER_FAIR_REPRESENTATIVES_QUERY_KEY,
+  formatErrorMessage,
+  signInRepresentative,
+} from "@/services/CareerFairService";
 
 const LOCATION_OPTIONS = [
   { value: "rec-center", label: "REC Center" },
@@ -17,6 +23,7 @@ const LOCATION_OPTIONS = [
 ] as const;
 
 export default function AdminRepresentativeSignInPage() {
+  const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [company, setCompany] = useState("");
   const [title, setTitle] = useState("");
@@ -24,12 +31,41 @@ export default function AdminRepresentativeSignInPage() {
   const [boothLocation, setBoothLocation] = useState("");
   const [location, setLocation] = useState<string>("");
   const [signedIn, setSignedIn] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const signInMutation = useMutation({
+    mutationFn: () =>
+      signInRepresentative({
+        name: name.trim(),
+        company: company.trim(),
+        title: title.trim(),
+        email: email.trim(),
+        booth_location: boothLocation.trim(),
+        building_location: location,
+      }),
+    onSuccess: () => {
+      setError(null);
+      setSignedIn(true);
+      void queryClient.invalidateQueries({ queryKey: [...CAREER_FAIR_REPRESENTATIVES_QUERY_KEY] });
+    },
+    onError: (err: unknown) => {
+      setError(formatErrorMessage(err));
+    },
+  });
+
+  const formValid =
+    name.trim() &&
+    company.trim() &&
+    title.trim() &&
+    email.trim() &&
+    boothLocation.trim() &&
+    location;
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (location) {
-      setSignedIn(true);
-    }
+    setError(null);
+    if (!formValid) return;
+    signInMutation.mutate();
   }
 
   function handleSignInAnother() {
@@ -40,6 +76,7 @@ export default function AdminRepresentativeSignInPage() {
     setBoothLocation("");
     setLocation("");
     setSignedIn(false);
+    setError(null);
   }
 
   return (
@@ -103,6 +140,8 @@ export default function AdminRepresentativeSignInPage() {
                           onChange={(e) => setName(e.target.value)}
                           placeholder="Name"
                           className="border-gray-200"
+                          disabled={signInMutation.isPending}
+                          required
                         />
                       </div>
                       <div className="space-y-2">
@@ -113,6 +152,8 @@ export default function AdminRepresentativeSignInPage() {
                           onChange={(e) => setCompany(e.target.value)}
                           placeholder="Company"
                           className="border-gray-200"
+                          disabled={signInMutation.isPending}
+                          required
                         />
                       </div>
                       <div className="space-y-2">
@@ -123,6 +164,8 @@ export default function AdminRepresentativeSignInPage() {
                           onChange={(e) => setTitle(e.target.value)}
                           placeholder="Title"
                           className="border-gray-200"
+                          disabled={signInMutation.isPending}
+                          required
                         />
                       </div>
                       <div className="space-y-2">
@@ -134,6 +177,8 @@ export default function AdminRepresentativeSignInPage() {
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="Email"
                           className="border-gray-200"
+                          disabled={signInMutation.isPending}
+                          required
                         />
                       </div>
                       <div className="space-y-2">
@@ -144,6 +189,8 @@ export default function AdminRepresentativeSignInPage() {
                           onChange={(e) => setBoothLocation(e.target.value)}
                           placeholder="ex: A15"
                           className="border-gray-200"
+                          disabled={signInMutation.isPending}
+                          required
                         />
                       </div>
                       <div className="space-y-3">
@@ -151,7 +198,8 @@ export default function AdminRepresentativeSignInPage() {
                         <RadioGroup
                           value={location}
                           onValueChange={setLocation}
-                          className="flex gap-6"
+                          className="flex flex-wrap gap-6"
+                          disabled={signInMutation.isPending}
                         >
                           {LOCATION_OPTIONS.map((loc) => (
                             <div key={loc.value} className="flex items-center gap-2">
@@ -163,12 +211,17 @@ export default function AdminRepresentativeSignInPage() {
                           ))}
                         </RadioGroup>
                       </div>
+                      {error && (
+                        <p className="text-sm text-red-600" role="alert">
+                          {error}
+                        </p>
+                      )}
                       <Button
                         type="submit"
                         className="w-full bg-[#E00122] text-white hover:bg-[#B8011C] rounded-md"
-                        disabled={!location}
+                        disabled={!formValid || signInMutation.isPending}
                       >
-                        Sign in
+                        {signInMutation.isPending ? "Signing in…" : "Sign in"}
                       </Button>
                     </form>
                   )}
