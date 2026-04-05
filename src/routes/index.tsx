@@ -15,10 +15,12 @@ const ResourcesPage = lazy(() => import('@/pages/ResourcesPage'));
 
 // Admin pages
 const AdminLoginPage = lazy(() => import('@/pages/admin/AdminLoginPage'));
+const AdminChangePasswordPage = lazy(() => import('@/pages/admin/AdminChangePasswordPage'));
 const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage'));
 const AdminReimbursementsPage = lazy(() => import('@/pages/admin/AdminReimbursementsPage'));
 const AdminRepresentativeSignInPage = lazy(() => import('@/pages/admin/AdminRepresentativeSignInPage'));
 const AdminTagsPrintingPage = lazy(() => import('@/pages/admin/AdminTagsPrintingPage'));
+const AdminResumeRosterPage = lazy(() => import('@/pages/admin/AdminResumeRosterPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 
 export const router = createBrowserRouter([
@@ -99,6 +101,14 @@ export const router = createBrowserRouter([
       </Suspense>
     ),
   },
+  {
+    path: '/admin/change-password',
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <AdminChangePasswordPage />
+      </Suspense>
+    ),
+  },
   // Admin (protected)
   {
     path: '/admin',
@@ -136,6 +146,16 @@ export const router = createBrowserRouter([
       <AdminGuard>
         <Suspense fallback={<LoadingFallback />}>
           <AdminTagsPrintingPage />
+        </Suspense>
+      </AdminGuard>
+    ),
+  },
+  {
+    path: '/admin/resume-review-day/roster',
+    element: (
+      <AdminGuard>
+        <Suspense fallback={<LoadingFallback />}>
+          <AdminResumeRosterPage />
         </Suspense>
       </AdminGuard>
     ),

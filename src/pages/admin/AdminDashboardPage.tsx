@@ -7,6 +7,7 @@ import {
   ArrowRight,
   BarChart3,
   TrendingUp,
+  ClipboardList,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -45,6 +46,12 @@ const DASHBOARD_LINKS = [
     description: "Print name tags for representatives; select printer and location.",
     icon: Printer,
   },
+  {
+    href: "/admin/resume-review-day/roster",
+    title: "Resume Review Day Roster",
+    description: "View employers and students signed up for Resume Review Day.",
+    icon: ClipboardList,
+  },
 ] as const;
 
 const eventChartConfig = chartConfigEventAttendance;
@@ -70,7 +77,8 @@ export default function AdminDashboardPage() {
                 Admin Dashboard
               </h1>
               <p className="mt-2 text-base text-gray-600">
-                Manage reimbursements, career fair sign-in, and tags. View engagement metrics below.
+                Manage reimbursements, career fair sign-in, tags, and the Resume Review Day roster.
+                View engagement metrics below.
               </p>
             </motion.div>
 
