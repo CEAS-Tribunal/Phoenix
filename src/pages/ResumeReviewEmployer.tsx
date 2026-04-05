@@ -34,7 +34,6 @@ type FormValues = {
   diet_restriction: string;
   start_time: string;
   end_time: string;
-  max_resumes: number;
   uc_alumni: boolean;
   selected_majors: string[];
 };
@@ -44,7 +43,6 @@ export default function ResumeReviewEmployer() {
     defaultValues: {
       uc_alumni: false,
       selected_majors: [],
-      max_resumes: 10,
     },
   });
 
@@ -138,9 +136,8 @@ export default function ResumeReviewEmployer() {
               with emerging talent, and help students put their best foot forward.
             </p>
             <p className="text-base text-black/80 text-center leading-relaxed">
-              Select the time window you will be available, the maximum number of resumes you would like to review,
-              and the majors you are most interested in meeting with. Once submitted, our team will confirm your
-              schedule and send you additional details.
+              Select the time window you will be available and the majors you are most interested in meeting with.
+              Once submitted, our team will confirm your schedule and send you additional details.
             </p>
             <p className="text-base text-black/80 text-center">
               If you have any questions, please contact us at{' '}
@@ -239,23 +236,6 @@ export default function ResumeReviewEmployer() {
                   />
                   {errors.end_time && <p className="text-rose-500 text-xs mt-1">This field is required</p>}
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Maximum Resumes (max 20)</label>
-                <input
-                  type="number"
-                  {...register("max_resumes", { required: true, min: 1, max: 20 })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white"
-                  placeholder="Number of students you can see"
-                  min={1}
-                  max={100}
-                />
-                {errors.max_resumes && (
-                  <p className="text-rose-500 text-xs mt-1">
-                    Must be between 1 and 100
-                  </p>
-                )}
               </div>
 
               <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-slate-50 border border-slate-200">
