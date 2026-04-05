@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import LoadingFallback from '@/components/LoadingFallback';
 import { AdminGuard } from '@/components/AdminGuard';
+import { RootLayout } from '@/components/RootLayout';
 
 // Lazy load pages
 const HomePage = lazy(() => import('@/pages/HomePage'));
@@ -26,147 +27,151 @@ const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <HomePage />
-      </Suspense>
-    ),
-  },
-  {
-    path: '/committees',
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <CommitteesPage />
-      </Suspense>
-    ),
-  },
-  {
-    path: '/career-fair',
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <CareerFairPage />
-      </Suspense>
-    )
-  },
-  {
-    path: '/expo',
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ExpoPage />
-      </Suspense>
-    ),
-  },
-  {
-    path: '/executives',
-    element: <Navigate to="/committees" replace />,
-  },
-  {
-    path: '/alumni',
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <AlumniPage />
-      </Suspense>
-    ),
-  },
-  {
-    path: '/resume-review-day/employers',
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ResumeReviewEmployer />
-      </Suspense>
-    )
-  },
-   {
-    path: '/resume-review-day/students',
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ResumeReviewStudent />
-      </Suspense>
-    )
-  },
-  {
-    path: '/resources',
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ResourcesPage />
-      </Suspense>
-    ),
-  },
-  // Admin (public)
-  {
-    path: '/admin/login',
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <AdminLoginPage />
-      </Suspense>
-    ),
-  },
-  {
-    path: '/admin/change-password',
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <AdminChangePasswordPage />
-      </Suspense>
-    ),
-  },
-  // Admin (protected)
-  {
-    path: '/admin',
-    element: (
-      <AdminGuard>
-        <Suspense fallback={<LoadingFallback />}>
-          <AdminDashboardPage />
-        </Suspense>
-      </AdminGuard>
-    ),
-  },
-  {
-    path: '/admin/reimbursements',
-    element: (
-      <AdminGuard>
-        <Suspense fallback={<LoadingFallback />}>
-          <AdminReimbursementsPage />
-        </Suspense>
-      </AdminGuard>
-    ),
-  },
-  {
-    path: '/admin/career-fair/representative-sign-in',
-    element: (
-      <AdminGuard>
-        <Suspense fallback={<LoadingFallback />}>
-          <AdminRepresentativeSignInPage />
-        </Suspense>
-      </AdminGuard>
-    ),
-  },
-  {
-    path: '/admin/career-fair/tags',
-    element: (
-      <AdminGuard>
-        <Suspense fallback={<LoadingFallback />}>
-          <AdminTagsPrintingPage />
-        </Suspense>
-      </AdminGuard>
-    ),
-  },
-  {
-    path: '/admin/resume-review-day/roster',
-    element: (
-      <AdminGuard>
-        <Suspense fallback={<LoadingFallback />}>
-          <AdminResumeRosterPage />
-        </Suspense>
-      </AdminGuard>
-    ),
-  },
-  {
-    path: '*',
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <NotFoundPage />
-      </Suspense>
-    ),
+    element: <RootLayout />,
+    children: [
+      {
+        index: true,
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <HomePage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'committees',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <CommitteesPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'career-fair',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <CareerFairPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'expo',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <ExpoPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'executives',
+        element: <Navigate to="/committees" replace />,
+      },
+      {
+        path: 'alumni',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <AlumniPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'resume-review-day/employers',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <ResumeReviewEmployer />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'resume-review-day/students',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <ResumeReviewStudent />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'resources',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <ResourcesPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'admin/login',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <AdminLoginPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'admin/change-password',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <AdminChangePasswordPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'admin',
+        element: (
+          <AdminGuard>
+            <Suspense fallback={<LoadingFallback />}>
+              <AdminDashboardPage />
+            </Suspense>
+          </AdminGuard>
+        ),
+      },
+      {
+        path: 'admin/reimbursements',
+        element: (
+          <AdminGuard>
+            <Suspense fallback={<LoadingFallback />}>
+              <AdminReimbursementsPage />
+            </Suspense>
+          </AdminGuard>
+        ),
+      },
+      {
+        path: 'admin/career-fair/representative-sign-in',
+        element: (
+          <AdminGuard>
+            <Suspense fallback={<LoadingFallback />}>
+              <AdminRepresentativeSignInPage />
+            </Suspense>
+          </AdminGuard>
+        ),
+      },
+      {
+        path: 'admin/career-fair/tags',
+        element: (
+          <AdminGuard>
+            <Suspense fallback={<LoadingFallback />}>
+              <AdminTagsPrintingPage />
+            </Suspense>
+          </AdminGuard>
+        ),
+      },
+      {
+        path: 'admin/resume-review-day/roster',
+        element: (
+          <AdminGuard>
+            <Suspense fallback={<LoadingFallback />}>
+              <AdminResumeRosterPage />
+            </Suspense>
+          </AdminGuard>
+        ),
+      },
+      {
+        path: '*',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <NotFoundPage />
+          </Suspense>
+        ),
+      },
+    ],
   },
 ]);
 
