@@ -3,7 +3,8 @@
  * No section grouping; one flat grid of role cards. Colors and icons vary per card.
  */
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
@@ -26,7 +27,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import {
   CommitteesService,
-  type ExecRoleSection,
   type ExecRoleItem,
   type ExecMemberPerson,
 } from "@/services/CommitteesService";
@@ -187,9 +187,15 @@ function RoleCard({
 }
 
 export default function CommitteesPage() {
-  const [sections, setSections] = useState<ExecRoleSection[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: sections = [], isPending: loading, isError, error } = useQuery({
+    queryKey: ["committees", "exec-role-with-members"],
+    queryFn: () => CommitteesService.getExecRoleSectionsWithMembers(),
+  });
+  const errorMessage = isError
+    ? error instanceof Error
+      ? error.message
+      : "Failed to load committees."
+    : null;
   const [expandedRoleId, setExpandedRoleId] = useState<number | null>(null);
 
   /** President and Chief of Staff first, then all other roles in their original order. */
@@ -204,25 +210,6 @@ export default function CommitteesPage() {
       (r): r is NonNullable<typeof r> => r != null
     );
   })();
-
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    setError(null);
-    CommitteesService.getExecRoleSectionsWithMembers()
-      .then((data) => {
-        if (!cancelled) setSections(data);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err?.message ?? "Failed to load committees.");
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const handleScrollToMeetings = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -268,8 +255,8 @@ export default function CommitteesPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {loading ? (
               <div className="text-center py-12 text-gray-500">Loading roles…</div>
-            ) : error ? (
-              <div className="text-center py-12 text-red-600">{error}</div>
+            ) : errorMessage ? (
+              <div className="text-center py-12 text-red-600">{errorMessage}</div>
             ) : allRoles.length === 0 ? (
               <div className="text-center py-12 text-gray-500">No roles yet.</div>
             ) : (

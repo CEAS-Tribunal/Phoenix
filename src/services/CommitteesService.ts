@@ -2,7 +2,11 @@ import axios from 'axios';
 
 export type CommitteeColor = 'indigo' | 'teal' | 'sky' | 'rose';
 
-const HOST_URL = import.meta.env.VITE_HOST_URL as string;
+const HOST_URL = import.meta.env.VITE_HOST_URL as string | undefined;
+const baseURL =
+  HOST_URL !== undefined && HOST_URL !== ''
+    ? HOST_URL
+    : '';
 
 /** Executive member (from GET /dashboard/exec-member/?roleId= or embedded in exec-role). */
 export interface ExecMemberPerson {
@@ -39,34 +43,30 @@ export interface Committee {
 }
 
 const axiosInstance = axios.create({
-  baseURL: HOST_URL,
+  baseURL,
   withCredentials: false,
 });
 
 export const CommitteesService = {
   /** GET /dashboard/exec-role -> ExecRoleSection[] (Officers, CoS, VPCA, VPE with roles). */
   async getExecRoleSections(): Promise<ExecRoleSection[]> {
-    const { data } = await axiosInstance.get<ExecRoleSection[]>(
-      `${HOST_URL}/dashboard/exec-role`
-    );
+    const { data } = await axiosInstance.get<ExecRoleSection[]>('/dashboard/exec-role/');
     return data;
   },
 
   /** GET /dashboard/exec-role?include_members=true -> sections with roles and members in one call. */
   async getExecRoleSectionsWithMembers(): Promise<ExecRoleSection[]> {
-    const { data } = await axiosInstance.get<ExecRoleSection[]>(
-      `${HOST_URL}/dashboard/exec-role`,
-      { params: { include_members: "true" } }
-    );
+    const { data } = await axiosInstance.get<ExecRoleSection[]>('/dashboard/exec-role/', {
+      params: { include_members: 'true' },
+    });
     return data;
   },
 
   /** GET /dashboard/exec-member/?roleId= -> ExecMemberPerson[] for a given role. */
   async getExecMembersByRoleId(roleId: number): Promise<ExecMemberPerson[]> {
-    const { data } = await axiosInstance.get<ExecMemberPerson[]>(
-      `${HOST_URL}/dashboard/exec-member/`,
-      { params: { roleId } }
-    );
+    const { data } = await axiosInstance.get<ExecMemberPerson[]>('/dashboard/exec-member/', {
+      params: { roleId },
+    });
     return data;
   },
 
