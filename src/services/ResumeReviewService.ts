@@ -156,9 +156,11 @@ export const ResumeReviewDay = {
     formData.append('major', data.major);
     formData.append('resume', data.resume);
     formData.append('timeslots', data.timeslots.join(','));
-    const response = await axiosInstance.post<StudentResponse>('/api/resume-review-day/student/', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    // Let the browser set multipart boundary; a bare multipart/form-data header breaks uploads.
+    const response = await axiosInstance.post<StudentResponse>(
+      '/api/resume-review-day/student/',
+      formData
+    );
     return { data: response.data, status: response.status };
   }
 };
