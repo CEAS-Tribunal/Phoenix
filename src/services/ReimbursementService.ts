@@ -19,6 +19,8 @@ function authHeader(): { Authorization: string } | Record<string, never> {
 export interface SubmitReimbursementPayload {
   /** ISO date string YYYY-MM-DD (from `<input type="date">`). */
   date: string;
+  /** University / payroll M number (entered by the submitter). */
+  mNumber: string;
   vendorName: string;
   amount: string;
   description: string;
@@ -34,13 +36,14 @@ export interface SubmitReimbursementResponse {
 }
 
 /**
- * Staff JWT — member fields are filled server-side from User + reimbursement profile.
+ * Staff JWT — name, email, role, and vendor ID come from User + reimbursement profile.
  */
 export async function submitReimbursementRequest(
   payload: SubmitReimbursementPayload
 ): Promise<SubmitReimbursementResponse> {
   const formData = new FormData();
   formData.append("date", payload.date);
+  formData.append("m_number", payload.mNumber);
   formData.append("vendor_name", payload.vendorName);
   formData.append("amount", payload.amount);
   formData.append("description", payload.description);
