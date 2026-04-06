@@ -36,6 +36,7 @@ function displayNameFromMe(me: AuthMeResponse): string {
 export default function AdminReimbursementsPage() {
   const navigate = useNavigate();
   const [expenditureDate, setExpenditureDate] = useState("");
+  const [mNumber, setMNumber] = useState("");
   const [vendorName, setVendorName] = useState("");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
@@ -55,6 +56,7 @@ export default function AdminReimbursementsPage() {
     mutationFn: submitReimbursementRequest,
     onSuccess: () => {
       setExpenditureDate("");
+      setMNumber("");
       setVendorName("");
       setAmount("");
       setDescription("");
@@ -73,6 +75,10 @@ export default function AdminReimbursementsPage() {
     submitMutation.reset();
     if (!expenditureDate.trim()) {
       setClientError("Please enter the date of the expenditure.");
+      return;
+    }
+    if (!mNumber.trim()) {
+      setClientError("Please enter your M number.");
       return;
     }
     if (!vendorName.trim()) {
@@ -102,6 +108,7 @@ export default function AdminReimbursementsPage() {
     }
     submitMutation.mutate({
       date: expenditureDate.trim(),
+      mNumber: mNumber.trim(),
       vendorName: vendorName.trim(),
       amount: amountParsed.toFixed(2),
       description: description.trim(),
@@ -179,8 +186,8 @@ export default function AdminReimbursementsPage() {
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-8">
                     <p className="text-sm text-gray-600 -mt-2">
-                      Your name, email, executive role, vendor ID, and M number are taken from your
-                      account and treasurer records—you only need to complete the sections below.
+                      Your name, email, executive role, and vendor ID are taken from your account
+                      and treasurer records. Enter your M number and the purchase details below.
                     </p>
 
                     {/* Expenditure Information — purchase details (design: underline fields) */}
@@ -203,6 +210,20 @@ export default function AdminReimbursementsPage() {
                           <Calendar
                             className="pointer-events-none absolute right-0 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
                             aria-hidden
+                          />
+                        </div>
+                        <div className="pb-1 border-b border-gray-300">
+                          <Label htmlFor="m-number" className="sr-only">
+                            M number
+                          </Label>
+                          <Input
+                            id="m-number"
+                            type="text"
+                            value={mNumber}
+                            onChange={(e) => setMNumber(e.target.value)}
+                            placeholder="M number"
+                            autoComplete="off"
+                            className={minimalInputClass}
                           />
                         </div>
                         <div className="pb-1 border-b border-gray-300">
