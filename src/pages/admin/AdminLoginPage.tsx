@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { LogIn } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -12,14 +12,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   formatErrorMessage,
+  getAuthMeQueryKey,
   isAuthenticated,
   login,
-  logout,
+  logoutWithQueryClient,
   refreshMe,
 } from "@/services/AuthService";
 
 export default function AdminLoginPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -27,6 +29,7 @@ export default function AdminLoginPage() {
   const loginMutation = useMutation({
     mutationFn: () => login(username, password),
     onSuccess: (result) => {
+      queryClient.setQueryData(getAuthMeQueryKey(), result.me);
       if (result.mustChangePassword) {
         navigate("/admin/change-password", { replace: true });
       } else {
@@ -45,8 +48,9 @@ export default function AdminLoginPage() {
       try {
         const me = await refreshMe();
         if (cancelled) return;
+        queryClient.setQueryData(getAuthMeQueryKey(), me);
         if (!me.is_staff) {
-          logout();
+          logoutWithQueryClient(queryClient);
           navigate("/", { replace: true });
           return;
         }
@@ -57,7 +61,7 @@ export default function AdminLoginPage() {
         }
       } catch {
         if (!cancelled) {
-          logout();
+          logoutWithQueryClient(queryClient);
           navigate("/admin/login", { replace: true });
         }
       }
@@ -65,7 +69,7 @@ export default function AdminLoginPage() {
     return () => {
       cancelled = true;
     };
-  }, [navigate]);
+  }, [navigate, queryClient]);
 
   if (isAuthenticated()) {
     return null;

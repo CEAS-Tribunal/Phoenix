@@ -1,10 +1,11 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { Navigate, useLocation } from "react-router-dom";
 
 import {
   getIsStaffUser,
   getMustChangePassword,
   isAuthenticated,
-  logout,
+  logoutWithQueryClient,
 } from "@/services/AuthService";
 
 interface AdminGuardProps {
@@ -17,13 +18,14 @@ interface AdminGuardProps {
  */
 export function AdminGuard({ children }: AdminGuardProps) {
   const location = useLocation();
+  const queryClient = useQueryClient();
 
   if (!isAuthenticated()) {
     return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 
   if (!getIsStaffUser()) {
-    logout();
+    logoutWithQueryClient(queryClient);
     return <Navigate to="/" replace />;
   }
 

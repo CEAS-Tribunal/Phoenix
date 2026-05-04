@@ -1,13 +1,17 @@
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
+import type { LucideIcon } from "lucide-react";
 import {
-  Receipt,
-  UserPlus,
-  Printer,
   ArrowRight,
   BarChart3,
-  TrendingUp,
   ClipboardList,
+  Printer,
+  Receipt,
+  Table2,
+  TrendingUp,
+  UserPlus,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -26,13 +30,31 @@ import {
   chartConfigEventAttendance,
   chartConfigGBMTrend,
 } from "@/data/adminChartData";
+import { getAuthMeQueryKey, getIsTreasurerUser, refreshMe } from "@/services/AuthService";
 
-const DASHBOARD_LINKS = [
+type DashboardLinkItem = {
+  href: string;
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  /** Shown only when `/dashboard/auth/me/` reports Treasurer exec role (or superuser). */
+  treasurerOnly?: boolean;
+};
+
+const DASHBOARD_LINKS: DashboardLinkItem[] = [
   {
     href: "/admin/reimbursements",
-    title: "Our Reimbursements",
-    description: "Submit internal reimbursement requests for org expenses.",
+    title: "Reimbursement request",
+    description: "Submit an internal reimbursement request with receipt and purchase details.",
     icon: Receipt,
+  },
+  {
+    href: "/admin/reimbursements/requests",
+    title: "Reimbursement requests (treasurer)",
+    description:
+      "Treasurer dashboard: review all requests, filter, and mark each as filed when submitted to the university.",
+    icon: Table2,
+    treasurerOnly: true,
   },
   {
     href: "/admin/career-fair/representative-sign-in",
@@ -52,12 +74,22 @@ const DASHBOARD_LINKS = [
     description: "View employers and students signed up for Resume Review Day.",
     icon: ClipboardList,
   },
-] as const;
+];
 
 const eventChartConfig = chartConfigEventAttendance;
 const gbmChartConfig = chartConfigGBMTrend;
 
 export default function AdminDashboardPage() {
+  const meQuery = useQuery({
+    queryKey: getAuthMeQueryKey(),
+    queryFn: refreshMe,
+  });
+
+  const visibleLinks = useMemo(() => {
+    const showTreasurer = (meQuery.data?.is_treasurer ?? getIsTreasurerUser()) === true;
+    return DASHBOARD_LINKS.filter((item) => !item.treasurerOnly || showTreasurer);
+  }, [meQuery.data?.is_treasurer, meQuery.data]);
+
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
@@ -77,14 +109,15 @@ export default function AdminDashboardPage() {
                 Admin Dashboard
               </h1>
               <p className="mt-2 text-base text-gray-600">
-                Manage reimbursements, career fair sign-in, tags, and the Resume Review Day roster.
-                View engagement metrics below.
+                Submit reimbursements, manage career fair sign-in and tags, and open the Resume
+                Review Day roster. Treasurers see an extra tile for the reimbursement requests
+                table. Engagement metrics are below.
               </p>
             </motion.div>
 
             {/* Quick links */}
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-16">
-              {DASHBOARD_LINKS.map((item, i) => {
+              {visibleLinks.map((item, i) => {
                 const Icon = item.icon;
                 return (
                   <motion.div

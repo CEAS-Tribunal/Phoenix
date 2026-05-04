@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { getAccessToken } from '@/services/AuthService';
+import { getAccessToken, registerAdminApiAuthRefresh } from '@/services/AuthService';
 
 const HOST_URL = import.meta.env.VITE_HOST_URL as string | undefined;
 const baseURL =
@@ -106,6 +106,8 @@ const axiosInstance = axios.create({
   baseURL,
   withCredentials: false,
 });
+
+registerAdminApiAuthRefresh(axiosInstance);
 
 export interface GetTimeslotsParams {
   major?: string;

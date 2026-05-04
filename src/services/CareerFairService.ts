@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { getAccessToken } from "@/services/AuthService";
+import { getAccessToken, registerAdminApiAuthRefresh } from "@/services/AuthService";
 
 const HOST_URL = import.meta.env.VITE_HOST_URL as string | undefined;
 const baseURL =
@@ -10,6 +10,8 @@ const api = axios.create({
   baseURL,
   withCredentials: false,
 });
+
+registerAdminApiAuthRefresh(api);
 
 export interface Representative {
   id: string;

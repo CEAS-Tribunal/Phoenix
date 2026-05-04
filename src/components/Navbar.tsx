@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { isAuthenticated, logout } from "@/services/AuthService";
+import { isAuthenticated, logoutWithQueryClient } from "@/services/AuthService";
 import { motion } from "framer-motion";
 import {
   Menu,
@@ -36,11 +37,12 @@ const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const isAdmin = location.pathname.startsWith("/admin") && location.pathname !== "/admin/login";
   const showLogout = isAdmin && isAuthenticated();
 
   const handleLogout = () => {
-    logout();
+    logoutWithQueryClient(queryClient);
     navigate("/admin/login", { replace: true });
     setIsMenuOpen(false);
   };
