@@ -1,9 +1,9 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Calendar, Receipt, ArrowLeft } from "lucide-react";
+import { ArrowLeft, Calendar, Receipt, Table2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -13,8 +13,10 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   formatErrorMessage,
+  getAuthMeQueryKey,
   getCachedUsername,
-  logout,
+  getIsTreasurerUser,
+  logoutWithQueryClient,
   refreshMe,
   type AuthMeResponse,
 } from "@/services/AuthService";
@@ -35,6 +37,7 @@ function displayNameFromMe(me: AuthMeResponse): string {
 
 export default function AdminReimbursementsPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [expenditureDate, setExpenditureDate] = useState("");
   const [mNumber, setMNumber] = useState("");
   const [vendorName, setVendorName] = useState("");
@@ -48,13 +51,14 @@ export default function AdminReimbursementsPage() {
   const [fileInputsKey, setFileInputsKey] = useState(0);
 
   const meQuery = useQuery({
-    queryKey: ["auth-me"],
+    queryKey: getAuthMeQueryKey(),
     queryFn: refreshMe,
   });
 
   const submitMutation = useMutation({
     mutationFn: submitReimbursementRequest,
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["reimbursement-requests"] });
       setExpenditureDate("");
       setMNumber("");
       setVendorName("");
@@ -120,7 +124,7 @@ export default function AdminReimbursementsPage() {
   }
 
   function handleSignOut() {
-    logout();
+    logoutWithQueryClient(queryClient);
     navigate("/admin/login", { replace: true });
   }
 
@@ -128,6 +132,7 @@ export default function AdminReimbursementsPage() {
   const displayName = me
     ? displayNameFromMe(me)
     : (getCachedUsername() ?? "your account");
+  const isTreasurer = (me?.is_treasurer ?? getIsTreasurerUser()) === true;
 
   return (
     <div className="min-h-screen bg-white">
@@ -140,13 +145,29 @@ export default function AdminReimbursementsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <Link
-                to="/admin"
-                className="inline-flex items-center gap-2 text-sm font-medium text-[#E00122] hover:underline mb-6"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Back to Admin Dashboard
-              </Link>
+              <div className="mb-6 flex flex-wrap items-center gap-4">
+                <Link
+                  to="/admin"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-[#E00122] hover:underline"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Admin Dashboard
+                </Link>
+                {isTreasurer ? (
+                  <>
+                    <span className="hidden text-gray-300 sm:inline" aria-hidden>
+                      |
+                    </span>
+                    <Link
+                      to="/admin/reimbursements/requests"
+                      className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-[#E00122] hover:underline"
+                    >
+                      <Table2 className="h-4 w-4" />
+                      Treasurer: reimbursement requests
+                    </Link>
+                  </>
+                ) : null}
+              </div>
 
               <div className="mb-6 rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600">
                 {meQuery.isPending ? (
@@ -190,7 +211,6 @@ export default function AdminReimbursementsPage() {
                       and treasurer records. Enter your M number and the purchase details below.
                     </p>
 
-                    {/* Expenditure Information — purchase details (design: underline fields) */}
                     <div className="space-y-6 max-w-xl">
                       <h3 className="text-center text-sm font-normal text-gray-500 tracking-wide">
                         Expenditure Information
@@ -275,7 +295,6 @@ export default function AdminReimbursementsPage() {
                       </div>
                     </div>
 
-                    {/* Budget & reimbursement */}
                     <div className="space-y-4">
                       <h3 className="text-xs font-semibold uppercase tracking-wide text-[#E00122]">
                         Budget &amp; reimbursement
@@ -324,7 +343,6 @@ export default function AdminReimbursementsPage() {
                       </div>
                     </div>
 
-                    {/* Supporting Documents */}
                     <div className="space-y-4">
                       <h3 className="text-xs font-semibold uppercase tracking-wide text-[#E00122]">
                         Supporting Reimbursement Documents

@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import LoadingFallback from '@/components/LoadingFallback';
 import { AdminGuard } from '@/components/AdminGuard';
+import { TreasurerGuard } from '@/components/TreasurerGuard';
 import { RootLayout } from '@/components/RootLayout';
 
 // Lazy load pages
@@ -19,6 +20,7 @@ const AdminLoginPage = lazy(() => import('@/pages/admin/AdminLoginPage'));
 const AdminChangePasswordPage = lazy(() => import('@/pages/admin/AdminChangePasswordPage'));
 const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage'));
 const AdminReimbursementsPage = lazy(() => import('@/pages/admin/AdminReimbursementsPage'));
+const AdminReimbursementRequestsPage = lazy(() => import('@/pages/admin/AdminReimbursementRequestsPage'));
 const AdminRepresentativeSignInPage = lazy(() => import('@/pages/admin/AdminRepresentativeSignInPage'));
 const AdminTagsPrintingPage = lazy(() => import('@/pages/admin/AdminTagsPrintingPage'));
 const AdminResumeRosterPage = lazy(() => import('@/pages/admin/AdminResumeRosterPage'));
@@ -120,6 +122,18 @@ export const router = createBrowserRouter([
             <Suspense fallback={<LoadingFallback />}>
               <AdminDashboardPage />
             </Suspense>
+          </AdminGuard>
+        ),
+      },
+      {
+        path: 'admin/reimbursements/requests',
+        element: (
+          <AdminGuard>
+            <TreasurerGuard>
+              <Suspense fallback={<LoadingFallback />}>
+                <AdminReimbursementRequestsPage />
+              </Suspense>
+            </TreasurerGuard>
           </AdminGuard>
         ),
       },

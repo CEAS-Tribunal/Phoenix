@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { KeyRound, ArrowLeft } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -13,8 +13,9 @@ import { Label } from "@/components/ui/label";
 import {
   changePassword,
   formatErrorMessage,
+  getAuthMeQueryKey,
   isAuthenticated,
-  logout,
+  logoutWithQueryClient,
   refreshMe,
 } from "@/services/AuthService";
 
@@ -33,13 +34,14 @@ function validateNewPassword(pw: string, uname: string): string | null {
 
 export default function AdminChangePasswordPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [clientError, setClientError] = useState<string | null>(null);
 
   const sessionQuery = useQuery({
-    queryKey: ["auth-me"],
+    queryKey: getAuthMeQueryKey(),
     queryFn: refreshMe,
     enabled: isAuthenticated(),
     retry: false,
@@ -68,10 +70,10 @@ export default function AdminChangePasswordPage() {
 
   useEffect(() => {
     if (sessionQuery.isError) {
-      logout();
+      logoutWithQueryClient(queryClient);
       navigate("/admin/login", { replace: true });
     }
-  }, [sessionQuery.isError, navigate]);
+  }, [sessionQuery.isError, navigate, queryClient]);
 
   useEffect(() => {
     const me = sessionQuery.data;
@@ -145,7 +147,7 @@ export default function AdminChangePasswordPage() {
                 type="button"
                 className="inline-flex items-center gap-2 text-sm font-medium text-[#E00122] hover:underline mb-6"
                 onClick={() => {
-                  logout();
+                  logoutWithQueryClient(queryClient);
                   navigate("/admin/login", { replace: true });
                 }}
               >
