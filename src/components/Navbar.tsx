@@ -10,7 +10,6 @@ import {
   Award,
   Users,
   GraduationCap,
-  LogIn,
   BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
