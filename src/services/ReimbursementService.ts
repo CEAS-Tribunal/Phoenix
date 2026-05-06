@@ -27,7 +27,18 @@ export interface SubmitReimbursementPayload {
   amount: string;
   description: string;
   budgeted: boolean;
+  nonBudgetedOfficerName?: string;
+  nonBudgetedOfficerPosition?: string;
   reimbursementType: "direct-deposit" | "check";
+  reimbursementAddressLine1?: string;
+  reimbursementAddressLine2?: string;
+  reimbursementAddressCity?: string;
+  reimbursementAddressState?: string;
+  reimbursementAddressZip?: string;
+  icCompetition?: boolean;
+  icParticipantName?: string;
+  icParticipantRole?: string;
+  icParticipantEmail?: string;
   itemizedReceipt: File;
   supportingDocument?: File | null;
 }
@@ -51,6 +62,37 @@ export async function submitReimbursementRequest(
   formData.append("description", payload.description);
   formData.append("budgeted", payload.budgeted ? "true" : "false");
   formData.append("reimbursement_type", payload.reimbursementType);
+  if (payload.nonBudgetedOfficerName) {
+    formData.append("non_budgeted_officer_name", payload.nonBudgetedOfficerName);
+  }
+  if (payload.nonBudgetedOfficerPosition) {
+    formData.append("non_budgeted_officer_position", payload.nonBudgetedOfficerPosition);
+  }
+  if (payload.reimbursementAddressLine1) {
+    formData.append("reimbursement_address_line1", payload.reimbursementAddressLine1);
+  }
+  if (payload.reimbursementAddressLine2) {
+    formData.append("reimbursement_address_line2", payload.reimbursementAddressLine2);
+  }
+  if (payload.reimbursementAddressCity) {
+    formData.append("reimbursement_address_city", payload.reimbursementAddressCity);
+  }
+  if (payload.reimbursementAddressState) {
+    formData.append("reimbursement_address_state", payload.reimbursementAddressState);
+  }
+  if (payload.reimbursementAddressZip) {
+    formData.append("reimbursement_address_zip", payload.reimbursementAddressZip);
+  }
+  formData.append("ic_competition", payload.icCompetition ? "true" : "false");
+  if (payload.icParticipantName) {
+    formData.append("ic_participant_name", payload.icParticipantName);
+  }
+  if (payload.icParticipantRole) {
+    formData.append("ic_participant_role", payload.icParticipantRole);
+  }
+  if (payload.icParticipantEmail) {
+    formData.append("ic_participant_email", payload.icParticipantEmail);
+  }
   formData.append("itemized_receipt", payload.itemizedReceipt);
   if (payload.supportingDocument) {
     formData.append("supporting_document", payload.supportingDocument);
@@ -75,6 +117,17 @@ export interface ReimbursementRequestRow {
   description: string;
   budgeted: boolean;
   reimbursement_type: string;
+  reimbursement_address_line1?: string;
+  reimbursement_address_line2?: string;
+  reimbursement_address_city?: string;
+  reimbursement_address_state?: string;
+  reimbursement_address_zip?: string;
+  non_budgeted_officer_name?: string;
+  non_budgeted_officer_position?: string;
+  ic_competition?: boolean;
+  ic_participant_name?: string;
+  ic_participant_role?: string;
+  ic_participant_email?: string;
   itemized_receipt_url: string | null;
   /** Original upload filename for downloads (from API). */
   itemized_receipt_filename?: string | null;
