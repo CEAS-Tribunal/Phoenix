@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
-import { Facebook, Twitter, Instagram } from "lucide-react";
 import wheelLogo from "@/assets/wheel.png";
+import slackLogo from "@/assets/slack.svg";
+import instagramLogo from "@/assets/instagram.svg";
+import linkedinLogo from "@/assets/linkedin.svg";
+
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -61,16 +64,6 @@ const Footer = () => {
                   Alumni
                 </Link>
               </li>
-              <li>
-                <a
-                  href="https://tribunal.uc.edu/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-gray-400 text-sm hover:text-white transition-colors"
-                >
-                  Meeting Minutes
-                </a>
-              </li>
             </ul>
           </div>
 
@@ -86,38 +79,6 @@ const Footer = () => {
               View all resources →
             </Link>
             <ul className="space-y-2 mt-3">
-              <li>
-                <Link
-                  to="/tribunal/baldwin"
-                  className="text-gray-400 text-sm hover:text-white transition-colors"
-                >
-                  Baldwin Table Reservations
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/tribunal/funding-guide"
-                  className="text-gray-400 text-sm hover:text-white transition-colors"
-                >
-                  Funding Guide
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/tribunal/tv-ad"
-                  className="text-gray-400 text-sm hover:text-white transition-colors"
-                >
-                  TV Ad Submission
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/tribunal/student-bill-of-rights"
-                  className="text-gray-400 text-sm hover:text-white transition-colors"
-                >
-                  Student Bill of Rights
-                </Link>
-              </li>
               <li>
                 <Link
                   to="/tribunal/bylaws"
@@ -145,44 +106,44 @@ const Footer = () => {
             {/* Social Icons */}
             <div className="flex gap-4 mb-4">
               <a
-                href="https://facebook.com"
+                href="https://join.slack.com/t/ceastribunal/shared_invite/zt-3alvokcpy-~IUlKeWR2CrhY3kfomIH7Q"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-[#E00122] transition-colors"
-                aria-label="Facebook"
+                aria-label="Slack"
               >
-                <Facebook className="w-5 h-5" />
+                <img src={slackLogo} alt="Slack" className="w-5 h-5 stroke-white invert" />
               </a>
               <a
-                href="https://twitter.com"
+                href="https://linkedin.com/company/ceas-tribunal"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-[#E00122] transition-colors"
-                aria-label="Twitter"
+                aria-label="LinkedIn"
               >
-                <Twitter className="w-5 h-5" />
+                <img src={linkedinLogo} alt="LinkedIn" className="w-5 h-5 invert" />
               </a>
               <a
-                href="https://instagram.com"
+                href="https://instagram.com/ceastribunal"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-[#E00122] transition-colors"
                 aria-label="Instagram"
               >
-                <Instagram className="w-5 h-5" />
+                <img src={instagramLogo} alt="Instagram" className="w-5 h-5 invert" />
               </a>
             </div>
             {/* Email */}
             <a
-              href="mailto:tribunal@uc.edu"
+              href="mailto:ceas.tribunal@gmail.com"
               className="text-gray-400 text-sm hover:text-white transition-colors"
             >
-              tribunal@uc.edu
+              ceas.tribunal@gmail.com
             </a>
             {/* Login Link - legacy site until Phoenix auth exists */}
             <div className="mt-4">
               <a
-                href="https://tribunal.uc.edu/"
+                href="https://tribunal.uc.edu/admin/login"
                 target="_blank"
                 rel="noreferrer"
                 className="text-[#E00122] text-sm font-medium hover:underline"
