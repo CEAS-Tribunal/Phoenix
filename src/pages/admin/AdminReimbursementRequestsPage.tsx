@@ -163,14 +163,14 @@ export default function AdminReimbursementRequestsPage() {
     ? displayNameFromMe(me)
     : (getCachedUsername() ?? "your account");
 
-  const colSpan = 11;
+  const colSpan = 12;
 
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
       <main className="min-h-screen bg-white">
         <section className="py-16 lg:py-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl 2xl:max-w-384 mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -318,7 +318,7 @@ export default function AdminReimbursementRequestsPage() {
 
                 <div className="overflow-hidden rounded-2xl border border-gray-200/90 bg-white shadow-sm">
                   <div className="overflow-x-auto">
-                    <table className="w-full min-w-[1180px] border-collapse text-left text-sm">
+                    <table className="w-full min-w-[1280px] border-collapse text-left text-sm">
                       <thead>
                         <tr className="border-b border-gray-200 bg-slate-50/90">
                           <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
@@ -335,6 +335,9 @@ export default function AdminReimbursementRequestsPage() {
                           </th>
                           <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
                             Vendor
+                          </th>
+                          <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            IC
                           </th>
                           <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
                             Amount
@@ -424,6 +427,33 @@ export default function AdminReimbursementRequestsPage() {
                                   <div className="truncate text-gray-800">{row.vendor_name}</div>
                                   <div className="truncate text-xs text-gray-500">{row.m_number}</div>
                                 </td>
+                                <td className="max-w-[220px] px-3 py-3 align-top">
+                                  {row.ic_competition ? (
+                                    <div className="space-y-1">
+                                      <span className="inline-flex rounded-md bg-violet-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-violet-900">
+                                        IC
+                                      </span>
+                                      {row.ic_participant_name ? (
+                                        <div className="truncate text-xs text-gray-700">
+                                          {row.ic_participant_name}
+                                          {row.ic_participant_role ? (
+                                            <span className="text-gray-500">
+                                              {" "}
+                                              — {row.ic_participant_role}
+                                            </span>
+                                          ) : null}
+                                        </div>
+                                      ) : null}
+                                      {row.ic_participant_email ? (
+                                        <div className="truncate text-xs text-gray-500">
+                                          {row.ic_participant_email}
+                                        </div>
+                                      ) : null}
+                                    </div>
+                                  ) : (
+                                    <span className="text-gray-400">—</span>
+                                  )}
+                                </td>
                                 <td className="whitespace-nowrap px-3 py-3 font-medium tabular-nums text-gray-900">
                                   {money.format(Number(row.amount))}
                                 </td>
@@ -431,16 +461,33 @@ export default function AdminReimbursementRequestsPage() {
                                   {row.reimbursement_type}
                                 </td>
                                 <td className="px-3 py-3">
-                                  <span
-                                    className={cn(
-                                      "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
-                                      row.budgeted
-                                        ? "bg-blue-50 text-blue-800 ring-1 ring-blue-100"
-                                        : "bg-amber-50 text-amber-900 ring-1 ring-amber-100"
-                                    )}
-                                  >
-                                    {row.budgeted ? "Yes" : "No"}
-                                  </span>
+                                  <div className="space-y-1">
+                                    <span
+                                      className={cn(
+                                        "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
+                                        row.budgeted
+                                          ? "bg-blue-50 text-blue-800 ring-1 ring-blue-100"
+                                          : "bg-amber-50 text-amber-900 ring-1 ring-amber-100"
+                                      )}
+                                    >
+                                      {row.budgeted ? "Yes" : "No"}
+                                    </span>
+                                    {!row.budgeted ? (
+                                      <div className="space-y-0.5">
+                                        {row.non_budgeted_officer_name ? (
+                                          <div className="truncate text-xs text-gray-700">
+                                            {row.non_budgeted_officer_name}
+                                            {row.non_budgeted_officer_position ? (
+                                              <span className="text-gray-500">
+                                                {" "}
+                                                — {row.non_budgeted_officer_position}
+                                              </span>
+                                            ) : null}
+                                          </div>
+                                        ) : null}
+                                      </div>
+                                    ) : null}
+                                  </div>
                                 </td>
                                 <td className="align-top px-3 py-3">
                                   <AttachmentActions
