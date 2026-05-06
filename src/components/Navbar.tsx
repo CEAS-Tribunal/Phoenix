@@ -29,7 +29,6 @@ const NAV_LINKS = [
   { href: "/committees", label: "Committees", icon: Users },
   { href: "/alumni", label: "Alumni", icon: GraduationCap },
   { href: "/resources", label: "Resources", icon: BookOpen },
-  { href: "/admin/login", label: "Admin Login", icon: LogIn },
 ];
 
 const Navbar: React.FC = () => {
@@ -156,12 +155,24 @@ const Navbar: React.FC = () => {
                 Log out
               </Button>
             ) : (
-              <Button
-                asChild
-                className="bg-[#E00122] text-white hover:bg-[#c00115] rounded-full px-6 transition-colors"
-              >
-                <Link to="/committees">Get Involved</Link>
-              </Button>
+              <div className="flex flex-row gap-2">
+                <Button
+                  asChild
+                  className="bg-white text-[#E00122] hover:bg-[#E00122]/10 border border-[#E00122] px-6 rounded-full transition-colors"
+                >
+                  <Link to="/admin/login" onClick={() => setIsMenuOpen(false)}>
+                  Login
+                  </Link>
+                </Button>
+                
+                <Button
+                  asChild
+                  className="bg-[#E00122] text-white hover:bg-[#c00115] rounded-full px-6 transition-colors"
+                >
+                  <Link to="/committees">Get Involved</Link>
+                </Button>
+              </div>
+              
             )}
           </div>
 
@@ -220,14 +231,24 @@ const Navbar: React.FC = () => {
                 Log out
               </Button>
             ) : (
-              <Button
-                asChild
-                className="w-full bg-[#E00122] text-white hover:bg-[#c00115] rounded-full transition-colors"
-              >
-                <Link to="/committees" onClick={() => setIsMenuOpen(false)}>
-                  Get Involved
-                </Link>
-              </Button>
+              <div className="flex flex-col gap-2">
+                <Button
+                  asChild
+                  className="w-full bg-white text-[#E00122] border border-[#E00122] hover:bg-[#c00115] rounded-full transition-colors"
+                >
+                  <Link to="/admin/login" onClick={() => setIsMenuOpen(false)}>
+                    Login
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  className="w-full bg-[#E00122] text-white hover:bg-[#c00115] rounded-full transition-colors"
+                >
+                  <Link to="/committees" onClick={() => setIsMenuOpen(false)}>
+                    Get Involved
+                  </Link>
+                </Button>
+              </div>
             )}
           </div>
         </SheetContent>
