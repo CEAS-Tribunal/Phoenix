@@ -69,21 +69,21 @@ export default function CareerFairPage() {
     () => [
       {
         title: "Business Career Fair",
-        dateLine: "Tuesday, February 10th, 2026",
+        dateLine: "Tuesday, September 15th, 2026",
         timeLine: "10AM - 3PM",
         icon: Briefcase,
         tone: "primary",
       },
       {
         title: "Engineering and IT Career Fair",
-        dateLine: "Wednesday, February 11th and Thursday, February 12th, 2026",
+        dateLine: "Wednesday, September 16th and Thursday, September 17th, 2026",
         timeLine: "10AM - 3PM",
         icon: Users,
         tone: "primary",
       },
       {
         title: "Employer Interviews",
-        dateLine: "Friday, February 13th, 2026",
+        dateLine: "Friday, September 18th, 2026",
         timeLine: "9AM - 3PM",
         icon: Calendar,
         tone: "neutral",
@@ -129,10 +129,10 @@ export default function CareerFairPage() {
                   Career Week
                 </div>
                 <h1 className="mt-3 text-white text-4xl sm:text-6xl font-bold tracking-tight">
-                  Spring 2026
+                  Fall 2026
                 </h1>
                 <p className="mt-4 text-white/90 text-base leading-relaxed">
-                  February 10th-13th
+                  September 15th-18th
                 </p>
               </motion.div>
 
@@ -201,8 +201,8 @@ export default function CareerFairPage() {
             >
               <SectionHeader
                 eyebrow="About"
-                title="Welcome to Spring 2026 Career Week"
-                description="The University of Cincinnati and the College of Engineering and Applied Science Tribunal are thrilled to welcome both employers and students to campus for the Spring 2026 Career Week. The University of Cincinnati Career Week provides students and employers the opportunity to network, interview, and connect through both professional and informal events over the course of five (5) days. Whether looking to hire full-time or part-time, co-op or intern, employers will find an incredibly talented and diverse pool of CEAS candidates. We look forward to hosting you."
+                title="Welcome to Fall 2026 Career Week"
+                description="The University of Cincinnati and the College of Engineering and Applied Science Tribunal are thrilled to welcome both employers and students to campus for the Fall 2026 Career Week. The University of Cincinnati Career Week provides students and employers the opportunity to network, interview, and connect through both professional and informal events over the course of five (5) days. Whether looking to hire full-time or part-time, co-op or intern, employers will find an incredibly talented and diverse pool of CEAS candidates. We look forward to hosting you."
               />
             </motion.div>
 
@@ -214,7 +214,7 @@ export default function CareerFairPage() {
                 </div>
                 <p className="mt-3 text-sm leading-relaxed text-gray-600">
                   To learn more about the incredible opportunities offered as a
-                  part of the Spring 2026 Career Week please see the general
+                  part of the Fall 2026 Career Week please see the general
                   information below!
                 </p>
               </Card>
@@ -473,7 +473,7 @@ export default function CareerFairPage() {
                   resume reviewed by industry leaders before attending the
                   Career Fair. It is a great way to get prepared and it also
                   allows students to meet employers in advanced. Returning in
-                  Spring 2026 students attending Resume Review Day will have the
+                  Fall 2026 students attending Resume Review Day will have the
                   opportunity to also attend a preemptive student-led resume
                   workshop to further develop and refine their resumes.
                 </p>
@@ -697,7 +697,7 @@ export default function CareerFairPage() {
                 </p>
                 <p className="mt-3 text-sm leading-relaxed text-gray-600">
                   Additional information regarding volunteer opportunities and
-                  volunteer registration information for the Spring 2026 Career
+                  volunteer registration information for the Fall 2026 Career
                   Week will be emailed to students in the weeks leading up to
                   the event.
                 </p>
