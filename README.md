@@ -10,5 +10,3 @@ bun run dev
 ```
 
 See [bun-migration.md](./bun-migration.md) for detailed setup instructions.
-
-HELLO WORLD!
