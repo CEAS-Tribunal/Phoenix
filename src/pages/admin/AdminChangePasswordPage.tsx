@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
 import {
   changePassword,
   formatErrorMessage,
@@ -20,11 +21,26 @@ import {
 } from "@/services/AuthService";
 
 function validateNewPassword(pw: string, uname: string): string | null {
-  if (pw.length <= 5) {
-    return "Password must be more than 5 characters.";
+  if (pw.length < 8) {
+    return "Password must be more than 8 characters.";
   }
-  if (!/^[a-zA-Z0-9]+$/.test(pw)) {
-    return "Password must contain only letters and numbers.";
+  if (pw.length > 128) {
+    return "Password must be no more than 128 characters.";
+  }
+  if (!/[A-Z]/.test(pw)) {
+    return "Password must contain at least one uppercase letter.";
+  }
+  if (!/[a-z]/.test(pw)) {
+    return "Password must contain at least one lowercase letter.";
+  }
+  if (!/\d/.test(pw)) {
+    return "Password must contain at least one number.";
+  }
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(pw)) {
+    return "Password must contain at least one special character.";
+  }
+  if (/(.)\1{2,}/.test(pw)) {
+    return "Password must not contain repeated characters.";
   }
   if (pw === uname) {
     return "Password cannot be the same as your username.";
