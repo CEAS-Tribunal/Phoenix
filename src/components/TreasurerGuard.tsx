@@ -1,8 +1,8 @@
 import { Navigate, useLocation } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 
 import LoadingFallback from "@/components/LoadingFallback";
-import { getAuthMeQueryKey, getIsTreasurerUser, refreshMe } from "@/services/AuthService";
+import { useAuthMe } from "@/hooks/useAuthMe";
+import { getIsTreasurerUser } from "@/services/AuthService";
 
 interface TreasurerGuardProps {
   children: React.ReactNode;
@@ -14,10 +14,7 @@ interface TreasurerGuardProps {
  */
 export function TreasurerGuard({ children }: TreasurerGuardProps) {
   const location = useLocation();
-  const meQuery = useQuery({
-    queryKey: getAuthMeQueryKey(),
-    queryFn: refreshMe,
-  });
+  const meQuery = useAuthMe();
 
   const allowTreasurer =
     (meQuery.data?.is_treasurer ?? getIsTreasurerUser()) === true;

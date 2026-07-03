@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ResumeReviewDay, type RosterEmployer } from "@/services/ResumeReviewService";
+import { rrdKeys } from "@/services/queryKeys";
 import { formatErrorMessage, isAuthenticated } from "@/services/AuthService";
 
 function slotsTaken(emp: RosterEmployer): { taken: number; total: number } {
@@ -29,7 +30,7 @@ export default function AdminResumeRosterPage() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const rosterQuery = useQuery({
-    queryKey: ["rrd-roster"],
+    queryKey: rrdKeys.roster,
     queryFn: () => ResumeReviewDay.getRoster(),
     enabled: isAuthenticated(),
   });

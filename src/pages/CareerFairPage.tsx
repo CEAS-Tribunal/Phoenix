@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import careerFairBanner from "@/assets/tribunal-career-fair-banner.jpg";
 import { ResumeReviewDay } from "@/services/ResumeReviewService";
+import { rrdKeys } from "@/services/queryKeys";
 
 type EventCard = {
   title: string;
@@ -61,7 +62,7 @@ export default function CareerFairPage() {
   const inView = useInView(heroRef, { once: true, margin: "-100px" });
 
   const employersQuery = useQuery({
-    queryKey: ["rrd-employers"],
+    queryKey: rrdKeys.employers,
     queryFn: () => ResumeReviewDay.getEmployers(),
   });
 

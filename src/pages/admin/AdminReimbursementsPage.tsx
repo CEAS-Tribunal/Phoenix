@@ -14,13 +14,13 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import {
   formatErrorMessage,
-  getAuthMeQueryKey,
   getCachedUsername,
   getIsTreasurerUser,
   logoutWithQueryClient,
-  refreshMe,
   type AuthMeResponse,
 } from "@/services/AuthService";
+import { useAuthMe } from "@/hooks/useAuthMe";
+import { committeesKeys, reimbursementKeys } from "@/services/queryKeys";
 import { submitReimbursementRequest } from "@/services/ReimbursementService";
 import { CommitteesService } from "@/services/CommitteesService";
 import { cn } from "@/lib/utils";
@@ -64,20 +64,17 @@ export default function AdminReimbursementsPage() {
   const [clientError, setClientError] = useState<string | null>(null);
   const [fileInputsKey, setFileInputsKey] = useState(0);
 
-  const meQuery = useQuery({
-    queryKey: getAuthMeQueryKey(),
-    queryFn: refreshMe,
-  });
+  const meQuery = useAuthMe();
 
   const execRolesQuery = useQuery({
-    queryKey: ["committees", "exec-role-with-members"],
+    queryKey: committeesKeys.execRoleWithMembers,
     queryFn: () => CommitteesService.getExecRoleSectionsWithMembers(),
   });
 
   const submitMutation = useMutation({
     mutationFn: submitReimbursementRequest,
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["reimbursement-requests"] });
+      void queryClient.invalidateQueries({ queryKey: reimbursementKeys.all });
       setIcCompetition(false);
       setIcParticipantName("");
       setIcParticipantRole("");

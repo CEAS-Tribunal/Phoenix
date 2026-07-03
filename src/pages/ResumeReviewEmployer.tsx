@@ -1,6 +1,7 @@
 import { useForm, Controller } from 'react-hook-form';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
 import { CheckCircle2, Home, UserPlus } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
@@ -46,29 +47,27 @@ export default function ResumeReviewEmployer() {
     },
   });
 
-  const [submitting, setSubmitting] = useState(false);
-  const [serverResponse, setServerResponse] = useState<null | { message?: string; error?: string; status?: number }>(null);
+  const [serverError, setServerError] = useState<string | null>(null);
 
-  const onSubmit = async (data: FormValues) => {
-    setSubmitting(true);
-    setServerResponse(null);
-
-    const payload = { ...data };
-
-    try {
-      const res = await ResumeReviewDay.registerEmployer(payload);
-      setServerResponse({ message: res.data.message || 'Registered!', status: res.status });
+  const registerMutation = useMutation({
+    mutationFn: (payload: FormValues) => ResumeReviewDay.registerEmployer(payload),
+    onSuccess: () => {
+      setServerError(null);
       reset();
-    } catch (e: unknown) {
+    },
+    onError: (e: unknown) => {
       const err = e as { response?: { data?: { error?: string }; status?: number }; message?: string };
-      setServerResponse({ error: err.response?.data?.error || err.message || 'Submission failed', status: err.response?.status });
-      // Do not reset – keep form data filled so user can correct and resubmit
-    } finally {
-      setSubmitting(false);
-    }
+      setServerError(err.response?.data?.error || err.message || 'Submission failed');
+    },
+  });
+
+  const onSubmit = (data: FormValues) => {
+    setServerError(null);
+    registerMutation.mutate(data);
   };
 
-  const isSuccess = serverResponse && (serverResponse.status === 201);
+  const isSuccess = registerMutation.isSuccess && registerMutation.data?.status === 201;
+  const successMessage = registerMutation.data?.data.message || 'Registered!';
 
   if (isSuccess) {
     return (
@@ -84,7 +83,7 @@ export default function ResumeReviewEmployer() {
                 You&apos;re all set!
               </h1>
               <p className="text-emerald-800 font-medium mb-1">
-                {serverResponse?.message}
+                {successMessage}
               </p>
               <p className="text-slate-700 text-sm leading-relaxed mb-6">
                 We&apos;ve received your employer registration for Resume Review Day. Our team will reach out with further details and next steps.
@@ -94,7 +93,7 @@ export default function ResumeReviewEmployer() {
                   type="button"
                   variant="outline"
                   size="lg"
-                  onClick={() => setServerResponse(null)}
+                  onClick={() => registerMutation.reset()}
                   className="bg-white text-emerald-800 border border-emerald-300 hover:bg-emerald-100 hover:text-emerald-900"
                 >
                   <UserPlus className="h-4 w-4" />
@@ -152,10 +151,9 @@ export default function ResumeReviewEmployer() {
           </div>
 
           <div className="bg-white w-full max-w-2xl md:w-2/5 flex flex-col my-8 rounded-xl p-6 gap-y-4 shadow-lg border border-white/50">
-            {serverResponse?.error && (
+            {serverError && (
               <div className="mb-2 p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-sm">
-                <span className="font-semibold">Error{serverResponse.status ? ` (${serverResponse.status})` : ''}:</span>{' '}
-                {serverResponse.error}
+                <span className="font-semibold">Error:</span> {serverError}
               </div>
             )}
 
@@ -288,9 +286,9 @@ export default function ResumeReviewEmployer() {
               <Button
                 type="submit"
                 className="w-full mt-4 py-3 bg-sky-600 hover:bg-sky-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                disabled={submitting}
+                disabled={registerMutation.isPending}
               >
-                {submitting ? 'Submitting...' : 'Submit registration'}
+                {registerMutation.isPending ? 'Submitting...' : 'Submit registration'}
               </Button>
             </form>
           </div>

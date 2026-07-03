@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -30,7 +29,8 @@ import {
   chartConfigEventAttendance,
   chartConfigGBMTrend,
 } from "@/data/adminChartData";
-import { getAuthMeQueryKey, getIsTreasurerUser, refreshMe } from "@/services/AuthService";
+import { getIsTreasurerUser } from "@/services/AuthService";
+import { useAuthMe } from "@/hooks/useAuthMe";
 
 type DashboardLinkItem = {
   href: string;
@@ -80,10 +80,7 @@ const eventChartConfig = chartConfigEventAttendance;
 const gbmChartConfig = chartConfigGBMTrend;
 
 export default function AdminDashboardPage() {
-  const meQuery = useQuery({
-    queryKey: getAuthMeQueryKey(),
-    queryFn: refreshMe,
-  });
+  const meQuery = useAuthMe();
 
   const visibleLinks = useMemo(() => {
     const showTreasurer = (meQuery.data?.is_treasurer ?? getIsTreasurerUser()) === true;

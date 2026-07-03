@@ -16,8 +16,8 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { careerFairKeys } from "@/services/queryKeys";
 import {
-  CAREER_FAIR_REPRESENTATIVES_QUERY_KEY,
   formatErrorMessage,
   getRepresentatives,
   type Representative,
@@ -105,7 +105,7 @@ export default function AdminTagsPrintingPage() {
   }, [searchInput]);
 
   const listQuery = useQuery({
-    queryKey: [...CAREER_FAIR_REPRESENTATIVES_QUERY_KEY, debouncedSearch],
+    queryKey: careerFairKeys.representativesWithSearch(debouncedSearch),
     queryFn: () => getRepresentatives(debouncedSearch || undefined),
     staleTime: 0,
     refetchOnWindowFocus: true,

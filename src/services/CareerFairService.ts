@@ -33,8 +33,10 @@ export interface RepresentativePayload {
   building_location: string;
 }
 
+import { careerFairKeys } from "@/services/queryKeys";
+
 /** TanStack Query key prefix for representative lists (search adds a second segment). */
-export const CAREER_FAIR_REPRESENTATIVES_QUERY_KEY = ["career-fair-representatives"] as const;
+export const CAREER_FAIR_REPRESENTATIVES_QUERY_KEY = careerFairKeys.representatives;
 
 interface PaginatedRepresentatives {
   count: number;
