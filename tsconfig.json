@@ -7,7 +7,16 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@app/*": ["./src/app/*"],
+      "@shared/*": ["./src/shared/*"],
+      "@assets/*": ["./src/assets/*"],
+      "@auth": ["./src/features/auth/index.ts"],
+      "@committees": ["./src/features/committees/index.ts"],
+      "@resume-review": ["./src/features/resume-review/index.ts"],
+      "@career-fair": ["./src/features/career-fair/index.ts"],
+      "@reimbursement": ["./src/features/reimbursement/index.ts"],
+      "@dashboard": ["./src/features/dashboard/index.ts"],
+      "@home": ["./src/features/home/index.ts"]
     }
   }
 }
