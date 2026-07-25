@@ -19,12 +19,12 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
   formatErrorMessage,
-  getAuthMeQueryKey,
   getCachedUsername,
   logoutWithQueryClient,
-  refreshMe,
   type AuthMeResponse,
 } from "@/services/AuthService";
+import { useAuthMe } from "@/hooks/useAuthMe";
+import { reimbursementKeys } from "@/services/queryKeys";
 import {
   downloadReimbursementAttachment,
   listReimbursementRequests,
@@ -109,10 +109,7 @@ export default function AdminReimbursementRequestsPage() {
   const [filedFilter, setFiledFilter] = useState<"all" | "filed" | "pending">("pending");
   const [typeFilter, setTypeFilter] = useState("");
 
-  const meQuery = useQuery({
-    queryKey: getAuthMeQueryKey(),
-    queryFn: refreshMe,
-  });
+  const meQuery = useAuthMe();
 
   const listParams = useMemo(() => {
     const p: Parameters<typeof listReimbursementRequests>[0] = {
@@ -125,7 +122,7 @@ export default function AdminReimbursementRequestsPage() {
   }, [deferredSearch, filedFilter, typeFilter]);
 
   const listQuery = useQuery({
-    queryKey: ["reimbursement-requests", listParams],
+    queryKey: reimbursementKeys.list(listParams),
     queryFn: () => listReimbursementRequests(listParams),
   });
 
@@ -149,7 +146,7 @@ export default function AdminReimbursementRequestsPage() {
     mutationFn: ({ id, filed }: { id: number; filed: boolean }) =>
       patchReimbursementFiled(id, filed),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["reimbursement-requests"] });
+      void queryClient.invalidateQueries({ queryKey: reimbursementKeys.all });
     },
   });
 

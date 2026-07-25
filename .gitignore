@@ -18,6 +18,8 @@ dist-ssr
 *.local
 
 # Editor directories and files
+.cursor/
+.aider.tags.cache.v3/
 .vscode/*
 !.vscode/extensions.json
 .idea

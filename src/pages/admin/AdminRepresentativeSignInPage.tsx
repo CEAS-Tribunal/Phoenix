@@ -11,8 +11,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { careerFairKeys } from "@/services/queryKeys";
 import {
-  CAREER_FAIR_REPRESENTATIVES_QUERY_KEY,
   formatErrorMessage,
   signInRepresentative,
 } from "@/services/CareerFairService";
@@ -46,7 +46,7 @@ export default function AdminRepresentativeSignInPage() {
     onSuccess: () => {
       setError(null);
       setSignedIn(true);
-      void queryClient.invalidateQueries({ queryKey: [...CAREER_FAIR_REPRESENTATIVES_QUERY_KEY] });
+      void queryClient.invalidateQueries({ queryKey: careerFairKeys.representatives });
     },
     onError: (err: unknown) => {
       setError(formatErrorMessage(err));

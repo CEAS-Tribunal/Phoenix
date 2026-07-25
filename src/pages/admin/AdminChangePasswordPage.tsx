@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { KeyRound, ArrowLeft } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -14,11 +14,10 @@ import { Label } from "@/components/ui/label";
 import {
   changePassword,
   formatErrorMessage,
-  getAuthMeQueryKey,
   isAuthenticated,
   logoutWithQueryClient,
-  refreshMe,
 } from "@/services/AuthService";
+import { useAuthMe } from "@/hooks/useAuthMe";
 
 function validateNewPassword(pw: string, uname: string): string | null {
   if (pw.length < 8) {
@@ -56,9 +55,7 @@ export default function AdminChangePasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [clientError, setClientError] = useState<string | null>(null);
 
-  const sessionQuery = useQuery({
-    queryKey: getAuthMeQueryKey(),
-    queryFn: refreshMe,
+  const sessionQuery = useAuthMe({
     enabled: isAuthenticated(),
     retry: false,
   });

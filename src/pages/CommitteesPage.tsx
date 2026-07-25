@@ -5,6 +5,7 @@
 
 import { useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { committeesKeys } from "@/services/queryKeys";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
@@ -188,7 +189,7 @@ function RoleCard({
 
 export default function CommitteesPage() {
   const { data: sections = [], isPending: loading, isError, error } = useQuery({
-    queryKey: ["committees", "exec-role-with-members"],
+    queryKey: committeesKeys.execRoleWithMembers,
     queryFn: () => CommitteesService.getExecRoleSectionsWithMembers(),
   });
   const errorMessage = isError

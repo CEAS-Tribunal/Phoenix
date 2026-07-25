@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { ResumeReviewDay, type EmployerTimeslot, type Timeslot } from '@/services/ResumeReviewService';
+import { ResumeReviewDay, type StudentData, type Timeslot } from '@/services/ResumeReviewService';
+import { rrdKeys } from '@/services/queryKeys';
 import { Clock, Building2, User, Check } from 'lucide-react';
 
 /** Get display time from a timeslot object */
@@ -72,13 +74,11 @@ const INTERVIEW_SLOTS: { type: string }[] = [
 const MAX_EMPLOYERS = 2;
 
 export default function ResumeReviewStudent() {
+    const queryClient = useQueryClient();
     const [selectedInterviewStyle, setSelectedInterviewStyle] = useState<string>('');
     const [selectedMajor, setSelectedMajor] = useState<string>('');
     /** Selected hour-range ids for the initial filter (any number of ranges) */
     const [selectedTimeRanges, setSelectedTimeRanges] = useState<string[]>([]);
-    const [results, setResults] = useState<EmployerTimeslot[] | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
 
     /** One timeslot per employer, max 2 employers */
     const [selectedSlots, setSelectedSlots] = useState<SelectedSlots>({});
@@ -91,25 +91,53 @@ export default function ResumeReviewStudent() {
         major: '',
         resume: null as File | null,
     });
-    const [submitting, setSubmitting] = useState(false);
     const [submitSuccess, setSubmitSuccess] = useState<{ message: string; full_name: string } | null>(null);
 
-    async function handleFilter() {
-        setError(null);
-        setLoading(true);
-        try {
-            const expandedTimes = timesFromSelectedRanges(selectedTimeRanges);
-            const data = await ResumeReviewDay.getTimeslots({
-                major: selectedMajor || undefined,
-                time: expandedTimes.length > 0 ? expandedTimes : undefined,
+    const filterParams = useMemo(() => {
+        const expandedTimes = timesFromSelectedRanges(selectedTimeRanges);
+        return {
+            major: selectedMajor || undefined,
+            time: expandedTimes.length > 0 ? expandedTimes : undefined,
+        };
+    }, [selectedMajor, selectedTimeRanges]);
+
+    const timeslotsQuery = useQuery({
+        queryKey: rrdKeys.timeslots(filterParams),
+        queryFn: () => ResumeReviewDay.getTimeslots(filterParams),
+        enabled: false,
+    });
+
+    const signupMutation = useMutation({
+        mutationFn: (payload: StudentData) => ResumeReviewDay.registerStudent(payload),
+        onSuccess: (res, variables) => {
+            setSubmitSuccess({
+                message: res.data.message || 'Registered successfully!',
+                full_name: variables.full_name,
             });
-            setResults(data);
-        } catch (e) {
-            setError(e instanceof Error ? e.message : 'Failed to load timeslots');
-            setResults(null);
-        } finally {
-            setLoading(false);
-        }
+            setSelectedSlots({});
+            setSignupForm({ full_name: '', email: '', grad_year: new Date().getFullYear(), major: '', resume: null });
+            void queryClient.invalidateQueries({ queryKey: rrdKeys.all });
+        },
+    });
+
+    const results = timeslotsQuery.isFetched ? (timeslotsQuery.data ?? null) : null;
+    const loading = timeslotsQuery.isFetching;
+    const filterError =
+        timeslotsQuery.error instanceof Error
+            ? timeslotsQuery.error.message
+            : timeslotsQuery.isError
+              ? 'Failed to load timeslots'
+              : null;
+    const signupError =
+        signupMutation.error instanceof Error
+            ? signupMutation.error.message
+            : signupMutation.isError
+              ? 'Failed to sign up'
+              : null;
+    const error = filterError ?? signupError;
+
+    function handleFilter() {
+        void timeslotsQuery.refetch();
     }
 
     function handleSelectSlot(employerId: string, timeslotId: string, time: string) {
@@ -141,33 +169,18 @@ export default function ResumeReviewStudent() {
         });
     }
 
-    async function handleSignup(e: React.FormEvent) {
+    function handleSignup(e: React.FormEvent) {
         e.preventDefault();
         const timeslotIds = Object.values(selectedSlots).map((s) => s.timeslotId);
         if (timeslotIds.length === 0 || !signupForm.resume) return;
-        setSubmitting(true);
-        setError(null);
-        try {
-            const res = await ResumeReviewDay.registerStudent({
-                full_name: signupForm.full_name,
-                email: signupForm.email,
-                grad_year: signupForm.grad_year,
-                major: signupForm.major,
-                resume: signupForm.resume,
-                timeslots: timeslotIds,
-            });
-            setSubmitSuccess({
-                message: res.data.message || 'Registered successfully!',
-                full_name: signupForm.full_name,
-            });
-            setSelectedSlots({});
-            setResults(null);
-            setSignupForm({ full_name: '', email: '', grad_year: new Date().getFullYear(), major: '', resume: null });
-        } catch (e) {
-            setError(e instanceof Error ? e.message : 'Failed to sign up');
-        } finally {
-            setSubmitting(false);
-        }
+        signupMutation.mutate({
+            full_name: signupForm.full_name,
+            email: signupForm.email,
+            grad_year: signupForm.grad_year,
+            major: signupForm.major,
+            resume: signupForm.resume,
+            timeslots: timeslotIds,
+        });
     }
 
     return (
@@ -465,10 +478,10 @@ export default function ResumeReviewStudent() {
                                 </div>
                                 <button
                                     type="submit"
-                                    disabled={submitting || Object.keys(selectedSlots).length === 0}
+                                    disabled={signupMutation.isPending || Object.keys(selectedSlots).length === 0}
                                     className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
-                                    {submitting ? 'Submitting…' : 'Submit registration'}
+                                    {signupMutation.isPending ? 'Submitting…' : 'Submit registration'}
                                 </button>
                             </form>
                     </div>
