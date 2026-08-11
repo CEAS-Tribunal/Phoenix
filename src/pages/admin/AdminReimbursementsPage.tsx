@@ -210,7 +210,7 @@ export default function AdminReimbursementsPage() {
     const roles = sections.flatMap((s) => s.roles ?? []);
     return roles.some((r) => {
       const roleName = (r.role ?? "").toLowerCase();
-      const isIcRole = roleName.includes("innovation") || roleName.includes("challenge");
+      const isIcRole = roleName.includes("innovation") || roleName.includes("challenge") || roleName.includes("chief of staff") || roleName.includes("treasurer");
       if (!isIcRole) return false;
       const members = r.members ?? [];
       return members.some((m) => (m.email ?? "").trim().toLowerCase() === email);
