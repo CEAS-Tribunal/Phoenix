@@ -8,9 +8,9 @@ import Footer from "@shared/components/layout/Footer";
 import { Button } from "@shared/ui/button";
 
 const NEWS_ITEMS = [
-  { title: "General Body Meeting — next session Feb 20", date: "Feb 20, 2026", link: "/#upcoming-events" },
-  { title: "CEAS Career Fair registration now open", date: "Mar 5, 2026", link: "/career-fair" },
-  { title: "CEAS EXPO 2026 — submit your project", date: "Mar 15, 2026", link: "/expo" },
+  { title: "General Body Meeting — next session Aug 24", date: "Aug 24, 2026", link: "/#upcoming-events" },
+  { title: "CEAS Career Fair registration now open", date: "July 1, 2026", link: "/career-fair" },
+  { title: "CEAS EXPO 2026 — submit your project", date: "Apr 7, 2026", link: "/expo" },
   { title: "Tribunal resources page now live", date: "Feb 2026", link: "/resources" },
 ];
 
@@ -28,19 +28,19 @@ const HomePage = () => {
             <UpcomingEventsSection 
                 events={[
                     {
-                        date: "FEB 20, 2026",
+                        date: "AUG 24, 2026",
                         title: "General Body Meeting",
                         description: "Join us for our monthly meeting to discuss upcoming events and initiatives",
                         link: "/events/general-body"
                     },
                     {
-                        date: "MAR 5, 2026",
+                        date: "SEP 15, 2026",
                         title: "CEAS Career Fair",
                         description: "Connect with leading employers and explore career opportunities in engineering",
                         link: "/events/career-fair"
                     },
                     {
-                        date: "MAR 15, 2026",
+                        date: "APR 7, 2026",
                         title: "CEAS EXPO",
                         description: "Showcase your projects and innovations at our annual engineering expo",
                         link: "/events/ceas-expo"

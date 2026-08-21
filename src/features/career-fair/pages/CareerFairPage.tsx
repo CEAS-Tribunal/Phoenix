@@ -275,7 +275,7 @@ export default function CareerFairPage() {
             <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="p-6 lg:p-8 border-gray-200">
                 <h3 className="text-lg font-bold text-[#333333]">
-                  Resume Review Day — Monday, February 2nd
+                  Resume Review Day — Tuesday, September 8th
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-gray-600">
                   Resume Review Day gives students an opportunity to get their
@@ -301,7 +301,7 @@ export default function CareerFairPage() {
 
               <Card className="p-6 lg:p-8 border-gray-200">
                 <h3 className="text-lg font-bold text-[#333333]">
-                  Evening With Industry — Tuesday, February 9th
+                  Evening With Industry — Tuesday, September 15th
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-gray-600">
                   The Society of Women Engineers’ Evening With Industry is an
@@ -466,7 +466,7 @@ export default function CareerFairPage() {
                   Engineering Resume Review Day
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-gray-600">
-                  Monday, February 2nd
+                  Tuesday, September 8th
                 </p>
                 <p className="mt-3 text-sm leading-relaxed text-gray-600">
                   Resume Review Day gives students an opportunity to get their
