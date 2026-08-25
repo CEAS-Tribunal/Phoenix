@@ -196,12 +196,12 @@ export default function ResumeReviewStudent() {
                         Tribunal in order to help prepare students for the Career Fair. This event gives students 
                         the opportunity to sign up for 20 minute intervals to receive resume feedback from industry 
                         leaders and also gives students the ability to network with employers before the Technical 
-                        Career Fair. Resume Review Day takes place on Monday, February 2nd, 2026 in Rhodes 800.
+                        Career Fair. Resume Review Day takes place on Tuesday, September 8th, 2026 in TUC 400ABC.
                     </p>
                     <p className='text-base text-black/80 text-center leading-relaxed'>
                         Filter by major, optional time ranges, and review method, then choose specific 20-minute times with
                         up to two employers (one slot per employer). The last day to sign up will be on Wednesday,
-                        January 28th, 2026. Further instructions will be sent to your email after signing up.
+                        September 2nd, 2026. Further instructions will be sent to your email after signing up.
                     </p>
                     <p className='text-base text-black/80 text-center'>If you have any questions, please contact us at <a href='mailto:uccareerfair@gmail.com' className='text-red-600 hover:text-red-700 hover:underline hover:underline-offset-[3px]'>uccareerfair@gmail.com</a>.</p>
                 </div>
