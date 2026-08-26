@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -61,6 +61,7 @@ function newContact(): ContactDraft {
 export default function OrgFundingPage() {
   const queryClient = useQueryClient();
   const [successOpen, setSuccessOpen] = useState(false);
+  const successDialogRef = useRef<HTMLDialogElement>(null);
   const [organizationName, setOrganizationName] = useState("");
   const [requesterName, setRequesterName] = useState("");
   const [requesterEmail, setRequesterEmail] = useState("");
@@ -85,6 +86,16 @@ export default function OrgFundingPage() {
     retry: false,
   });
   const openDates = useMemo(() => datesQuery.data ?? [], [datesQuery.data]);
+
+  useEffect(() => {
+    const dialog = successDialogRef.current;
+    if (!dialog) return;
+    if (successOpen) {
+      if (!dialog.open) dialog.showModal();
+    } else if (dialog.open) {
+      dialog.close();
+    }
+  }, [successOpen]);
 
   const submitMutation = useMutation({
     mutationFn: submitOrgFundingRequest,
@@ -216,67 +227,59 @@ export default function OrgFundingPage() {
     <div className="min-h-screen bg-white">
       <Navbar />
       <main className="min-h-screen bg-white">
-        {successOpen ? (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center px-4"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Org funding request submitted"
-          >
-            <button
-              type="button"
-              className="absolute inset-0 bg-black/40"
-              onClick={() => setSuccessOpen(false)}
-              aria-label="Close"
-            />
-            <div className="relative w-full max-w-lg rounded-2xl border border-gray-200 bg-white shadow-xl">
-              <div className="flex items-start justify-between gap-4 border-b border-gray-100 px-6 py-5">
-                <div>
-                  <p className="text-sm font-semibold tracking-wide text-[#E00122] uppercase">
-                    Submitted
-                  </p>
-                  <h2 className="mt-1 text-xl font-semibold text-gray-900">
-                    Funding request sent
-                  </h2>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setSuccessOpen(false)}
-                  className="rounded-md px-2 py-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-                  aria-label="Close popup"
-                >
-                  ✕
-                </button>
-              </div>
-              <div className="px-6 py-5">
-                <p className="text-sm text-gray-600">
-                  Your request was submitted successfully. The Org Funding chair and the
-                  treasurer have been notified and will follow up at the email you provided.
+        <dialog
+          ref={successDialogRef}
+          className="fixed inset-0 z-50 m-0 h-full max-h-none w-full max-w-none bg-transparent p-4 open:flex open:items-center open:justify-center backdrop:bg-black/40"
+          aria-label="Org funding request submitted"
+          onClose={() => setSuccessOpen(false)}
+        >
+          <div className="relative w-full max-w-lg rounded-2xl border border-gray-200 bg-white shadow-xl">
+            <div className="flex items-start justify-between gap-4 border-b border-gray-100 px-6 py-5">
+              <div>
+                <p className="text-sm font-semibold tracking-wide text-[#E00122] uppercase">
+                  Submitted
                 </p>
+                <h2 className="mt-1 text-xl font-semibold text-gray-900">
+                  Funding request sent
+                </h2>
               </div>
-              <div className="flex flex-col-reverse gap-3 border-t border-gray-100 px-6 py-5 sm:flex-row sm:justify-end">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="border-gray-200"
-                  onClick={() => setSuccessOpen(false)}
-                >
-                  Close
-                </Button>
-                <Button
-                  type="button"
-                  className="bg-[#E00122] text-white hover:bg-[#B8011C]"
-                  onClick={() => {
-                    setSuccessOpen(false);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                >
-                  Submit another request
-                </Button>
-              </div>
+              <button
+                type="button"
+                onClick={() => setSuccessOpen(false)}
+                className="rounded-md px-2 py-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                aria-label="Close popup"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="px-6 py-5">
+              <p className="text-sm text-gray-600">
+                Your request was submitted successfully. The Org Funding chair and the
+                treasurer have been notified and will follow up at the email you provided.
+              </p>
+            </div>
+            <div className="flex flex-col-reverse gap-3 border-t border-gray-100 px-6 py-5 sm:flex-row sm:justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                className="border-gray-200"
+                onClick={() => setSuccessOpen(false)}
+              >
+                Close
+              </Button>
+              <Button
+                type="button"
+                className="bg-[#E00122] text-white hover:bg-[#B8011C]"
+                onClick={() => {
+                  setSuccessOpen(false);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              >
+                Submit another request
+              </Button>
             </div>
           </div>
-        ) : null}
+        </dialog>
 
         {/* Intro / process */}
         <section className="bg-linear-to-b from-slate-50 to-white py-16 lg:py-24">
