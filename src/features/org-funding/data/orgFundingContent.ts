@@ -3,7 +3,7 @@ import w9TemplateUrl from "../media/w9_updated.pdf";
 import fundingApplicationTemplateUrl from "../media/OrgFundingApprovalForm_Treasurer.pdf";
 
 /** Contact shown on the public page and in submission confirmations. */
-export const ORG_FUNDING_CONTACT_EMAIL = "orgfunding@ceastribunal.com";
+export const ORG_FUNDING_CONTACT_EMAIL = "org-funding@ucmail.uc.edu";
 
 /** Blank templates applicants should fill out before uploading. */
 export const ORG_FUNDING_TEMPLATES = {
