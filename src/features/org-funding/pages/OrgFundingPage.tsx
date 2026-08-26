@@ -22,6 +22,7 @@ import { formatErrorMessage } from "@shared/lib/formatError";
 import {
   ORG_FUNDING_CONTACT_EMAIL,
   ORG_FUNDING_PROCESS_STEPS,
+  ORG_FUNDING_TEMPLATES,
 } from "../data/orgFundingContent";
 import {
   listOpenOrgFundingDates,
@@ -604,7 +605,16 @@ export default function OrgFundingPage() {
                       <div className="space-y-2">
                         <Label htmlFor="w9">W-9 (required)</Label>
                         <p className="text-sm text-gray-500">
-                          A completed W-9 form for your organization or the payee.
+                          Download the blank W-9, fill it out, then upload the completed form.{" "}
+                          <a
+                            href={ORG_FUNDING_TEMPLATES.w9}
+                            download="W-9.pdf"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-medium text-[#E00122] hover:underline"
+                          >
+                            Download template
+                          </a>
                         </p>
                         <Input
                           id="w9"
@@ -618,7 +628,17 @@ export default function OrgFundingPage() {
                       <div className="space-y-2">
                         <Label htmlFor="application">Funding application (required)</Label>
                         <p className="text-sm text-gray-500">
-                          The completed org funding application document.
+                          Download the blank org funding application, fill it out, then upload the
+                          completed form.{" "}
+                          <a
+                            href={ORG_FUNDING_TEMPLATES.application}
+                            download="OrgFundingApprovalForm.pdf"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-medium text-[#E00122] hover:underline"
+                          >
+                            Download template
+                          </a>
                         </p>
                         <Input
                           id="application"

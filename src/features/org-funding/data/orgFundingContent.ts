@@ -1,7 +1,15 @@
 import type { OrgFundingDocumentKey } from "../services/orgFundingService";
+import w9TemplateUrl from "../media/w9_updated.pdf";
+import fundingApplicationTemplateUrl from "../media/OrgFundingApprovalForm_Treasurer.pdf";
 
 /** Contact shown on the public page and in submission confirmations. */
 export const ORG_FUNDING_CONTACT_EMAIL = "orgfunding@ceastribunal.com";
+
+/** Blank templates applicants should fill out before uploading. */
+export const ORG_FUNDING_TEMPLATES = {
+  w9: w9TemplateUrl,
+  application: fundingApplicationTemplateUrl,
+} as const;
 
 /** High-level steps shown to student orgs on the public page. */
 export interface OrgFundingProcessStep {
@@ -38,6 +46,8 @@ export interface OrgFundingDocumentMeta {
   label: string;
   /** Short helper text shown under the upload field. */
   hint: string;
+  /** URL to the document's official form page. */
+  url: string;
   /** Whether the document is always required (travel auth is conditional on travel). */
   required: boolean;
 }
@@ -47,24 +57,28 @@ export const ORG_FUNDING_DOCUMENTS: OrgFundingDocumentMeta[] = [
     key: "w9",
     label: "W-9",
     hint: "A completed W-9 form for your organization or the payee.",
+    url: ORG_FUNDING_TEMPLATES.w9,
     required: true,
   },
   {
     key: "application",
     label: "Funding application",
-    hint: "The completed org funding application document.",
+    hint: "Download the blank template, fill it out, then upload the completed form.",
+    url: ORG_FUNDING_TEMPLATES.application,
     required: true,
   },
   {
     key: "slides",
     label: "Presentation slides",
     hint: "The slide deck you will present to the committee.",
+    url: "",
     required: true,
   },
   {
     key: "travelAuthorization",
     label: "Travel authorization",
     hint: "Only required if your request involves travel.",
+    url: "",
     required: false,
   },
 ];
