@@ -1,7 +1,7 @@
 import { useForm, Controller } from 'react-hook-form';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { CheckCircle2, Home, UserPlus } from 'lucide-react';
 import { Checkbox } from '@shared/ui/checkbox';
 import { Switch } from '@shared/ui/switch';
@@ -9,6 +9,8 @@ import { Button } from '@shared/ui/button';
 import Navbar from '@shared/components/layout/Navbar';
 import Footer from '@shared/components/layout/Footer';
 import { ResumeReviewDay } from '../services/resumeReviewService';
+import ResumeReviewClosedPage from './ResumeReviewClosedPage';
+import { rrdKeys } from '../queryKeys';
 
 const MAJOR_OPTIONS: { value: string; label: string }[] = [
   { value: 'aero', label: 'Aerospace Engineering' },
@@ -40,6 +42,11 @@ type FormValues = {
 };
 
 export default function ResumeReviewEmployer() {
+  const settingsQuery = useQuery({
+    queryKey: rrdKeys.settings,
+    queryFn: () => ResumeReviewDay.getSettings(),
+  });
+
   const { register, handleSubmit, control, formState: { errors }, reset } = useForm<FormValues>({
     defaultValues: {
       uc_alumni: false,
@@ -68,6 +75,10 @@ export default function ResumeReviewEmployer() {
 
   const isSuccess = registerMutation.isSuccess && registerMutation.data?.status === 201;
   const successMessage = registerMutation.data?.data.message || 'Registered!';
+
+  if (settingsQuery.data && !settingsQuery.data.employer_page_open) {
+    return <ResumeReviewClosedPage audience="employer" />;
+  }
 
   if (isSuccess) {
     return (

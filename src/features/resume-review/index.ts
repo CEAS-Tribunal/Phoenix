@@ -23,6 +23,7 @@ export type {
   RosterEmployer,
   RosterSlot,
   RosterStudent,
+  ResumeReviewSettings,
   StudentData,
   StudentResponse,
   Timeslot,

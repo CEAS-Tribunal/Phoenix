@@ -4,6 +4,7 @@ import Navbar from '@shared/components/layout/Navbar';
 import Footer from '@shared/components/layout/Footer';
 import { ResumeReviewDay, type StudentData, type Timeslot } from '../services/resumeReviewService';
 import { rrdKeys } from '../queryKeys';
+import ResumeReviewClosedPage from './ResumeReviewClosedPage';
 import { Clock, Building2, User, Check } from 'lucide-react';
 
 /** Get display time from a timeslot object */
@@ -75,6 +76,11 @@ const MAX_EMPLOYERS = 2;
 
 export default function ResumeReviewStudent() {
     const queryClient = useQueryClient();
+    const settingsQuery = useQuery({
+        queryKey: rrdKeys.settings,
+        queryFn: () => ResumeReviewDay.getSettings(),
+    });
+
     const [selectedInterviewStyle, setSelectedInterviewStyle] = useState<string>('');
     const [selectedMajor, setSelectedMajor] = useState<string>('');
     /** Selected hour-range ids for the initial filter (any number of ranges) */
@@ -119,6 +125,10 @@ export default function ResumeReviewStudent() {
             void queryClient.invalidateQueries({ queryKey: rrdKeys.all });
         },
     });
+
+    if (settingsQuery.data && !settingsQuery.data.student_page_open) {
+        return <ResumeReviewClosedPage audience="student" />;
+    }
 
     const results = timeslotsQuery.isFetched ? (timeslotsQuery.data ?? null) : null;
     const loading = timeslotsQuery.isFetching;
@@ -345,7 +355,7 @@ export default function ResumeReviewStudent() {
                                 return (
                                     <div
                                         key={employer.id}
-                                        className="min-w-[280px] flex-[1_1_280px] rounded-xl bg-white/95 shadow-lg overflow-hidden border border-white/50"
+                                        className="min-w-70 flex-[1_1_280px] rounded-xl bg-white/95 shadow-lg overflow-hidden border border-white/50"
                                     >
                                         <div className="px-6 py-4 bg-slate-800/10 border-b border-slate-200/60">
                                             <div className="flex items-center gap-3">
