@@ -96,6 +96,11 @@ export interface RosterEmployer {
   slots: RosterSlot[];
 }
 
+export interface ResumeReviewSettings {
+  employer_page_open: boolean;
+  student_page_open: boolean;
+}
+
 function authHeader(): { Authorization: string } | Record<string, never> {
   const token = getAccessToken();
   if (!token) return {};
@@ -137,6 +142,25 @@ export const ResumeReviewDay = {
   async getRoster(): Promise<RosterEmployer[]> {
     const { data } = await axiosInstance.get<RosterEmployer[]>(
       '/api/resume-review-day/roster/',
+      { headers: authHeader() }
+    );
+    return data;
+  },
+
+  async getSettings(): Promise<ResumeReviewSettings> {
+    const { data } = await axiosInstance.get<ResumeReviewSettings>(
+      '/api/resume-review-day/settings/',
+      { headers: authHeader() }
+    );
+    return data;
+  },
+
+  async updateSettings(
+    settings: Partial<ResumeReviewSettings>
+  ): Promise<ResumeReviewSettings> {
+    const { data } = await axiosInstance.patch<ResumeReviewSettings>(
+      '/api/resume-review-day/settings/',
+      settings,
       { headers: authHeader() }
     );
     return data;

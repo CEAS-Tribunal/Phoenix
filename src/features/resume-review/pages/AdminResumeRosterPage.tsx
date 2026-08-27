@@ -1,8 +1,14 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { ArrowLeft, ChevronDown, ClipboardList } from "lucide-react";
+import {
+  ArrowLeft,
+  ChevronDown,
+  ClipboardList,
+  GraduationCap,
+  University,
+} from "lucide-react";
 import Navbar from "@shared/components/layout/Navbar";
 import Footer from "@shared/components/layout/Footer";
 import { Button } from "@shared/ui/button";
@@ -15,6 +21,7 @@ import {
 } from "@shared/ui/card";
 import { Input } from "@shared/ui/input";
 import { Label } from "@shared/ui/label";
+import { Switch } from "@shared/ui/switch";
 import { formatErrorMessage } from "@shared/lib/formatError";
 import { isAuthenticated } from "@auth";
 import { ResumeReviewDay, type RosterEmployer } from "../services/resumeReviewService";
@@ -29,11 +36,25 @@ function slotsTaken(emp: RosterEmployer): { taken: number; total: number } {
 export default function AdminResumeRosterPage() {
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const queryClient = useQueryClient();
 
   const rosterQuery = useQuery({
     queryKey: rrdKeys.roster,
     queryFn: () => ResumeReviewDay.getRoster(),
     enabled: isAuthenticated(),
+  });
+
+  const settingsQuery = useQuery({
+    queryKey: rrdKeys.settings,
+    queryFn: () => ResumeReviewDay.getSettings(),
+  });
+
+  const settingsMutation = useMutation({
+    mutationFn: (settings: Parameters<typeof ResumeReviewDay.updateSettings>[0]) =>
+      ResumeReviewDay.updateSettings(settings),
+    onSuccess: (settings) => {
+      queryClient.setQueryData(rrdKeys.settings, settings);
+    },
   });
 
   const filtered = useMemo(() => {
@@ -86,6 +107,40 @@ export default function AdminResumeRosterPage() {
                   Employers registered for Resume Review Day, their time windows, and
                   which students claimed each 20-minute slot.
                 </p>
+                <div className="mt-5 flex flex-wrap gap-5">
+                  <div className="flex items-center gap-2">
+                    <University className="h-4 w-4 text-[#E00122]" />
+                    <span className="text-sm font-medium text-gray-800">Employer page</span>
+                    <Switch
+                      checked={settingsQuery.data?.employer_page_open ?? false}
+                      disabled={settingsQuery.isPending || settingsMutation.isPending}
+                      onCheckedChange={(checked) =>
+                        settingsMutation.mutate({ employer_page_open: checked })
+                      }
+                      className="data-[state=checked]:bg-[#E00122]"
+                      aria-label="Toggle employer registration page"
+                    />
+                    <span className="text-xs text-gray-500">
+                      {settingsQuery.data?.employer_page_open ? "Open" : "Closed"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <GraduationCap className="h-4 w-4 text-[#E00122]" />
+                    <span className="text-sm font-medium text-gray-800">Student page</span>
+                    <Switch
+                      checked={settingsQuery.data?.student_page_open ?? false}
+                      disabled={settingsQuery.isPending || settingsMutation.isPending}
+                      onCheckedChange={(checked) =>
+                        settingsMutation.mutate({ student_page_open: checked })
+                      }
+                      className="data-[state=checked]:bg-[#E00122]"
+                      aria-label="Toggle student registration page"
+                    />
+                    <span className="text-xs text-gray-500">
+                      {settingsQuery.data?.student_page_open ? "Open" : "Closed"}
+                    </span>
+                  </div>
+                </div>
               </div>
 
               <div className="max-w-md space-y-2 mb-8">
@@ -185,7 +240,7 @@ export default function AdminResumeRosterPage() {
                         {isOpen && (
                           <CardContent className="pt-0">
                             <div className="overflow-x-auto rounded-lg border border-gray-200">
-                              <table className="w-full min-w-[560px] text-sm">
+                              <table className="w-full min-w-140 text-sm">
                                 <thead>
                                   <tr className="border-b border-gray-200 bg-gray-50">
                                     <th className="px-4 py-3 text-left font-semibold text-[#333333]">
