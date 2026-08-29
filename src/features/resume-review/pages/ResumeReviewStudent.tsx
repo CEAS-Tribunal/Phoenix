@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { formatErrorMessage } from '@shared/lib/formatError';
 import Navbar from '@shared/components/layout/Navbar';
 import Footer from '@shared/components/layout/Footer';
 import { ResumeReviewDay, type StudentData, type Timeslot } from '../services/resumeReviewService';
@@ -133,18 +134,17 @@ export default function ResumeReviewStudent() {
     const results = timeslotsQuery.isFetched ? (timeslotsQuery.data ?? null) : null;
     const loading = timeslotsQuery.isFetching;
     const filterError =
-        timeslotsQuery.error instanceof Error
-            ? timeslotsQuery.error.message
+        timeslotsQuery.error != null
+            ? formatErrorMessage(timeslotsQuery.error)
             : timeslotsQuery.isError
               ? 'Failed to load timeslots'
               : null;
     const signupError =
-        signupMutation.error instanceof Error
-            ? signupMutation.error.message
+        signupMutation.error != null
+            ? formatErrorMessage(signupMutation.error)
             : signupMutation.isError
               ? 'Failed to sign up'
               : null;
-    const error = filterError ?? signupError;
 
     function handleFilter() {
         void timeslotsQuery.refetch();
@@ -218,6 +218,11 @@ export default function ResumeReviewStudent() {
 
                 {!submitSuccess && (
                 <div className='bg-white w-2/5 flex flex-col my-8 rounded-xl p-6 gap-y-4 shadow-lg border border-white/50'>
+                    {filterError && (
+                        <p className="text-red-600 font-medium text-sm bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                            {filterError}
+                        </p>
+                    )}
                     <div className=''>
                         <label className='block text-slate-700 font-medium mb-2'>Major</label>
                         <select
@@ -313,10 +318,6 @@ export default function ResumeReviewStudent() {
                         {loading ? 'Loading…' : 'Filter'}
                     </button>
                 </div>
-                )}
-
-                {error && !submitSuccess && (
-                    <p className="text-red-600 font-medium mt-4 w-2/5 text-center">{error}</p>
                 )}
                 </div>
 
@@ -421,7 +422,13 @@ export default function ResumeReviewStudent() {
                             })}
                         </div>
 
-                        <form onSubmit={handleSignup} className="mt-8 p-6 rounded-xl bg-white/95 shadow-lg border border-white/50 space-y-4 w-full">
+                        {signupError && (
+                            <p className="mt-8 text-red-600 font-medium text-sm bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                                {signupError}
+                            </p>
+                        )}
+
+                        <form onSubmit={handleSignup} className="mt-4 p-6 rounded-xl bg-white/95 shadow-lg border border-white/50 space-y-4 w-full">
                                 <h3 className="text-lg font-semibold text-slate-800">Complete your registration</h3>
                                 {Object.keys(selectedSlots).length === 0 && (
                                     <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
