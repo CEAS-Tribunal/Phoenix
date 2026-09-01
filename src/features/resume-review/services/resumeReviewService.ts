@@ -147,6 +147,21 @@ export const ResumeReviewDay = {
     return data;
   },
 
+  async downloadResumesZip(): Promise<void> {
+    const { data } = await axiosInstance.get<Blob>(
+      '/api/resume-review-day/resumes/download/',
+      { headers: authHeader(), responseType: 'blob' }
+    );
+    const objectUrl = URL.createObjectURL(data);
+    const a = document.createElement('a');
+    a.href = objectUrl;
+    a.download = 'resume-review-day-resumes.zip';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(objectUrl);
+  },
+
   async getSettings(): Promise<ResumeReviewSettings> {
     const { data } = await axiosInstance.get<ResumeReviewSettings>(
       '/api/resume-review-day/settings/',

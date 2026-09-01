@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   ChevronDown,
   ClipboardList,
+  Download,
   GraduationCap,
   University,
 } from "lucide-react";
@@ -57,6 +58,14 @@ export default function AdminResumeRosterPage() {
     },
   });
 
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+
+  const downloadMutation = useMutation({
+    mutationFn: () => ResumeReviewDay.downloadResumesZip(),
+    onMutate: () => setDownloadError(null),
+    onError: (error) => setDownloadError(formatErrorMessage(error)),
+  });
+
   const filtered = useMemo(() => {
     const rows = rosterQuery.data ?? [];
     const q = search.trim().toLowerCase();
@@ -97,16 +106,29 @@ export default function AdminResumeRosterPage() {
               </Link>
 
               <div className="mb-8">
-                <div className="flex items-center gap-3 text-[#E00122] mb-2">
-                  <ClipboardList className="h-8 w-8" />
-                  <h1 className="text-3xl font-bold tracking-tight text-[#333333]">
-                    Resume Review Day Roster
-                  </h1>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <div className="flex items-center gap-3 text-[#E00122] mb-2">
+                      <ClipboardList className="h-8 w-8" />
+                      <h1 className="text-3xl font-bold tracking-tight text-[#333333]">
+                        Resume Review Day Roster
+                      </h1>
+                    </div>
+                    <p className="text-gray-600 max-w-2xl">
+                      Employers registered for Resume Review Day, their time windows, and
+                      which students claimed each 20-minute slot.
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    className="shrink-0 bg-[#E00122] hover:bg-[#c0011e] text-white"
+                    disabled={downloadMutation.isPending || rosterQuery.isPending}
+                    onClick={() => downloadMutation.mutate()}
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    {downloadMutation.isPending ? "Preparing zip…" : "Download all resumes"}
+                  </Button>
                 </div>
-                <p className="text-gray-600 max-w-2xl">
-                  Employers registered for Resume Review Day, their time windows, and
-                  which students claimed each 20-minute slot.
-                </p>
                 <div className="mt-5 flex flex-wrap gap-5">
                   <div className="flex items-center gap-2">
                     <University className="h-4 w-4 text-[#E00122]" />
@@ -156,9 +178,9 @@ export default function AdminResumeRosterPage() {
                 />
               </div>
 
-              {errorMessage && (
+              {(errorMessage || downloadError) && (
                 <p className="mb-6 text-sm text-red-600" role="alert">
-                  {errorMessage}
+                  {errorMessage ?? downloadError}
                 </p>
               )}
 
