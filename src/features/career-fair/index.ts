@@ -1,8 +1,8 @@
 import { lazy } from "react";
 
 export const CareerFairPage = lazy(() => import("./pages/CareerFairPage"));
-export const AdminRepresentativeSignInPage = lazy(
-  () => import("./pages/AdminRepresentativeSignInPage")
+export const RepresentativeSignInPage = lazy(
+  () => import("./pages/RepresentativeSignInPage")
 );
 export const AdminTagsPrintingPage = lazy(
   () => import("./pages/AdminTagsPrintingPage")
