@@ -67,7 +67,7 @@ const DASHBOARD_LINKS: DashboardLinkItem[] = [
     orgFundingChairOnly: true,
   },
   {
-    href: "/admin/career-fair/representative-sign-in",
+    href: "/career-fair/representative-sign-in",
     title: "Career Fair Representative Sign-In",
     description: "Sign in career fair representatives by location.",
     icon: UserPlus,

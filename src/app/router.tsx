@@ -11,13 +11,12 @@ import {
   OrgFundingChairGuard,
   TreasurerGuard,
 } from '@auth';
-import { AlumniPage, HomePage, ResourcesPage } from '@home';
-import { ExpoPage } from '@home';
+import { AlumniPage, HomePage, ResourcesPage, ExpoPage } from '@home';
 import { CommitteesPage } from '@committees';
 import {
-  AdminRepresentativeSignInPage,
   AdminTagsPrintingPage,
   CareerFairPage,
+  RepresentativeSignInPage,
 } from '@career-fair';
 import {
   AdminResumeRosterPage,
@@ -61,6 +60,14 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<LoadingFallback />}>
             <CareerFairPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'career-fair/representative-sign-in',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <RepresentativeSignInPage />
           </Suspense>
         ),
       },
@@ -188,16 +195,7 @@ export const router = createBrowserRouter([
           </AdminGuard>
         ),
       },
-      {
-        path: 'admin/career-fair/representative-sign-in',
-        element: (
-          <AdminGuard>
-            <Suspense fallback={<LoadingFallback />}>
-              <AdminRepresentativeSignInPage />
-            </Suspense>
-          </AdminGuard>
-        ),
-      },
+
       {
         path: 'admin/career-fair/tags',
         element: (
