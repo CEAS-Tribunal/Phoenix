@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -22,11 +22,13 @@ import {
   getRepresentatives,
   type Representative,
 } from "../services/careerFairService";
-
-const PRINTER_OPTIONS = [
-  { value: "dymo-450", label: "DYMO LabelWriter 450" },
-  { value: "none", label: "No printer detected" },
-] as const;
+import {
+  checkPrinterStatus,
+  getConnectedPrinters,
+  pickDefaultPrinter,
+  printNameTag,
+} from "../dymo/print";
+import type { DymoPrinter } from "../dymo/types";
 
 function formatSignedInAt(iso: string): string {
   try {
@@ -48,7 +50,9 @@ function buildingLabel(value: string): string {
 function renderTableBody(
   isLoading: boolean,
   data: Representative[] | undefined,
-  onPrint: (rep: Representative) => void
+  onPrint: (rep: Representative) => void,
+  printingId: string | null,
+  printDisabled: boolean
 ): ReactNode {
   if (isLoading) {
     return (
@@ -85,9 +89,10 @@ function renderTableBody(
           size="sm"
           variant="outline"
           className="rounded-md"
+          disabled={printDisabled || printingId !== null}
           onClick={() => onPrint(rep)}
         >
-          Print
+          {printingId === rep.id ? "Printing…" : "Print"}
         </Button>
       </td>
     </tr>
@@ -96,6 +101,11 @@ function renderTableBody(
 
 export default function AdminTagsPrintingPage() {
   const [printer, setPrinter] = useState<string>("");
+  const [printers, setPrinters] = useState<DymoPrinter[]>([]);
+  const [printersLoading, setPrintersLoading] = useState(true);
+  const [dymoError, setDymoError] = useState<string | null>(null);
+  const [printError, setPrintError] = useState<string | null>(null);
+  const [printingId, setPrintingId] = useState<string | null>(null);
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
@@ -103,6 +113,31 @@ export default function AdminTagsPrintingPage() {
     const t = window.setTimeout(() => setDebouncedSearch(searchInput.trim()), 300);
     return () => window.clearTimeout(t);
   }, [searchInput]);
+
+  const refreshPrinters = useCallback(async () => {
+    setPrintersLoading(true);
+    setDymoError(null);
+    try {
+      const list = await getConnectedPrinters();
+      setPrinters(list);
+      setPrinter((current) => pickDefaultPrinter(list, current));
+      if (list.length === 0) {
+        setDymoError("No printer was found.");
+      }
+    } catch (err) {
+      setPrinters([]);
+      setPrinter("");
+      setDymoError(
+        err instanceof Error ? err.message : "Could not reach DYMO Connect."
+      );
+    } finally {
+      setPrintersLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshPrinters();
+  }, [refreshPrinters]);
 
   const listQuery = useQuery({
     queryKey: careerFairKeys.representativesWithSearch(debouncedSearch),
@@ -112,15 +147,28 @@ export default function AdminTagsPrintingPage() {
     refetchInterval: 5000,
   });
 
-  function handlePrintOne(rep: Representative) {
-    // DYMO integration will plug in here later
-    globalThis.alert(
-      `Print name tag (stub)\n\n${rep.name}\n${rep.company}\n${rep.title}\nBooth: ${rep.booth_location}\nPrinter: ${printer || "(not selected)"}`
-    );
+  async function handlePrintOne(rep: Representative) {
+    setPrintError(null);
+    const statusError = checkPrinterStatus(printer, printers);
+    if (statusError) {
+      setPrintError(statusError);
+      return;
+    }
+    setPrintingId(rep.id);
+    try {
+      await printNameTag(printer, rep.name, rep.company, rep.title);
+    } catch (err) {
+      setPrintError(
+        err instanceof Error ? err.message : "Print failed. Please try again."
+      );
+    } finally {
+      setPrintingId(null);
+    }
   }
 
-  const errorMessage =
+  const listError =
     listQuery.isError && listQuery.error ? formatErrorMessage(listQuery.error) : null;
+  const errorMessage = printError ?? listError;
 
   return (
     <div className="min-h-screen bg-white">
@@ -148,8 +196,8 @@ export default function AdminTagsPrintingPage() {
                     <CardTitle className="text-2xl">Printing Station</CardTitle>
                   </div>
                   <CardDescription className="text-gray-600">
-                    Select a DYMO printer, search representatives, then print a name tag per row.
-                    Printer integration is stubbed until DYMO is connected.
+                    Select a connected DYMO LabelWriter 450 Turbo, search representatives,
+                    then print a name tag per row.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-8">
@@ -159,18 +207,56 @@ export default function AdminTagsPrintingPage() {
                     </h3>
                     <div className="max-w-md space-y-2">
                       <Label>Select a connected DYMO printer</Label>
-                      <Select value={printer} onValueChange={setPrinter}>
-                        <SelectTrigger className="w-full border-gray-200">
-                          <SelectValue placeholder="Select printer" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {PRINTER_OPTIONS.map((opt) => (
-                            <SelectItem key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <div className="flex gap-2">
+                        <Select
+                          value={printer || undefined}
+                          onValueChange={setPrinter}
+                          disabled={printersLoading || printers.length === 0}
+                        >
+                          <SelectTrigger className="w-full border-gray-200">
+                            <SelectValue
+                              placeholder={
+                                printersLoading
+                                  ? "Looking for printers…"
+                                  : "Select printer"
+                              }
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {printers.map((opt) => (
+                              <SelectItem key={opt.name} value={opt.name}>
+                                {opt.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="rounded-md shrink-0"
+                          onClick={() => void refreshPrinters()}
+                          disabled={printersLoading}
+                        >
+                          {printersLoading ? "Refreshing…" : "Refresh"}
+                        </Button>
+                      </div>
+                      {dymoError && (
+                        <p className="text-sm text-red-600" role="alert">
+                          {dymoError}
+                        </p>
+                      )}
+                      <p className="text-xs text-gray-500">
+                        Requires DYMO Connect on this computer. If no printer appears, open{" "}
+                        <a
+                          href="https://127.0.0.1:41951/DYMO/DLS/Printing/StatusConnected"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="underline"
+                        >
+                          https://127.0.0.1:41951
+                        </a>{" "}
+                        once to trust the local certificate, then refresh.
+                      </p>
                     </div>
                   </div>
 
@@ -227,7 +313,9 @@ export default function AdminTagsPrintingPage() {
                           {renderTableBody(
                             listQuery.isLoading,
                             listQuery.data,
-                            handlePrintOne
+                            (rep) => void handlePrintOne(rep),
+                            printingId,
+                            !printer
                           )}
                         </tbody>
                       </table>
