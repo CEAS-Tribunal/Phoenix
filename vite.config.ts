@@ -27,6 +27,7 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       react()
     ],
+    assetsInclude: ["**/DYMO.Label.Framework.3.0.js"],
     server: {
       port: 3000,
       proxy: {

@@ -1,6 +1,9 @@
 import type { DymoFramework } from "./types";
 
-const FRAMEWORK_SRC = "./dymo/DYMO.Label.Framework.3.0.js";
+/** Official DYMO Label Framework 3.0.0 (same SDK as the legacy career-week station). */
+import dymoLabelFrameworkUrl from "./DYMO.Label.Framework.3.0.js?url";
+
+const FRAMEWORK_SRC = dymoLabelFrameworkUrl;
 
 let loadPromise: Promise<void> | null = null;
 
@@ -12,29 +15,42 @@ export function getDymoFramework(): DymoFramework {
   return fw;
 }
 
+function isFrameworkLoaded(): boolean {
+  return window.dymo?.label?.framework != null;
+}
+
 export function loadDymoFramework(): Promise<void> {
-  if (window.dymo?.label?.framework) {
+  if (isFrameworkLoaded()) {
     return Promise.resolve();
   }
   if (loadPromise !== null) return loadPromise;
 
   loadPromise = new Promise((resolve, reject) => {
+    const existing = document.querySelector<HTMLScriptElement>(
+      'script[data-dymo-framework="3.0.0"]'
+    );
+    if (existing && isFrameworkLoaded()) {
+      resolve();
+      return;
+    }
+
     const script = document.createElement("script");
     script.src = FRAMEWORK_SRC;
     script.async = true;
+    script.dataset.dymoFramework = "3.0.0";
     script.onload = () => {
-      if (window.dymo?.label?.framework) {
+      if (isFrameworkLoaded()) {
         resolve();
         return;
       }
       loadPromise = null;
-      reject(new Error("DYMO Label Framework failed to initialize."));
+      reject(new Error("DYMO Label Framework 3.0 failed to initialize."));
     };
     script.onerror = () => {
       loadPromise = null;
       reject(
         new Error(
-          "Failed to load the DYMO Connect framework. Confirm DYMO Connect is installed."
+          "Failed to load DYMO Label Framework 3.0. Confirm the script is available and DYMO Connect or DLS is installed."
         )
       );
     };
@@ -55,7 +71,7 @@ export async function initDymoFramework(): Promise<void> {
     const timeoutId = window.setTimeout(() => {
       finishErr(
         new Error(
-          "DYMO Connect did not respond. Open https://127.0.0.1:41951 in this browser to trust the printer service, then refresh printers."
+          "DYMO Label Framework did not respond. Open https://127.0.0.1:41951 in this browser to trust the printer service, then refresh printers."
         )
       );
     }, 12000);
