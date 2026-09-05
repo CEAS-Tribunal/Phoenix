@@ -24,11 +24,13 @@ import {
 } from "../services/careerFairService";
 import {
   checkPrinterStatus,
-  getConnectedPrinters,
+  isWebUsbSupported,
+  listPairedPrinters,
+  pairUsbPrinter,
   pickDefaultPrinter,
   printNameTag,
 } from "../dymo/print";
-import type { DymoPrinter } from "../dymo/types";
+import type { UsbLabelPrinter } from "../dymo/types";
 
 function formatSignedInAt(iso: string): string {
   try {
@@ -101,11 +103,12 @@ function renderTableBody(
 
 export default function AdminTagsPrintingPage() {
   const [printer, setPrinter] = useState<string>("");
-  const [printers, setPrinters] = useState<DymoPrinter[]>([]);
+  const [printers, setPrinters] = useState<UsbLabelPrinter[]>([]);
   const [printersLoading, setPrintersLoading] = useState(true);
   const [dymoError, setDymoError] = useState<string | null>(null);
   const [printError, setPrintError] = useState<string | null>(null);
   const [printingId, setPrintingId] = useState<string | null>(null);
+  const [pairing, setPairing] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
@@ -117,18 +120,27 @@ export default function AdminTagsPrintingPage() {
   const refreshPrinters = useCallback(async () => {
     setPrintersLoading(true);
     setDymoError(null);
+    if (!isWebUsbSupported()) {
+      setPrinters([]);
+      setPrinter("");
+      setDymoError(
+        "WebUSB is not available. Use Chrome or Edge on https:// or localhost."
+      );
+      setPrintersLoading(false);
+      return;
+    }
     try {
-      const list = await getConnectedPrinters();
+      const list = await listPairedPrinters();
       setPrinters(list);
       setPrinter((current) => pickDefaultPrinter(list, current));
       if (list.length === 0) {
-        setDymoError("No printer was found.");
+        setDymoError("No printer was found. Click Connect USB printer to pair one.");
       }
     } catch (err) {
       setPrinters([]);
       setPrinter("");
       setDymoError(
-        err instanceof Error ? err.message : "Could not reach DYMO Connect."
+        err instanceof Error ? err.message : "Could not list USB LabelWriter printers."
       );
     } finally {
       setPrintersLoading(false);
@@ -146,6 +158,30 @@ export default function AdminTagsPrintingPage() {
     refetchOnWindowFocus: true,
     refetchInterval: 5000,
   });
+
+  async function handleConnectUsb() {
+    setPrintError(null);
+    setDymoError(null);
+    setPairing(true);
+    try {
+      const list = await pairUsbPrinter();
+      setPrinters(list);
+      setPrinter((current) => pickDefaultPrinter(list, current));
+      if (list.length === 0) {
+        setDymoError("No printer was found.");
+      }
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "NotFoundError") {
+        setDymoError("Printer pairing was cancelled.");
+        return;
+      }
+      setDymoError(
+        err instanceof Error ? err.message : "Could not connect to the USB printer."
+      );
+    } finally {
+      setPairing(false);
+    }
+  }
 
   async function handlePrintOne(rep: Representative) {
     setPrintError(null);
@@ -196,8 +232,8 @@ export default function AdminTagsPrintingPage() {
                     <CardTitle className="text-2xl">Printing Station</CardTitle>
                   </div>
                   <CardDescription className="text-gray-600">
-                    Select a connected DYMO LabelWriter 450 Turbo, search representatives,
-                    then print a name tag per row.
+                    Pair a DYMO LabelWriter over USB, search representatives, then print a
+                    name tag per row.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-8">
@@ -224,7 +260,7 @@ export default function AdminTagsPrintingPage() {
                           </SelectTrigger>
                           <SelectContent>
                             {printers.map((opt) => (
-                              <SelectItem key={opt.name} value={opt.name}>
+                              <SelectItem key={opt.id} value={opt.id}>
                                 {opt.name}
                               </SelectItem>
                             ))}
@@ -234,8 +270,17 @@ export default function AdminTagsPrintingPage() {
                           type="button"
                           variant="outline"
                           className="rounded-md shrink-0"
+                          onClick={() => void handleConnectUsb()}
+                          disabled={pairing || printersLoading}
+                        >
+                          {pairing ? "Connecting…" : "Connect USB"}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="rounded-md shrink-0"
                           onClick={() => void refreshPrinters()}
-                          disabled={printersLoading}
+                          disabled={printersLoading || pairing}
                         >
                           {printersLoading ? "Refreshing…" : "Refresh"}
                         </Button>
@@ -246,16 +291,10 @@ export default function AdminTagsPrintingPage() {
                         </p>
                       )}
                       <p className="text-xs text-gray-500">
-                        Requires DYMO Connect on this computer. If no printer appears, open{" "}
-                        <a
-                          href="https://127.0.0.1:41951/DYMO/DLS/Printing/StatusConnected"
-                          target="_blank"
-                          rel="noreferrer"
-                          className="underline"
-                        >
-                          https://127.0.0.1:41951
-                        </a>{" "}
-                        once to trust the local certificate, then refresh.
+                        Use Chrome or Edge on https:// or localhost. Quit DYMO Connect and
+                        DYMO Label, and on a Mac remove the printer from System Settings →
+                        Printers & Scanners so the browser can claim USB. Then unplug, replug,
+                        and click Connect USB.
                       </p>
                     </div>
                   </div>

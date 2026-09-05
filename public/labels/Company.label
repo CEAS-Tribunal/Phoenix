@@ -2,12 +2,13 @@
 <DieCutLabel Version="8.0" Units="twips">
 	<PaperOrientation>Landscape</PaperOrientation>
 	<Id>NameBadge</Id>
-	<PaperName>30256 Shipping</PaperName>
+	<PaperName>30857 Name Badge</PaperName>
 	<DrawCommands>
 		<Path>
 			<FillMode>EvenOdd</FillMode>
-			<RoundRectangle X="0" Y="0" Width="3331" Height="5760" Rx="180" Ry="180" />
-			<RoundRectangle X="2880" Y="2520" Width="180" Height="720" Rx="120" Ry="120" />
+			<!-- 57mm × 102mm (3231 × 5760 twips) -->
+			<RoundRectangle X="0" Y="0" Width="3231" Height="5760" Rx="180" Ry="180" />
+			<RoundRectangle X="2780" Y="2520" Width="180" Height="720" Rx="120" Ry="120" />
 		</Path>
 	</DrawCommands>
 	<ObjectInfo>
@@ -28,13 +29,14 @@
 				<Element>
 					<String>Name</String>
 					<Attributes>
-						<Font Family="Arial" Size="33" Bold="True" Italic="False" Underline="False" Strikeout="False" />
+						<Font Family="Arial" Size="28" Bold="True" Italic="False" Underline="False" Strikeout="False" />
 						<ForeColor Alpha="255" Red="0" Green="0" Blue="0" />
 					</Attributes>
 				</Element>
 			</StyledText>
 		</TextObject>
-		<Bounds X="336" Y="570" Width="5145" Height="771" />
+		<!-- Content stays inside landscape height 3231; end of title ≈ 2680 -->
+		<Bounds X="0" Y="220" Width="5760" Height="820" />
 	</ObjectInfo>
 	<ObjectInfo>
 		<TextObject>
@@ -54,13 +56,13 @@
 				<Element>
 					<String>Company</String>
 					<Attributes>
-						<Font Family="Arial" Size="20" Bold="False" Italic="False" Underline="False" Strikeout="False" />
+						<Font Family="Arial" Size="17" Bold="False" Italic="False" Underline="False" Strikeout="False" />
 						<ForeColor Alpha="255" Red="0" Green="0" Blue="0" />
 					</Attributes>
 				</Element>
 			</StyledText>
 		</TextObject>
-		<Bounds X="336" Y="1695" Width="5244" Height="540" />
+		<Bounds X="0" Y="1280" Width="5760" Height="520" />
 	</ObjectInfo>
 	<ObjectInfo>
 		<TextObject>
@@ -80,13 +82,13 @@
 				<Element>
 					<String>Title</String>
 					<Attributes>
-						<Font Family="Arial" Size="20" Bold="False" Italic="False" Underline="False" Strikeout="False" />
+						<Font Family="Arial" Size="17" Bold="False" Italic="False" Underline="False" Strikeout="False" />
 						<ForeColor Alpha="255" Red="0" Green="0" Blue="0" />
 					</Attributes>
 				</Element>
 			</StyledText>
 		</TextObject>
-		<Bounds X="351" Y="2355" Width="5160" Height="480" />
+		<Bounds X="0" Y="1920" Width="5760" Height="520" />
 	</ObjectInfo>
 	<ObjectInfo>
 		<ShapeObject>
@@ -98,10 +100,10 @@
 			<IsMirrored>False</IsMirrored>
 			<IsVariable>False</IsVariable>
 			<ShapeType>HorizontalLine</ShapeType>
-			<LineWidth>45</LineWidth>
+			<LineWidth>36</LineWidth>
 			<LineAlignment>Center</LineAlignment>
 			<FillColor Alpha="0" Red="255" Green="255" Blue="255" />
 		</ShapeObject>
-		<Bounds X="336" Y="1440" Width="5115" Height="45" />
+		<Bounds X="0" Y="1140" Width="5760" Height="36" />
 	</ObjectInfo>
 </DieCutLabel>

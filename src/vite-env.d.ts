@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+/// <reference types="w3c-web-usb" />
 
 declare module '*.jpg' {
   const src: string;
@@ -36,6 +37,11 @@ declare module '*.pdf' {
 }
 
 declare module '*.js?url' {
+  const src: string;
+  export default src;
+}
+
+declare module '*.label?raw' {
   const src: string;
   export default src;
 }

@@ -1,123 +1,182 @@
-import { getDymoFramework, initDymoFramework } from "./framework";
-import type { DymoFramework, DymoLabel, DymoPrinter, DymoPrinterCollection } from "./types";
+import { DEFAULT_FILTERS, fromUSBDevice } from "@thermal-label/labelwriter-web";
+import { MEDIA } from "@thermal-label/labelwriter-core";
 
-const COMPANY_LABEL_PATH = "/labels/Company.label";
+import { renderNameTagImage } from "./nameTagImage";
+import type { UsbLabelPrinter } from "./types";
 
-let readyPromise: Promise<void> | null = null;
-let cachedLabel: DymoLabel | null = null;
-let cachedParamsXml: string | null = null;
+function assertWebUsb(): void {
+  if (typeof navigator === "undefined" || !("usb" in navigator)) {
+    throw new Error(
+      "WebUSB is not available. Use Chrome or Edge on https:// or localhost."
+    );
+  }
+}
 
-function printersToArray(printers: DymoPrinterCollection): DymoPrinter[] {
-  return Array.from({ length: printers.length }, (_, index) => printers[index]).filter(
-    (printer): printer is DymoPrinter => printer != null
+function isLabelWriterDevice(device: USBDevice): boolean {
+  return DEFAULT_FILTERS.some(
+    (filter) =>
+      filter.vendorId === device.vendorId &&
+      (filter.productId === undefined || filter.productId === device.productId)
   );
 }
 
-async function readPrinters(fw: DymoFramework): Promise<DymoPrinter[]> {
-  if (typeof fw.getPrintersAsync === "function") {
-    return printersToArray(await fw.getPrintersAsync());
-  }
-  return printersToArray(fw.getPrinters());
+export function usbPrinterId(device: USBDevice): string {
+  const serial = device.serialNumber || device.productName || "usb";
+  return `${device.vendorId}:${device.productId}:${serial}`;
 }
 
-async function loadCompanyLabel(fw: DymoFramework): Promise<DymoLabel> {
-  const labelUri = `${window.location.origin}${COMPANY_LABEL_PATH}`;
+function toUsbPrinter(device: USBDevice): UsbLabelPrinter {
+  const name = device.productName?.trim() || "DYMO LabelWriter";
+  return {
+    id: usbPrinterId(device),
+    name,
+    modelName: name,
+    isConnected: true,
+  };
+}
+
+function errorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : "Unknown USB error";
+}
+
+function isUsbClaimError(err: unknown): boolean {
+  return /claimInterface|Unable to claim interface/i.test(errorMessage(err));
+}
+
+function usbClaimError(): Error {
+  const ua = navigator.userAgent;
+  if (/Mac/i.test(ua)) {
+    return new Error(
+      "Unable to claim the USB printer. Quit DYMO Connect and DYMO Label, remove the LabelWriter from System Settings → Printers & Scanners, then unplug and replug the USB cable and click Connect USB again."
+    );
+  }
+  if (/Linux/i.test(ua)) {
+    return new Error(
+      "Unable to claim the USB printer. Linux usblp/CUPS likely has it. Quit DYMO software, add a udev rule for VID 0922 with TAG+=uaccess, then unplug and replug the printer."
+    );
+  }
+  return new Error(
+    "Unable to claim the USB printer. Quit DYMO Connect and any app using the LabelWriter, then unplug and replug the USB cable and try again."
+  );
+}
+
+async function releaseUsbDevice(device: USBDevice): Promise<void> {
+  if (!device.opened) return;
+  const interfaces = device.configuration?.interfaces ?? [];
+  for (const iface of interfaces) {
+    if (!iface.claimed) continue;
+    try {
+      await device.releaseInterface(iface.interfaceNumber);
+    } catch {
+      // This page may not own the claim.
+    }
+  }
   try {
-    const fromFile = fw.openLabelFile(labelUri);
-    if (fromFile?.getLabelXml()) return fromFile;
+    await device.close();
   } catch {
-    // DYMO Connect OpenLabelFile expects a local path; fetch XML instead.
+    // Already closed.
   }
+}
 
-  const response = await fetch(labelUri);
-  if (!response.ok) {
-    throw new Error("Could not load the Company.label template.");
+async function resetUsbDevice(device: USBDevice): Promise<void> {
+  try {
+    if (!device.opened) await device.open();
+    await device.reset();
+  } catch {
+    // Reset is not always permitted; release still helps the next claim.
   }
-  return fw.openLabelXml(await response.text());
+  await releaseUsbDevice(device);
 }
 
-async function ensureDymoReady(): Promise<void> {
-  if (cachedLabel !== null && cachedParamsXml !== null) return;
-  if (readyPromise !== null) return readyPromise;
-
-  readyPromise = (async () => {
-    await initDymoFramework();
-    const fw = getDymoFramework();
-    cachedLabel = await loadCompanyLabel(fw);
-    cachedParamsXml = fw.createLabelWriterPrintParamsXml({ copies: 1 });
-  })().catch((err) => {
-    readyPromise = null;
-    throw err;
-  });
-
-  return readyPromise;
+async function openUsbAdapter(device: USBDevice) {
+  await releaseUsbDevice(device);
+  try {
+    return await fromUSBDevice(device);
+  } catch (openError) {
+    await releaseUsbDevice(device);
+    if (!isUsbClaimError(openError)) throw openError;
+    await resetUsbDevice(device);
+    try {
+      return await fromUSBDevice(device);
+    } catch (retryError) {
+      await releaseUsbDevice(device);
+      if (isUsbClaimError(retryError)) throw usbClaimError();
+      throw retryError;
+    }
+  }
 }
 
-/** Connected DYMO printers, matching the legacy getConnectedPrinter() filter. */
-export async function getConnectedPrinters(): Promise<DymoPrinter[]> {
-  await ensureDymoReady();
-  const printers = await readPrinters(getDymoFramework());
-  return printers.filter((printer) => printer.isConnected === true);
+export function isWebUsbSupported(): boolean {
+  return typeof navigator !== "undefined" && "usb" in navigator;
 }
 
-export function pickDefaultPrinter(printers: DymoPrinter[], current: string): string {
-  if (current && printers.some((printer) => printer.name === current)) {
+/** Already-authorized LabelWriter devices (no USB picker). */
+export async function listPairedPrinters(): Promise<UsbLabelPrinter[]> {
+  assertWebUsb();
+  const devices = await navigator.usb.getDevices();
+  return devices.filter(isLabelWriterDevice).map(toUsbPrinter);
+}
+
+/**
+ * Opens the browser USB picker (must run from a click). Grants WebUSB
+ * permission only — does not claim the interface until Print.
+ */
+export async function pairUsbPrinter(): Promise<UsbLabelPrinter[]> {
+  assertWebUsb();
+  await navigator.usb.requestDevice({ filters: DEFAULT_FILTERS });
+  return listPairedPrinters();
+}
+
+export function pickDefaultPrinter(printers: UsbLabelPrinter[], current: string): string {
+  if (current && printers.some((printer) => printer.id === current)) {
     return current;
   }
   const turbo = printers.find((printer) =>
     /labelwriter\s*450\s*turbo/i.test(`${printer.name} ${printer.modelName}`)
   );
-  if (turbo) return turbo.name;
+  if (turbo) return turbo.id;
   const only = printers.length === 1 ? printers[0] : undefined;
-  return only?.name ?? "";
+  return only?.id ?? "";
 }
 
-/**
- * Legacy checkPrinterStatus: require a selected, connected printer.
- * Returns an error message, or null when printing may proceed.
- */
 export function checkPrinterStatus(
   printerSelected: string,
-  printers: DymoPrinter[]
+  printers: UsbLabelPrinter[]
 ): string | null {
   if (!printerSelected) {
     return "Please select a printer before continuing.";
   }
-  const selected = printers.find((printer) => printer.name === printerSelected);
+  const selected = printers.find((printer) => printer.id === printerSelected);
   if (selected?.isConnected === true) {
     return null;
   }
   return "DYMO LabelWriter is not connected. Please connect the printer to continue.";
 }
 
-/**
- * Print one name tag via DYMO Connect (LabelWriter 450 Turbo), using the same
- * LabelSetBuilder fields as the legacy admin station: name, company, title.
- */
+async function openPrinterById(printerId: string) {
+  const devices = await navigator.usb.getDevices();
+  const device = devices.find((candidate) => usbPrinterId(candidate) === printerId);
+  if (!device) {
+    throw new Error("DYMO LabelWriter is not connected. Please connect the printer to continue.");
+  }
+  return openUsbAdapter(device);
+}
+
 export async function printNameTag(
-  printerSelected: string,
+  printerId: string,
   name: string,
   company: string,
   title: string
 ): Promise<void> {
-  await ensureDymoReady();
-  const fw = getDymoFramework();
-  const label = cachedLabel;
-  const paramsXml = cachedParamsXml;
-  if (!label || !paramsXml) {
-    throw new Error("Name tag template is not loaded.");
+  assertWebUsb();
+  const printer = await openPrinterById(printerId);
+  try {
+    const image = await renderNameTagImage({ name, company, title }, printer.engine);
+    await printer.print(image, MEDIA.NAME_BADGE, {
+      rotate: "auto",
+      labelLengthDots: MEDIA.NAME_BADGE.lengthDots,
+    });
+  } finally {
+    await printer.close();
   }
-
-  const labelSetXml = new fw.LabelSetBuilder();
-  const record = labelSetXml.addRecord();
-  record.setText("name", name);
-  record.setText("company", company);
-  record.setText("title", title);
-
-  await fw.printLabel2Async(
-    printerSelected,
-    paramsXml,
-    label.getLabelXml(),
-    labelSetXml
-  );
 }
