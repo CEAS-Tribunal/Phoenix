@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -22,11 +22,17 @@ import {
   getRepresentatives,
   type Representative,
 } from "../services/careerFairService";
+import {
+  checkPrinterStatus,
+  isWebUsbSupported,
+  listPairedPrinters,
+  pairUsbPrinter,
+  pickDefaultPrinter,
+  printNameTag,
+} from "../dymo/print";
+import type { UsbLabelPrinter } from "../dymo/types";
 
-const PRINTER_OPTIONS = [
-  { value: "dymo-450", label: "DYMO LabelWriter 450" },
-  { value: "none", label: "No printer detected" },
-] as const;
+type LocationFilterType = "all" | "rec-center" | "tuc-great-hall";
 
 function formatSignedInAt(iso: string): string {
   try {
@@ -48,17 +54,11 @@ function buildingLabel(value: string): string {
 function renderTableBody(
   isLoading: boolean,
   data: Representative[] | undefined,
-  onPrint: (rep: Representative) => void
+  locationFilter: LocationFilterType,
+  onPrint: (rep: Representative) => void,
+  printingId: string | null,
+  printDisabled: boolean,
 ): ReactNode {
-  if (isLoading) {
-    return (
-      <tr>
-        <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
-          Loading representatives…
-        </td>
-      </tr>
-    );
-  }
   if (!data || data.length === 0) {
     return (
       <tr>
@@ -68,7 +68,19 @@ function renderTableBody(
       </tr>
     );
   }
-  return data.map((rep) => (
+  if (isLoading) {
+    return (
+      <tr>
+        <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+          Loading representatives…
+        </td>
+      </tr>
+    );
+  }
+  return data.filter((rep) => {
+    if (locationFilter === "all") return true;
+    return rep.building_location === locationFilter;
+  }).map((rep) => (
     <tr
       key={rep.id}
       className="border-b border-gray-100 last:border-0 hover:bg-gray-50/50"
@@ -85,9 +97,10 @@ function renderTableBody(
           size="sm"
           variant="outline"
           className="rounded-md"
+          disabled={printDisabled || printingId !== null}
           onClick={() => onPrint(rep)}
         >
-          Print
+          {printingId === rep.id ? "Printing…" : "Print"}
         </Button>
       </td>
     </tr>
@@ -96,13 +109,55 @@ function renderTableBody(
 
 export default function AdminTagsPrintingPage() {
   const [printer, setPrinter] = useState<string>("");
+  const [printers, setPrinters] = useState<UsbLabelPrinter[]>([]);
+  const [printersLoading, setPrintersLoading] = useState(true);
+  const [dymoError, setDymoError] = useState<string | null>(null);
+  const [printError, setPrintError] = useState<string | null>(null);
+  const [printingId, setPrintingId] = useState<string | null>(null);
+  const [pairing, setPairing] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  const [locationFilter, setLocationFilter] = useState<"all" | "rec-center" | "tuc-great-hall">("all");
 
   useEffect(() => {
     const t = window.setTimeout(() => setDebouncedSearch(searchInput.trim()), 300);
     return () => window.clearTimeout(t);
   }, [searchInput]);
+
+  const refreshPrinters = useCallback(async () => {
+    setPrintersLoading(true);
+    setDymoError(null);
+    if (!isWebUsbSupported()) {
+      setPrinters([]);
+      setPrinter("");
+      setDymoError(
+        "WebUSB is not available. Use Chrome or Edge on https:// or localhost."
+      );
+      setPrintersLoading(false);
+      return;
+    }
+    try {
+      const list = await listPairedPrinters();
+      setPrinters(list);
+      setPrinter((current) => pickDefaultPrinter(list, current));
+      if (list.length === 0) {
+        setDymoError("No printer was found. Click Connect USB printer to pair one.");
+      }
+    } catch (err) {
+      setPrinters([]);
+      setPrinter("");
+      setDymoError(
+        err instanceof Error ? err.message : "Could not list USB LabelWriter printers."
+      );
+    } finally {
+      setPrintersLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshPrinters();
+  }, [refreshPrinters]);
 
   const listQuery = useQuery({
     queryKey: careerFairKeys.representativesWithSearch(debouncedSearch),
@@ -112,15 +167,52 @@ export default function AdminTagsPrintingPage() {
     refetchInterval: 5000,
   });
 
-  function handlePrintOne(rep: Representative) {
-    // DYMO integration will plug in here later
-    globalThis.alert(
-      `Print name tag (stub)\n\n${rep.name}\n${rep.company}\n${rep.title}\nBooth: ${rep.booth_location}\nPrinter: ${printer || "(not selected)"}`
-    );
+  async function handleConnectUsb() {
+    setPrintError(null);
+    setDymoError(null);
+    setPairing(true);
+    try {
+      const list = await pairUsbPrinter();
+      setPrinters(list);
+      setPrinter((current) => pickDefaultPrinter(list, current));
+      if (list.length === 0) {
+        setDymoError("No printer was found.");
+      }
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "NotFoundError") {
+        setDymoError("Printer pairing was cancelled.");
+        return;
+      }
+      setDymoError(
+        err instanceof Error ? err.message : "Could not connect to the USB printer."
+      );
+    } finally {
+      setPairing(false);
+    }
   }
 
-  const errorMessage =
+  async function handlePrintOne(rep: Representative) {
+    setPrintError(null);
+    const statusError = checkPrinterStatus(printer, printers);
+    if (statusError) {
+      setPrintError(statusError);
+      return;
+    }
+    setPrintingId(rep.id);
+    try {
+      await printNameTag(printer, rep.name, rep.company, rep.title);
+    } catch (err) {
+      setPrintError(
+        err instanceof Error ? err.message : "Print failed. Please try again."
+      );
+    } finally {
+      setPrintingId(null);
+    }
+  }
+
+  const listError =
     listQuery.isError && listQuery.error ? formatErrorMessage(listQuery.error) : null;
+  const errorMessage = printError ?? listError;
 
   return (
     <div className="min-h-screen bg-white">
@@ -148,8 +240,8 @@ export default function AdminTagsPrintingPage() {
                     <CardTitle className="text-2xl">Printing Station</CardTitle>
                   </div>
                   <CardDescription className="text-gray-600">
-                    Select a DYMO printer, search representatives, then print a name tag per row.
-                    Printer integration is stubbed until DYMO is connected.
+                    Pair a DYMO LabelWriter over USB, search representatives, then print a
+                    name tag per row.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-8">
@@ -159,18 +251,59 @@ export default function AdminTagsPrintingPage() {
                     </h3>
                     <div className="max-w-md space-y-2">
                       <Label>Select a connected DYMO printer</Label>
-                      <Select value={printer} onValueChange={setPrinter}>
-                        <SelectTrigger className="w-full border-gray-200">
-                          <SelectValue placeholder="Select printer" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {PRINTER_OPTIONS.map((opt) => (
-                            <SelectItem key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <div className="flex gap-2">
+                        <Select
+                          value={printer || undefined}
+                          onValueChange={setPrinter}
+                          disabled={printersLoading || printers.length === 0}
+                        >
+                          <SelectTrigger className="w-full border-gray-200">
+                            <SelectValue
+                              placeholder={
+                                printersLoading
+                                  ? "Looking for printers…"
+                                  : "Select printer"
+                              }
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {printers.map((opt) => (
+                              <SelectItem key={opt.id} value={opt.id}>
+                                {opt.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="rounded-md shrink-0"
+                          onClick={() => void handleConnectUsb()}
+                          disabled={pairing || printersLoading}
+                        >
+                          {pairing ? "Connecting…" : "Connect USB"}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="rounded-md shrink-0"
+                          onClick={() => void refreshPrinters()}
+                          disabled={printersLoading || pairing}
+                        >
+                          {printersLoading ? "Refreshing…" : "Refresh"}
+                        </Button>
+                      </div>
+                      {dymoError && (
+                        <p className="text-sm text-red-600" role="alert">
+                          {dymoError}
+                        </p>
+                      )}
+                      <p className="text-xs text-gray-500">
+                        Use Chrome or Edge on https:// or localhost. Quit DYMO Connect and
+                        DYMO Label, and on a Mac remove the printer from System Settings →
+                        Printers & Scanners so the browser can claim USB. Then unplug, replug,
+                        and click Connect USB.
+                      </p>
                     </div>
                   </div>
 
@@ -178,16 +311,36 @@ export default function AdminTagsPrintingPage() {
                     <h3 className="text-xs font-semibold uppercase tracking-wide text-[#E00122]">
                       Representatives
                     </h3>
-                    <div className="max-w-md space-y-2">
-                      <Label htmlFor="rep-search">Search by name or company</Label>
-                      <Input
-                        id="rep-search"
-                        type="search"
-                        value={searchInput}
-                        onChange={(e) => setSearchInput(e.target.value)}
-                        placeholder="Type to filter…"
-                        className="border-gray-200"
-                      />
+
+                    <div className="flex justify-between">
+                      <div className="max-w-md space-y-2">
+                        <Label htmlFor="rep-search">Search by name or company</Label>
+                        <Input
+                          id="rep-search"
+                          type="search"
+                          value={searchInput}
+                          onChange={(e) => setSearchInput(e.target.value)}
+                          placeholder="Type to filter…"
+                          className="border-gray-200"
+                        />
+                      </div>
+
+                      <div className="max-w-md space-y-2">
+                        <Label htmlFor="location-filter">Filter by location</Label>
+                        <Select
+                          value={locationFilter}
+                          onValueChange={(value) => setLocationFilter(value as "all" | "rec-center" | "tuc-great-hall")}
+                        >
+                          <SelectTrigger className="w-full border-gray-200">
+                            <SelectValue placeholder="Select location" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="rec-center">REC Center</SelectItem>
+                            <SelectItem value="tuc-great-hall">TUC Great Hall</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
 
                     {errorMessage && (
@@ -227,7 +380,10 @@ export default function AdminTagsPrintingPage() {
                           {renderTableBody(
                             listQuery.isLoading,
                             listQuery.data,
-                            handlePrintOne
+                            locationFilter,
+                            (rep) => void handlePrintOne(rep),
+                            printingId,
+                            !printer
                           )}
                         </tbody>
                       </table>
