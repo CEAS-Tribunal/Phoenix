@@ -32,6 +32,8 @@ import {
 } from "../dymo/print";
 import type { UsbLabelPrinter } from "../dymo/types";
 
+type LocationFilterType = "all" | "rec-center" | "tuc-great-hall";
+
 function formatSignedInAt(iso: string): string {
   try {
     return new Date(iso).toLocaleString(undefined, {
@@ -52,19 +54,11 @@ function buildingLabel(value: string): string {
 function renderTableBody(
   isLoading: boolean,
   data: Representative[] | undefined,
+  locationFilter: LocationFilterType,
   onPrint: (rep: Representative) => void,
   printingId: string | null,
-  printDisabled: boolean
+  printDisabled: boolean,
 ): ReactNode {
-  if (isLoading) {
-    return (
-      <tr>
-        <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
-          Loading representatives…
-        </td>
-      </tr>
-    );
-  }
   if (!data || data.length === 0) {
     return (
       <tr>
@@ -74,7 +68,19 @@ function renderTableBody(
       </tr>
     );
   }
-  return data.map((rep) => (
+  if (isLoading) {
+    return (
+      <tr>
+        <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+          Loading representatives…
+        </td>
+      </tr>
+    );
+  }
+  return data.filter((rep) => {
+    if (locationFilter === "all") return true;
+    return rep.building_location === locationFilter;
+  }).map((rep) => (
     <tr
       key={rep.id}
       className="border-b border-gray-100 last:border-0 hover:bg-gray-50/50"
@@ -111,6 +117,8 @@ export default function AdminTagsPrintingPage() {
   const [pairing, setPairing] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  const [locationFilter, setLocationFilter] = useState<"all" | "rec-center" | "tuc-great-hall">("all");
 
   useEffect(() => {
     const t = window.setTimeout(() => setDebouncedSearch(searchInput.trim()), 300);
@@ -303,16 +311,36 @@ export default function AdminTagsPrintingPage() {
                     <h3 className="text-xs font-semibold uppercase tracking-wide text-[#E00122]">
                       Representatives
                     </h3>
-                    <div className="max-w-md space-y-2">
-                      <Label htmlFor="rep-search">Search by name or company</Label>
-                      <Input
-                        id="rep-search"
-                        type="search"
-                        value={searchInput}
-                        onChange={(e) => setSearchInput(e.target.value)}
-                        placeholder="Type to filter…"
-                        className="border-gray-200"
-                      />
+
+                    <div className="flex justify-between">
+                      <div className="max-w-md space-y-2">
+                        <Label htmlFor="rep-search">Search by name or company</Label>
+                        <Input
+                          id="rep-search"
+                          type="search"
+                          value={searchInput}
+                          onChange={(e) => setSearchInput(e.target.value)}
+                          placeholder="Type to filter…"
+                          className="border-gray-200"
+                        />
+                      </div>
+
+                      <div className="max-w-md space-y-2">
+                        <Label htmlFor="location-filter">Filter by location</Label>
+                        <Select
+                          value={locationFilter}
+                          onValueChange={(value) => setLocationFilter(value as "all" | "rec-center" | "tuc-great-hall")}
+                        >
+                          <SelectTrigger className="w-full border-gray-200">
+                            <SelectValue placeholder="Select location" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="rec-center">REC Center</SelectItem>
+                            <SelectItem value="tuc-great-hall">TUC Great Hall</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
 
                     {errorMessage && (
@@ -352,6 +380,7 @@ export default function AdminTagsPrintingPage() {
                           {renderTableBody(
                             listQuery.isLoading,
                             listQuery.data,
+                            locationFilter,
                             (rep) => void handlePrintOne(rep),
                             printingId,
                             !printer
