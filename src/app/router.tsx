@@ -166,7 +166,7 @@ export const router = createBrowserRouter([
         element: (
           <AdminGuard>
             <Suspense fallback={<LoadingFallback />}>
-              <AdminReimbursementsPage />
+              <AdminReimbursementsPage/>
             </Suspense>
           </AdminGuard>
         ),
