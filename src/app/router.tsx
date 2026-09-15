@@ -83,14 +83,14 @@ export const router = createBrowserRouter([
         path: 'executives',
         element: <Navigate to="/committees" replace />,
       },
-      {
-        path: 'alumni',
-        element: (
-          <Suspense fallback={<LoadingFallback />}>
-            <AlumniPage />
-          </Suspense>
-        ),
-      },
+      // {
+      //   path: 'alumni',
+      //   element: (
+      //     <Suspense fallback={<LoadingFallback />}>
+      //       <AlumniPage />
+      //     </Suspense>
+      //   ),
+      // },
       {
         path: 'resume-review-day/employers',
         element: (
