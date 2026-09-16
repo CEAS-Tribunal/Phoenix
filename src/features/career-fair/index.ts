@@ -11,6 +11,7 @@ export const AdminTagsPrintingPage = lazy(
 export {
   CAREER_FAIR_REPRESENTATIVES_QUERY_KEY,
   getRepresentatives,
+  markRepresentativePrinted,
   signInRepresentative,
 } from "./services/careerFairService";
 export { careerFairKeys } from "./queryKeys";

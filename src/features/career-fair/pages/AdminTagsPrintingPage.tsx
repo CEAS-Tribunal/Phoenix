@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Printer, ArrowLeft } from "lucide-react";
 import Navbar from "@shared/components/layout/Navbar";
@@ -17,9 +17,11 @@ import {
 import { Input } from "@shared/ui/input";
 import { Label } from "@shared/ui/label";
 import { formatErrorMessage } from "@shared/lib/formatError";
+import { cn } from "@shared/lib/utils";
 import { careerFairKeys } from "../queryKeys";
 import {
   getRepresentatives,
+  markRepresentativePrinted,
   type Representative,
 } from "../services/careerFairService";
 import {
@@ -51,6 +53,12 @@ function buildingLabel(value: string): string {
   return value;
 }
 
+function printButtonLabel(rep: Representative, printingId: string | null): string {
+  if (printingId === rep.id) return "Printing…";
+  if (rep.is_printed) return "Reprint";
+  return "Print";
+}
+
 function renderTableBody(
   isLoading: boolean,
   data: Representative[] | undefined,
@@ -77,37 +85,54 @@ function renderTableBody(
       </tr>
     );
   }
-  return data.filter((rep) => {
-    if (locationFilter === "all") return true;
-    return rep.building_location === locationFilter;
-  }).map((rep) => (
-    <tr
-      key={rep.id}
-      className="border-b border-gray-100 last:border-0 hover:bg-gray-50/50"
-    >
-      <td className="px-4 py-3 text-gray-700">{rep.name}</td>
-      <td className="px-4 py-3 text-gray-700">{rep.company}</td>
-      <td className="px-4 py-3 text-gray-700">{rep.title}</td>
-      <td className="px-4 py-3 text-gray-700">{rep.booth_location}</td>
-      <td className="px-4 py-3 text-gray-700">{buildingLabel(rep.building_location)}</td>
-      <td className="px-4 py-3 text-gray-600">{formatSignedInAt(rep.signed_in_at)}</td>
-      <td className="px-4 py-3">
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          className="rounded-md"
-          disabled={printDisabled || printingId !== null}
-          onClick={() => onPrint(rep)}
-        >
-          {printingId === rep.id ? "Printing…" : "Print"}
-        </Button>
-      </td>
-    </tr>
-  ));
+  return data
+    .filter((rep) => {
+      if (locationFilter === "all") return true;
+      return rep.building_location === locationFilter;
+    })
+    .map((rep) => (
+      <tr
+        key={rep.id}
+        className={cn(
+          "border-b border-gray-100 last:border-0",
+          rep.is_printed
+            ? "bg-white hover:bg-gray-50/50"
+            : "bg-amber-50 hover:bg-amber-100/70"
+        )}
+      >
+        <td className="px-4 py-3 text-gray-700">
+          <span className="inline-flex items-center gap-2">
+            {rep.name}
+            {!rep.is_printed && (
+              <span className="rounded bg-amber-200/80 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-900">
+                Needs print
+              </span>
+            )}
+          </span>
+        </td>
+        <td className="px-4 py-3 text-gray-700">{rep.company}</td>
+        <td className="px-4 py-3 text-gray-700">{rep.title}</td>
+        <td className="px-4 py-3 text-gray-700">{rep.booth_location}</td>
+        <td className="px-4 py-3 text-gray-700">{buildingLabel(rep.building_location)}</td>
+        <td className="px-4 py-3 text-gray-600">{formatSignedInAt(rep.signed_in_at)}</td>
+        <td className="px-4 py-3">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="rounded-md"
+            disabled={printDisabled || printingId !== null}
+            onClick={() => onPrint(rep)}
+          >
+            {printButtonLabel(rep, printingId)}
+          </Button>
+        </td>
+      </tr>
+    ));
 }
 
 export default function AdminTagsPrintingPage() {
+  const queryClient = useQueryClient();
   const [printer, setPrinter] = useState<string>("");
   const [printers, setPrinters] = useState<UsbLabelPrinter[]>([]);
   const [printersLoading, setPrintersLoading] = useState(true);
@@ -167,6 +192,13 @@ export default function AdminTagsPrintingPage() {
     refetchInterval: 5000,
   });
 
+  const markPrintedMutation = useMutation({
+    mutationFn: (id: string) => markRepresentativePrinted(id, true),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: careerFairKeys.representatives });
+    },
+  });
+
   async function handleConnectUsb() {
     setPrintError(null);
     setDymoError(null);
@@ -201,6 +233,7 @@ export default function AdminTagsPrintingPage() {
     setPrintingId(rep.id);
     try {
       await printNameTag(printer, rep.name, rep.company, rep.title);
+      await markPrintedMutation.mutateAsync(rep.id);
     } catch (err) {
       setPrintError(
         err instanceof Error ? err.message : "Print failed. Please try again."

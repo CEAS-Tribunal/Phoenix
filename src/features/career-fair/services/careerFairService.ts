@@ -22,6 +22,7 @@ export interface Representative {
   booth_location: string;
   building_location: string;
   signed_in_at: string;
+  is_printed: boolean;
 }
 
 export interface RepresentativePayload {
@@ -113,6 +114,21 @@ export async function getRepresentatives(search?: string): Promise<Representativ
   }
 
   return collected;
+}
+
+/**
+ * Authenticated PATCH — mark whether a representative name tag has been printed.
+ */
+export async function markRepresentativePrinted(
+  id: string,
+  isPrinted = true
+): Promise<Representative> {
+  const { data } = await api.patch<Representative>(
+    `/api/career-fair/representatives/${id}/printed/`,
+    { is_printed: isPrinted },
+    { headers: authHeader() }
+  );
+  return data;
 }
 
 export { formatErrorMessage } from "@shared/lib/formatError";
