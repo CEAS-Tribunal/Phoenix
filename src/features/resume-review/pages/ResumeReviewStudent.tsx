@@ -59,7 +59,6 @@ const TIME_RANGES: { id: string; label: string; times: string[] }[] = [
     { id: '9-10', label: '9:00 AM – 10:00 AM', times: ['9:00 AM', '9:20 AM', '9:40 AM'] },
     { id: '10-11', label: '10:00 AM – 11:00 AM', times: ['10:00 AM', '10:20 AM', '10:40 AM'] },
     { id: '11-12', label: '11:00 AM – 12:00 PM', times: ['11:00 AM', '11:20 AM', '11:40 AM'] },
-    { id: '12-1', label: '12:00 PM – 1:00 PM', times: ['12:00 PM', '12:20 PM', '12:40 PM'] },
     { id: '1-2', label: '1:00 PM – 2:00 PM', times: ['1:00 PM', '1:20 PM', '1:40 PM'] },
     { id: '2-3', label: '2:00 PM – 3:00 PM', times: ['2:00 PM', '2:20 PM', '2:40 PM'] },
 ];
