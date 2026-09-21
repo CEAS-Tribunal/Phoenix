@@ -4,28 +4,21 @@
  */
 
 import {
-  useEffect,
   useMemo,
   useRef,
-  useState,
 } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { motion, useInView } from "framer-motion";
 import { GraduationCap, Quote, User } from "lucide-react";
 
 import Navbar from "@shared/components/layout/Navbar";
 import Footer from "@shared/components/layout/Footer";
 import { Card } from "@shared/ui/card";
-
-interface AlumniProfile {
-  id: string;
-  name: string;
-  graduationYear: number;
-  roleCompany: string;
-  quote: string;
-  imageURL: string | null;
-}
-
-const API_URL = "http://localhost:8000/api/alumni/";
+import { alumniKeys } from "../queryKeys";
+import {
+  getAlumniProfiles,
+  type AlumniProfile,
+} from "../services/alumniService";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 16 },
@@ -91,42 +84,19 @@ export default function AlumniPage() {
     margin: "-100px",
   });
 
-  const [alumni, setAlumni] = useState<AlumniProfile[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: alumni = [],
+    isPending: loading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: alumniKeys.all,
+    queryFn: getAlumniProfiles,
+  });
 
-  useEffect(() => {
-    const fetchAlumni = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const response = await fetch(API_URL);
-
-        if (!response.ok) {
-          throw new Error(
-            `Failed to fetch alumni profiles (${response.status})`,
-          );
-        }
-
-        const data: AlumniProfile[] = await response.json();
-
-        setAlumni(data);
-      } catch (err) {
-        console.error("Error fetching alumni:", err);
-
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Failed to load alumni profiles.",
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAlumni();
-  }, []);
+  const errorMessage = error instanceof Error
+    ? error.message
+    : "Failed to load alumni profiles.";
 
   const byYear = useMemo(() => {
     const map = new Map<number, AlumniProfile[]>();
@@ -184,27 +154,27 @@ export default function AlumniPage() {
             )}
 
             {/* Error state */}
-            {!loading && error && (
+            {!loading && isError && (
               <div className="mt-12 rounded-lg border border-red-200 bg-red-50 p-6 text-center text-red-700">
                 <p className="font-semibold">
                   Unable to load alumni profiles.
                 </p>
 
                 <p className="mt-1 text-sm">
-                  {error}
+                  {errorMessage}
                 </p>
               </div>
             )}
 
             {/* Empty state */}
-            {!loading && !error && alumni.length === 0 && (
+            {!loading && !isError && alumni.length === 0 && (
               <div className="mt-12 text-center text-gray-500">
                 No alumni profiles are currently available.
               </div>
             )}
 
             {/* Alumni profiles */}
-            {!loading && !error && alumni.length > 0 && (
+            {!loading && !isError && alumni.length > 0 && (
               <motion.div
                 initial="hidden"
                 whileInView="visible"
