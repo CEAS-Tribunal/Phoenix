@@ -14,13 +14,8 @@ import {
   CalendarDays,
   Printer,
   ExternalLink,
-  Tv,
-  FileText,
-  Scale,
-  BookMarked,
   DollarSign,
   MapPin,
-  ScrollText,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@shared/components/layout/Navbar";
