@@ -84,23 +84,17 @@ const TRIBUNAL_RESOURCES = [
   {
     title: "Baldwin Table Reservations",
     description: "Reserve tables in Baldwin for your student organization.",
-    to: "/tribunal/baldwin",
+    to: "mailto:bishma@mail.uc.edu",
     icon: MapPin,
   },
   {
-    title: "Funding Guide",
-    description: "How to request funding from Tribunal for your org or event.",
-    to: "/tribunal/funding-guide",
-    icon: FileText,
-  },
-  {
-    title: "Org Funding",
+    title: "Organization Funding",
     description:
-      "Org leaders pitch Tribunal for funding; we review and fund approved requests.",
-    to: "/tribunal/org-funding",
+      "Organization leaders pitch Tribunal for funding; we review and fund approved requests.",
+    to: "/org-funding",
     icon: DollarSign,
   },
-  {
+  /* {
     title: "TV Ad Submission",
     description: "Submit ads for display on CEAS building TVs.",
     to: "/tribunal/tv-ad",
@@ -123,7 +117,7 @@ const TRIBUNAL_RESOURCES = [
     description: "Constitution of the CEAS Tribunal.",
     to: "/tribunal/constitution",
     icon: BookMarked,
-  },
+  } */
 ];
 
 const fadeInUp = {
