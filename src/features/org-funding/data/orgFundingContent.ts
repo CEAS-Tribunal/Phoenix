@@ -1,6 +1,6 @@
 import type { OrgFundingDocumentKey } from "../services/orgFundingService";
 import w9TemplateUrl from "../media/w9_updated.pdf";
-import fundingApplicationTemplateUrl from "../media/OrgFundingApprovalForm_Treasurer.pdf";
+import FundingAndSponsorshipsApplicationOrgsTemplateUrl from "../media/FundingAndSponsorshipsApplication_Orgs.pdf";
 
 /** Contact shown on the public page and in submission confirmations. */
 export const ORG_FUNDING_CONTACT_EMAIL = "org-funding@ucmail.uc.edu";
@@ -8,7 +8,7 @@ export const ORG_FUNDING_CONTACT_EMAIL = "org-funding@ucmail.uc.edu";
 /** Blank templates applicants should fill out before uploading. */
 export const ORG_FUNDING_TEMPLATES = {
   w9: w9TemplateUrl,
-  application: fundingApplicationTemplateUrl,
+  application: FundingAndSponsorshipsApplicationOrgsTemplateUrl,
 } as const;
 
 /** High-level steps shown to student orgs on the public page. */
