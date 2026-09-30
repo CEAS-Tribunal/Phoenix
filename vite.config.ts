@@ -30,6 +30,11 @@ export default defineConfig(({ mode }) => {
     assetsInclude: ["**/DYMO.Label.Framework.3.0.js"],
     server: {
       port: 3000,
+      // Bind-mounted source on Docker Desktop (especially Windows) does not
+      // emit filesystem events the Vite watcher can see.
+      watch: process.env.CHOKIDAR_USEPOLLING === "true"
+        ? { usePolling: true, interval: 300 }
+        : undefined,
       proxy: {
         '/api': {
           target: apiTarget,

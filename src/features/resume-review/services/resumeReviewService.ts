@@ -69,6 +69,12 @@ export interface Timeslot {
     timeslot?: string  // API returns this for TimeField
 }
 
+/** GET /api/resume-review-day/cache-version/ */
+export interface ResumeReviewCacheVersion {
+  data_version: number;
+  settings_version: number;
+}
+
 /** GET /api/resume-review-day/roster/ (authenticated) */
 export interface RosterStudent {
   id: string;
@@ -135,6 +141,13 @@ export const ResumeReviewDay = {
   async getEmployers(): Promise<EmployerListItem[]> {
     const { data } = await axiosInstance.get<EmployerListItem[]>(
       '/api/resume-review-day/employer/'
+    );
+    return data;
+  },
+
+  async getCacheVersion(): Promise<ResumeReviewCacheVersion> {
+    const { data } = await axiosInstance.get<ResumeReviewCacheVersion>(
+      '/api/resume-review-day/cache-version/'
     );
     return data;
   },

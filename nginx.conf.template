@@ -1,0 +1,39 @@
+server {
+    listen 80;
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+
+    # Docker's DNS. A variable proxy_pass resolves the API hostname at request
+    # time, so this image still starts when it is run without Compose.
+    resolver 127.0.0.11 valid=30s ipv6=off;
+
+    location /api/ {
+        set $upstream ${API_UPSTREAM_HOST};
+        proxy_pass http://$upstream;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /dashboard/ {
+        set $upstream ${API_UPSTREAM_HOST};
+        proxy_pass http://$upstream;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /assets/ {
+        try_files $uri =404;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -39,22 +39,42 @@ export default function AdminResumeRosterPage() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const queryClient = useQueryClient();
 
+  const versionQuery = useQuery({
+    queryKey: rrdKeys.cacheVersion,
+    queryFn: () => ResumeReviewDay.getCacheVersion(),
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+  });
+  const dataVersion = versionQuery.data?.data_version;
+  const settingsVersion = versionQuery.data?.settings_version;
+
   const rosterQuery = useQuery({
-    queryKey: rrdKeys.roster,
+    queryKey: [...rrdKeys.roster, dataVersion],
     queryFn: () => ResumeReviewDay.getRoster(),
-    enabled: isAuthenticated(),
+    enabled: isAuthenticated() && dataVersion != null,
+    staleTime: 60 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    placeholderData: keepPreviousData,
   });
 
   const settingsQuery = useQuery({
-    queryKey: rrdKeys.settings,
+    queryKey: [...rrdKeys.settings, settingsVersion],
     queryFn: () => ResumeReviewDay.getSettings(),
+    enabled: settingsVersion != null,
+    staleTime: 60 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    placeholderData: keepPreviousData,
   });
 
   const settingsMutation = useMutation({
     mutationFn: (settings: Parameters<typeof ResumeReviewDay.updateSettings>[0]) =>
       ResumeReviewDay.updateSettings(settings),
     onSuccess: (settings) => {
-      queryClient.setQueryData(rrdKeys.settings, settings);
+      if (settingsVersion != null) {
+        queryClient.setQueryData([...rrdKeys.settings, settingsVersion], settings);
+      }
+      queryClient.invalidateQueries({ queryKey: rrdKeys.cacheVersion });
     },
   });
 
