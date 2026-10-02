@@ -39,31 +39,16 @@ export default function AdminResumeRosterPage() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const queryClient = useQueryClient();
 
-  const versionQuery = useQuery({
-    queryKey: rrdKeys.cacheVersion,
-    queryFn: () => ResumeReviewDay.getCacheVersion(),
-    staleTime: 0,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
-  });
-  const dataVersion = versionQuery.data?.data_version;
-  const settingsVersion = versionQuery.data?.settings_version;
-
   const rosterQuery = useQuery({
-    queryKey: [...rrdKeys.roster, dataVersion],
+    queryKey: rrdKeys.roster,
     queryFn: () => ResumeReviewDay.getRoster(),
-    enabled: isAuthenticated() && dataVersion != null,
-    staleTime: 60 * 60 * 1000,
-    gcTime: 60 * 60 * 1000,
+    enabled: isAuthenticated(),
     placeholderData: keepPreviousData,
   });
 
   const settingsQuery = useQuery({
-    queryKey: [...rrdKeys.settings, settingsVersion],
+    queryKey: rrdKeys.settings,
     queryFn: () => ResumeReviewDay.getSettings(),
-    enabled: settingsVersion != null,
-    staleTime: 60 * 60 * 1000,
-    gcTime: 60 * 60 * 1000,
     placeholderData: keepPreviousData,
   });
 
@@ -71,10 +56,7 @@ export default function AdminResumeRosterPage() {
     mutationFn: (settings: Parameters<typeof ResumeReviewDay.updateSettings>[0]) =>
       ResumeReviewDay.updateSettings(settings),
     onSuccess: (settings) => {
-      if (settingsVersion != null) {
-        queryClient.setQueryData([...rrdKeys.settings, settingsVersion], settings);
-      }
-      queryClient.invalidateQueries({ queryKey: rrdKeys.cacheVersion });
+      queryClient.setQueryData(rrdKeys.settings, settings);
     },
   });
 
