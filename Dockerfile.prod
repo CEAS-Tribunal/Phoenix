@@ -1,0 +1,32 @@
+# Production image: Bun builds the Vite app, nginx serves the static files.
+# Vite inlines VITE_* at build time, so pass the public API origin as a build arg.
+# Leave it empty when the browser should call the same origin as the frontend.
+#
+#   docker build -f Dockerfile.prod -t phoenix:prod `
+#     --build-arg VITE_HOST_URL=https://api.example.com .
+#   docker run --rm -p 8080:80 phoenix:prod
+
+FROM oven/bun:1 AS build
+
+WORKDIR /home/bun/app
+
+COPY --chown=bun:bun package.json bun.lock ./
+RUN bun install --frozen-lockfile
+
+COPY --chown=bun:bun . .
+
+ARG VITE_HOST_URL=
+ENV VITE_HOST_URL=$VITE_HOST_URL
+
+RUN bun run build
+
+FROM nginx:1.27-alpine
+
+# /api and /dashboard are proxied to API_UPSTREAM_HOST (host:port).
+ENV API_UPSTREAM_HOST=127.0.0.1:8000
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+COPY --from=build /home/bun/app/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -43,11 +43,13 @@ export default function AdminResumeRosterPage() {
     queryKey: rrdKeys.roster,
     queryFn: () => ResumeReviewDay.getRoster(),
     enabled: isAuthenticated(),
+    placeholderData: keepPreviousData,
   });
 
   const settingsQuery = useQuery({
     queryKey: rrdKeys.settings,
     queryFn: () => ResumeReviewDay.getSettings(),
+    placeholderData: keepPreviousData,
   });
 
   const settingsMutation = useMutation({
