@@ -4,32 +4,17 @@ import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowRight,
-  BarChart3,
   ClipboardList,
   HandCoins,
   Printer,
   Receipt,
   Table2,
-  TrendingUp,
   UserPlus,
 } from "lucide-react";
 import Navbar from "@shared/components/layout/Navbar";
 import Footer from "@shared/components/layout/Footer";
 import { Button } from "@shared/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@shared/ui/card";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@shared/ui/chart";
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
-import { Area, AreaChart, YAxis } from "recharts";
-import {
-  ATTENDANCE_BY_EVENT,
-  GBM_ATTENDANCE_TREND,
-  chartConfigEventAttendance,
-  chartConfigGBMTrend,
-} from "../data/adminChartData";
 import { getIsOrgFundingChairUser, getIsTreasurerUser, useAuthMe } from "@auth";
 
 type DashboardLinkItem = {
@@ -85,9 +70,6 @@ const DASHBOARD_LINKS: DashboardLinkItem[] = [
     icon: ClipboardList,
   },
 ];
-
-const eventChartConfig = chartConfigEventAttendance;
-const gbmChartConfig = chartConfigGBMTrend;
 
 export default function AdminDashboardPage() {
   const meQuery = useAuthMe();
