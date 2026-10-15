@@ -164,6 +164,7 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Metrics */}
+            {/*}
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -247,6 +248,7 @@ export default function AdminDashboardPage() {
                 </Card>
               </div>
             </motion.div>
+            */}
           </div>
         </section>
       </main>
