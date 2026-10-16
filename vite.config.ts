@@ -21,6 +21,7 @@ export default defineConfig(({ mode }) => {
         { find: /^@org-funding$/, replacement: path.resolve(__dirname, "./src/features/org-funding/index.ts") },
         { find: /^@dashboard$/, replacement: path.resolve(__dirname, "./src/features/dashboard/index.ts") },
         { find: /^@home$/, replacement: path.resolve(__dirname, "./src/features/home/index.ts") },
+        { find: /^@ai$/, replacement: path.resolve(__dirname, "./src/features/ai/index.ts") },
       ],
     },
     plugins: [

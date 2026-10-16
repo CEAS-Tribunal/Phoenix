@@ -34,6 +34,9 @@ import {
 } from '@org-funding';
 import { AdminDashboardPage } from '@dashboard';
 
+import {AiPage} from '@ai';
+
+
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -214,6 +217,16 @@ export const router = createBrowserRouter([
               <AdminResumeRosterPage />
             </Suspense>
           </AdminGuard>
+        ),
+      },
+      {
+        path: 'ai',
+        element: (
+          <AdminGuard>
+            <Suspense fallback={<LoadingFallback />}>
+              <AiPage />
+            </Suspense>
+            </AdminGuard>
         ),
       },
       {
