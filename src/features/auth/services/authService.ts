@@ -112,6 +112,7 @@ export interface AuthMeResponse {
   is_staff: boolean;
   is_superuser: boolean;
   is_exec: boolean;
+  exec_roles: string[];
   is_treasurer: boolean;
   /**
    * True when the account holds the Org Funding chair exec role (or is a superuser).
