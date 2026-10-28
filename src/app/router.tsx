@@ -6,6 +6,7 @@ import NotFoundPage from '@shared/components/NotFoundPage';
 import { RootLayout } from '@shared/components/layout/RootLayout';
 import {
   AdminChangePasswordPage,
+  AIGuard,
   AdminGuard,
   AdminLoginPage,
   OrgFundingChairGuard,
@@ -33,6 +34,9 @@ import {
   OrgFundingPage,
 } from '@org-funding';
 import { AdminDashboardPage } from '@dashboard';
+
+import {AiPage} from '@ai';
+
 
 export const router = createBrowserRouter([
   {
@@ -213,6 +217,18 @@ export const router = createBrowserRouter([
             <Suspense fallback={<LoadingFallback />}>
               <AdminResumeRosterPage />
             </Suspense>
+          </AdminGuard>
+        ),
+      },
+      {
+        path: 'ai',
+        element: (
+          <AdminGuard>
+            <AIGuard>
+              <Suspense fallback={<LoadingFallback />}>
+                <AiPage />
+              </Suspense>
+            </AIGuard>
           </AdminGuard>
         ),
       },

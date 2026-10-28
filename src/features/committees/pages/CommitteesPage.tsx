@@ -279,7 +279,7 @@ export default function CommitteesPage() {
         </section>
 
         {/* CTA Section */}
-        <section className="bg-gradient-to-b from-white to-red-50 py-16">
+        <section className="bg-linear-to-b from-white to-red-50 py-16">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}

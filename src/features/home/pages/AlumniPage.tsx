@@ -65,7 +65,7 @@ function AlumniCard({ profile }: { profile: AlumniProfile }) {
         </div>
       </div>
 
-      <blockquote className="mt-4 flex gap-2 text-sm leading-relaxed text-gray-600 flex-grow">
+      <blockquote className="mt-4 flex gap-2 text-sm leading-relaxed text-gray-600 grow">
         <Quote className="h-4 w-4 shrink-0 text-[#E00122] mt-0.5" />
 
         <span className="italic">

@@ -167,7 +167,7 @@ export default function AdminDashboardPage() {
                   <CardContent>
                     <ChartContainer
                       config={eventChartConfig}
-                      className="min-h-[240px] w-full"
+                      className="min-h-60 w-full"
                     >
                       <BarChart
                         data={ATTENDANCE_BY_EVENT}
@@ -200,7 +200,7 @@ export default function AdminDashboardPage() {
                   <CardContent>
                     <ChartContainer
                       config={gbmChartConfig}
-                      className="min-h-[240px] w-full"
+                      className="min-h-60 w-full"
                     >
                       <AreaChart
                         data={GBM_ATTENDANCE_TREND}
