@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -15,16 +15,25 @@ import Navbar from "@shared/components/layout/Navbar";
 import Footer from "@shared/components/layout/Footer";
 import { Button } from "@shared/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@shared/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@shared/ui/tabs";
 import { getIsOrgFundingChairUser, getIsTreasurerUser, useAuthMe } from "@auth";
+
+type DashboardLinkCategory = "general" | "org-funding" | "career-dev" | "ic";
+
+const DASHBOARD_CATEGORIES: { id: DashboardLinkCategory; label: string }[] = [
+  { id: "general", label: "General" },
+  { id: "org-funding", label: "Org Funding" },
+  { id: "career-dev", label: "Career Development" },
+  { id: "ic", label: "Innovation Challenge" }
+];
 
 type DashboardLinkItem = {
   href: string;
   title: string;
   description: string;
   icon: LucideIcon;
-  /** Shown only when `/dashboard/auth/me/` reports Treasurer exec role (or superuser). */
+  category: DashboardLinkCategory;
   treasurerOnly?: boolean;
-  /** Shown only when `/dashboard/auth/me/` reports Org Funding chair exec role (or superuser). */
   orgFundingChairOnly?: boolean;
 };
 
@@ -34,6 +43,7 @@ const DASHBOARD_LINKS: DashboardLinkItem[] = [
     title: "Reimbursement request",
     description: "Submit an internal reimbursement request with receipt and purchase details.",
     icon: Receipt,
+    category: "general",
   },
   {
     href: "/admin/reimbursements/requests",
@@ -41,6 +51,7 @@ const DASHBOARD_LINKS: DashboardLinkItem[] = [
     description:
       "Treasurer dashboard: review all requests, filter, and mark each as filed when submitted to the university.",
     icon: Table2,
+    category: "general",
     treasurerOnly: true,
   },
   {
@@ -49,6 +60,7 @@ const DASHBOARD_LINKS: DashboardLinkItem[] = [
     description:
       "Org Funding chair dashboard: review submissions, verify required documents against the checklist, and update request status.",
     icon: HandCoins,
+    category: "org-funding",
     orgFundingChairOnly: true,
   },
   {
@@ -56,18 +68,21 @@ const DASHBOARD_LINKS: DashboardLinkItem[] = [
     title: "Career Fair Representative Sign-In",
     description: "Sign in career fair representatives by location.",
     icon: UserPlus,
+    category: "career-dev",
   },
   {
     href: "/admin/career-fair/tags",
     title: "Career Fair Tags Printing",
     description: "Print name tags for representatives; select printer and location.",
     icon: Printer,
+    category: "career-dev",
   },
   {
     href: "/admin/resume-review-day/roster",
     title: "Resume Review Day Roster",
     description: "View employers and students signed up for Resume Review Day.",
     icon: ClipboardList,
+    category: "career-dev",
   },
 ];
 
@@ -85,10 +100,34 @@ export default function AdminDashboardPage() {
     });
   }, [meQuery.data]);
 
+  const visibleCategories = useMemo(
+    () =>
+      DASHBOARD_CATEGORIES.filter((category) =>
+        visibleLinks.some((item) => item.category === category.id),
+      ),
+    [visibleLinks],
+  );
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedTab = searchParams.get("tab");
+  const activeTab =
+    visibleCategories.find((category) => category.id === requestedTab)?.id ??
+    visibleCategories[0]?.id;
+
+  const handleTabChange = (value: string) => {
+    setSearchParams(
+      (params) => {
+        params.set("tab", value);
+        return params;
+      },
+      { replace: true },
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="flex min-h-screen flex-col bg-white">
       <Navbar />
-      <main className="min-h-screen bg-white">
+      <main className="flex-1 bg-white">
         <section className="py-16 lg:py-24">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
@@ -111,39 +150,66 @@ export default function AdminDashboardPage() {
             </motion.div>
 
             {/* Quick links */}
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-16">
-              {visibleLinks.map((item, i) => {
-                const Icon = item.icon;
-                return (
-                  <motion.div
-                    key={item.href}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: i * 0.08 }}
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="gap-0">
+              <TabsList className="relative h-auto w-full items-end justify-start gap-1 overflow-x-auto rounded-none bg-transparent p-0 after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-[#E00122]">
+                {visibleCategories.map((category) => (
+                  <TabsTrigger
+                    key={category.id}
+                    value={category.id}
+                    className="relative h-auto flex-none rounded-none rounded-t-lg border border-b-0 border-transparent bg-gray-100 px-3 py-2.5 text-gray-600 hover:bg-gray-200/70 hover:text-[#333333] sm:px-5 data-[state=active]:z-10 data-[state=active]:border-[#E00122] data-[state=active]:bg-white data-[state=active]:text-[#E00122] data-[state=active]:shadow-none data-[state=active]:hover:bg-white"
                   >
-                    <Card className="h-full border-gray-200 transition-shadow hover:shadow-md">
-                      <CardHeader>
-                        <div className="flex items-center gap-3 text-[#E00122]">
-                          <Icon className="h-6 w-6" />
-                          <CardTitle className="text-xl">{item.title}</CardTitle>
-                        </div>
-                        <CardDescription className="text-gray-600">
-                          {item.description}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <Button asChild className="bg-[#E00122] hover:bg-[#B8011C] rounded-md">
-                          <Link to={item.href} className="inline-flex items-center gap-2">
-                            Open
-                            <ArrowRight className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                );
-              })}
-            </div>
+                    {category.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+
+              {visibleCategories.map((category) => (
+                <TabsContent
+                  key={category.id}
+                  value={category.id}
+                  className="pt-6"
+                >
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {visibleLinks
+                      .filter((item) => item.category === category.id)
+                      .map((item, i) => {
+                        const Icon = item.icon;
+                        return (
+                          <motion.div
+                            key={item.href}
+                            initial={{ opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3, delay: i * 0.08 }}
+                          >
+                            <Card className="h-full border-gray-200 transition-shadow hover:shadow-md">
+                              <CardHeader>
+                                <div className="flex items-center gap-3 text-[#E00122]">
+                                  <Icon className="h-6 w-6" />
+                                  <CardTitle className="text-xl">{item.title}</CardTitle>
+                                </div>
+                                <CardDescription className="text-gray-600">
+                                  {item.description}
+                                </CardDescription>
+                              </CardHeader>
+                              <CardContent>
+                                <Button
+                                  asChild
+                                  className="bg-[#E00122] hover:bg-[#B8011C] rounded-md"
+                                >
+                                  <Link to={item.href} className="inline-flex items-center gap-2">
+                                    Open
+                                    <ArrowRight className="h-4 w-4" />
+                                  </Link>
+                                </Button>
+                              </CardContent>
+                            </Card>
+                          </motion.div>
+                        );
+                      })}
+                  </div>
+                </TabsContent>
+              ))}
+            </Tabs>
 
             {/* Metrics */}
             {/*}
