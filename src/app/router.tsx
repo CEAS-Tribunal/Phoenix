@@ -9,6 +9,7 @@ import {
   AIGuard,
   AdminGuard,
   AdminLoginPage,
+  EXPOGuard,
   OrgFundingChairGuard,
   TreasurerGuard,
 } from '@auth';
@@ -34,6 +35,8 @@ import {
   OrgFundingPage,
 } from '@org-funding';
 import { AdminDashboardPage } from '@dashboard';
+
+import { ExpoRegistrationPage } from '@expo';
 
 import {AiPage} from '@ai';
 
@@ -229,6 +232,18 @@ export const router = createBrowserRouter([
                 <AiPage />
               </Suspense>
             </AIGuard>
+          </AdminGuard>
+        ),
+      },
+      {
+        path: 'admin/expo/registration',
+        element: (
+          <AdminGuard>
+            <EXPOGuard>
+              <Suspense fallback={<LoadingFallback />}>
+                <ExpoRegistrationPage />
+              </Suspense>
+            </EXPOGuard>
           </AdminGuard>
         ),
       },

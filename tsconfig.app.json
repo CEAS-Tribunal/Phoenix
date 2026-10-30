@@ -36,7 +36,8 @@
       "@org-funding": ["./src/features/org-funding/index.ts"],
       "@dashboard": ["./src/features/dashboard/index.ts"],
       "@home": ["./src/features/home/index.ts"],
-      "@ai": ["./src/features/ai/index.ts"]
+      "@ai": ["./src/features/ai/index.ts"],
+      "@expo": ["./src/features/expo/index.ts"]
     }
   },
   "include": ["src"]

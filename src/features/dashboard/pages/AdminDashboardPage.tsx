@@ -10,6 +10,7 @@ import {
   Receipt,
   Table2,
   UserPlus,
+  UserPen
 } from "lucide-react";
 import Navbar from "@shared/components/layout/Navbar";
 import Footer from "@shared/components/layout/Footer";
@@ -18,13 +19,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@shar
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@shared/ui/tabs";
 import { getIsOrgFundingChairUser, getIsTreasurerUser, useAuthMe } from "@auth";
 
-type DashboardLinkCategory = "general" | "org-funding" | "career-dev" | "ic";
+type DashboardLinkCategory = "general" | "org-funding" | "career-dev" | "ic" | "expo";
 
 const DASHBOARD_CATEGORIES: { id: DashboardLinkCategory; label: string }[] = [
   { id: "general", label: "General" },
   { id: "org-funding", label: "Org Funding" },
   { id: "career-dev", label: "Career Development" },
-  { id: "ic", label: "Innovation Challenge" }
+  { id: "ic", label: "Innovation Challenge" },
+  { id: "expo", label: "EXPO" }
 ];
 
 type DashboardLinkItem = {
@@ -83,6 +85,13 @@ const DASHBOARD_LINKS: DashboardLinkItem[] = [
     description: "View employers and students signed up for Resume Review Day.",
     icon: ClipboardList,
     category: "career-dev",
+  },
+  {
+    href: "/admin/expo/registration",
+    title: "EXPO Registration",
+    description: "View and manage EXPO student and judge registrations",
+    icon: UserPen,
+    category: "expo",
   },
 ];
 
