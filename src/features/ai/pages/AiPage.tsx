@@ -103,7 +103,7 @@ export default function AiPage() {
                 Employer resources
               </p>
               <h1 className="mt-3 text-3xl font-bold tracking-tight text-[#333333] sm:text-4xl lg:text-5xl">
-                Get answers about CEAS Tribunal
+                Connect with CEAS Students
               </h1>
               
             </motion.div>
