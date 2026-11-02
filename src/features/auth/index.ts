@@ -6,7 +6,6 @@ export const AdminChangePasswordPage = lazy(
 );
 
 export { AdminGuard } from "./components/AdminGuard";
-export { AIGuard } from "./components/AIGuard";
 export { TreasurerGuard } from "./components/TreasurerGuard";
 export { OrgFundingChairGuard } from "./components/OrgFundingChairGuard";
 export { AuthProvider } from "./components/AuthProvider";
