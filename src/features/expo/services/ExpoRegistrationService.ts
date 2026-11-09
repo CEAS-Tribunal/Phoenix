@@ -67,4 +67,74 @@ export async function setJudgeCheckedIn(id: string, hasCheckedIn: boolean): Prom
   return data;
 }
 
+export interface ExpoTeam {
+  id: string;
+  team_name: string;
+  team_category: string;
+  team_category_display: string;
+  booth_number: string;
+}
+
+export interface JudgeAssignment {
+  id: string;
+  judge: string;
+  judge_name: string;
+  is_backup_judge: boolean;
+  student: string;
+  team_name: string;
+  booth_number: string;
+  team_category: string;
+  timeslot: string;
+  timeslot_display: string;
+}
+
+export interface AssignmentShortfall {
+  student_id: string;
+  team_name: string;
+  booth_number: string;
+  team_category: string;
+  assigned: number;
+  required: number;
+  reason: string;
+}
+
+export interface GenerateAssignmentsResponse {
+  status: string;
+  assignments: JudgeAssignment[];
+  shortfalls: AssignmentShortfall[];
+}
+
+/**
+ * Authenticated GET — list EXPO student teams.
+ */
+export async function getTeams(): Promise<ExpoTeam[]> {
+  const { data } = await api.get<ExpoTeam[]>("/api/expo/students/", { headers: authHeader() });
+  return Array.isArray(data) ? data : [];
+}
+
+/**
+ * Authenticated GET — list the current judge schedule.
+ */
+export async function getAssignments(): Promise<JudgeAssignment[]> {
+  const { data } = await api.get<JudgeAssignment[]>("/api/expo/assignments/", {
+    headers: authHeader(),
+  });
+  return Array.isArray(data) ? data : [];
+}
+
+/**
+ * Authenticated POST — run the scheduler and replace all existing assignments.
+ */
+export async function generateAssignments(
+  minJudges: number,
+  maxJudges: number | null
+): Promise<GenerateAssignmentsResponse> {
+  const { data } = await api.post<GenerateAssignmentsResponse>(
+    "/api/expo/assignments/generate/",
+    { min_judges: minJudges, max_judges: maxJudges },
+    { headers: authHeader() }
+  );
+  return data;
+}
+
 export { formatErrorMessage } from "@shared/lib/formatError";

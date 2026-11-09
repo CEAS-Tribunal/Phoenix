@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowRight,
+  CalendarClock,
   ClipboardList,
   HandCoins,
   Printer,
@@ -91,6 +92,13 @@ const DASHBOARD_LINKS: DashboardLinkItem[] = [
     title: "EXPO Registration",
     description: "View and manage EXPO student and judge registrations",
     icon: UserPen,
+    category: "expo",
+  },
+  {
+    href: "/admin/expo/assignments",
+    title: "EXPO Judge Assignments",
+    description: "Generate and review the judging schedule so every team gets at least 3 judges.",
+    icon: CalendarClock,
     category: "expo",
   },
 ];

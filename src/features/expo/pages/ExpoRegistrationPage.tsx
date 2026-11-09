@@ -120,14 +120,6 @@ function renderJudgeRows(
               onCheckedChange={(checked) => onToggle(judge, checked === true)}
               aria-label={`Mark ${judge.first_name} ${judge.last_name} as checked in`}
             />
-            <span
-              className={cn(
-                "text-sm",
-                judge.has_checked_in ? "font-medium text-emerald-700" : "text-gray-500"
-              )}
-            >
-              {judge.has_checked_in ? "Checked in" : "Not yet"}
-            </span>
           </label>
         </td>
       </tr>

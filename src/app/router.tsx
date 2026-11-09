@@ -36,7 +36,7 @@ import {
 } from '@org-funding';
 import { AdminDashboardPage } from '@dashboard';
 
-import { ExpoRegistrationPage } from '@expo';
+import { ExpoAssignmentsPage, ExpoRegistrationPage } from '@expo';
 
 import {AiPage} from '@ai';
 
@@ -242,6 +242,18 @@ export const router = createBrowserRouter([
             <EXPOGuard>
               <Suspense fallback={<LoadingFallback />}>
                 <ExpoRegistrationPage />
+              </Suspense>
+            </EXPOGuard>
+          </AdminGuard>
+        ),
+      },
+      {
+        path: 'admin/expo/assignments',
+        element: (
+          <AdminGuard>
+            <EXPOGuard>
+              <Suspense fallback={<LoadingFallback />}>
+                <ExpoAssignmentsPage />
               </Suspense>
             </EXPOGuard>
           </AdminGuard>
