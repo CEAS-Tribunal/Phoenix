@@ -10,6 +10,7 @@ import {
   AdminLoginPage,
   OrgFundingChairGuard,
   TreasurerGuard,
+  CareerDevGuard,
 } from '@auth';
 import { AlumniPage, HomePage, ResourcesPage, ExpoPage } from '@home';
 import { CommitteesPage } from '@committees';
@@ -178,11 +179,13 @@ export const router = createBrowserRouter([
         path: 'admin/org-funding',
         element: (
           <AdminGuard>
-            <OrgFundingChairGuard>
-              <Suspense fallback={<LoadingFallback />}>
-                <AdminOrgFundingPage />
-              </Suspense>
-            </OrgFundingChairGuard>
+            <TreasurerGuard>
+              <OrgFundingChairGuard>
+                <Suspense fallback={<LoadingFallback />}>
+                  <AdminOrgFundingPage />
+                </Suspense>
+              </OrgFundingChairGuard>
+            </TreasurerGuard>
           </AdminGuard>
         ),
       },
@@ -191,9 +194,11 @@ export const router = createBrowserRouter([
         element: (
           <AdminGuard>
             <OrgFundingChairGuard>
-              <Suspense fallback={<LoadingFallback />}>
-                <AdminOrgFundingDatesPage />
-              </Suspense>
+              <TreasurerGuard>
+                <Suspense fallback={<LoadingFallback />}>
+                  <AdminOrgFundingDatesPage />
+                </Suspense>
+              </TreasurerGuard>
             </OrgFundingChairGuard>
           </AdminGuard>
         ),
@@ -203,9 +208,11 @@ export const router = createBrowserRouter([
         path: 'admin/career-fair/tags',
         element: (
           <AdminGuard>
-            <Suspense fallback={<LoadingFallback />}>
-              <AdminTagsPrintingPage />
-            </Suspense>
+            <CareerDevGuard>
+              <Suspense fallback={<LoadingFallback />}>
+                <AdminTagsPrintingPage />
+              </Suspense>
+            </CareerDevGuard>
           </AdminGuard>
         ),
       },
@@ -213,9 +220,11 @@ export const router = createBrowserRouter([
         path: 'admin/resume-review-day/roster',
         element: (
           <AdminGuard>
-            <Suspense fallback={<LoadingFallback />}>
-              <AdminResumeRosterPage />
-            </Suspense>
+            <CareerDevGuard>
+              <Suspense fallback={<LoadingFallback />}>
+                <AdminResumeRosterPage />
+              </Suspense>
+            </CareerDevGuard>
           </AdminGuard>
         ),
       },
