@@ -3,15 +3,16 @@ import { Navigate, useLocation } from "react-router-dom";
 import LoadingFallback from "@shared/components/LoadingFallback";
 import { useAuthMe } from "../hooks/useAuthMe";
 
-interface AIGuardProps {
+interface CareerDevGuardProps {
   children: React.ReactNode;
 }
 
 const REQUIRED_EXEC_ROLES = [
   "President",
   "Technology Chair",
-  "Senators",
   "Chief of Staff",
+  "Vice President of Collegiate Affairs",
+  "Career Development Chair",
 ];
 
 function normalizeRole(role: string): string {
@@ -19,10 +20,10 @@ function normalizeRole(role: string): string {
 }
 
 /**
- * Requires an authenticated staff user with one of the configured AI exec roles.
+ * Requires an authenticated staff user with one of the configured EXPO exec roles.
  * Copy this guard and change REQUIRED_EXEC_ROLES for another role-restricted page.
  */
-export function AIGuard({ children }: AIGuardProps) {
+export function CareerDevGuard({ children }: CareerDevGuardProps) {
   const location = useLocation();
   const meQuery = useAuthMe();
   const requiredRoles = REQUIRED_EXEC_ROLES.map(normalizeRole);
