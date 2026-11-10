@@ -21,6 +21,8 @@ let isStaffUser = false;
 let isTreasurerUser = false;
 /** Mirrors /dashboard/auth/me/ is_org_funding_chair — can manage org funding submissions/dates. */
 let isOrgFundingChairUser = false;
+/** Mirrors /dashboard/auth/me/ is_esoc_chair — can manage ESOC submissions/dates. */
+let isEsocChairUser = false;
 /** Username from last /me response (for client-side password rules). */
 let cachedUsername: string | null = null;
 
@@ -90,6 +92,7 @@ export function logout(): void {
   isStaffUser = false;
   isTreasurerUser = false;
   isOrgFundingChairUser = false;
+  isEsocChairUser = false;
   cachedUsername = null;
 }
 
@@ -119,6 +122,8 @@ export interface AuthMeResponse {
    * Backend should expose this on `/dashboard/auth/me/`; defaults to false when absent.
    */
   is_org_funding_chair: boolean;
+  /** True when the account holds the ESOC exec role (or is a superuser). */
+  is_esoc_chair: boolean;
 }
 
 function setMustChangePassword(value: boolean): void {
@@ -149,6 +154,10 @@ export function getIsOrgFundingChairUser(): boolean {
   return isOrgFundingChairUser;
 }
 
+export function getIsEsocChairUser(): boolean {
+  return isEsocChairUser;
+}
+
 export function getCachedUsername(): string | null {
   return cachedUsername;
 }
@@ -171,6 +180,7 @@ export async function refreshMe(): Promise<AuthMeResponse> {
   isStaffUser = !!data.is_staff;
   isTreasurerUser = !!data.is_treasurer;
   isOrgFundingChairUser = !!data.is_org_funding_chair;
+  isEsocChairUser = !!data.is_esoc_chair;
   return data;
 }
 

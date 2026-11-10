@@ -28,6 +28,7 @@ const NAV_LINKS = [
   { href: "/committees", label: "Committees", icon: Users },
   { href: "/alumni", label: "Alumni", icon: GraduationCap },
   { href: "/org-funding", label: "Org Funding", icon: HandCoins },
+  // { href: "/esoc", label: "ESOC", icon: HandCoins },
   { href: "/resources", label: "Resources", icon: BookOpen },
 ];
 
@@ -192,7 +193,7 @@ const Navbar: React.FC = () => {
       <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
         <SheetContent
           side="right"
-          className="w-[300px] sm:w-[400px]"
+          className="w-75 sm:w-100"
           aria-label="Mobile navigation menu"
         >
           <SheetHeader className="text-left mb-8">
