@@ -6,9 +6,11 @@ import {
   ArrowRight,
   ClipboardList,
   HandCoins,
+  Lightbulb,
   Printer,
   Receipt,
   Table2,
+  Trophy,
   UserPlus,
 } from "lucide-react";
 import Navbar from "@shared/components/layout/Navbar";
@@ -84,6 +86,20 @@ const DASHBOARD_LINKS: DashboardLinkItem[] = [
     icon: ClipboardList,
     category: "career-dev",
   },
+  {
+    href: "/innovation/judging-rubric",
+    title: "Final Competition Judging",
+    description: "Judge Innovation Challenge teams for the Final Competition.",
+    icon: Lightbulb,
+    category: "ic",
+  },
+  {
+    href: "/innovation/admin/judging-dashboard",
+    title: "Final Competition Dashboard",
+    description: "View judging results and team scores for the Innovation Challenge Final Competition.",
+    icon: Trophy,
+    category: "ic",
+  }
 ];
 
 export default function AdminDashboardPage() {
