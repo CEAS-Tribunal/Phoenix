@@ -33,6 +33,11 @@ import {
   AdminOrgFundingPage,
   OrgFundingPage,
 } from '@org-funding';
+import {
+  JudgingRubricPage,
+  JudgingDashboardPage,
+  ManageJudgingPage,
+} from '@innovation';
 import { AdminDashboardPage } from '@dashboard';
 
 import {AiPage} from '@ai';
@@ -170,7 +175,7 @@ export const router = createBrowserRouter([
         element: (
           <AdminGuard>
             <Suspense fallback={<LoadingFallback />}>
-              <AdminReimbursementsPage/>
+              <AdminReimbursementsPage />
             </Suspense>
           </AdminGuard>
         ),
@@ -213,6 +218,36 @@ export const router = createBrowserRouter([
                 <AdminTagsPrintingPage />
               </Suspense>
             </CareerDevGuard>
+          </AdminGuard>
+        ),
+      },
+      {
+        path: 'innovation/judging-rubric',
+        element: (
+          <AdminGuard>
+            <Suspense fallback={<LoadingFallback />}>
+              <JudgingRubricPage />
+            </Suspense>
+          </AdminGuard>
+        ),
+      },
+      {
+        path: 'innovation/admin/judging-dashboard',
+        element: (
+          <AdminGuard>
+            <Suspense fallback={<LoadingFallback />}>
+              <JudgingDashboardPage />
+            </Suspense>
+          </AdminGuard>
+        ),
+      },
+      {
+        path: 'innovation/admin/manage-judging',
+        element: (
+          <AdminGuard>
+            <Suspense fallback={<LoadingFallback />}>
+              <ManageJudgingPage />
+            </Suspense>
           </AdminGuard>
         ),
       },
