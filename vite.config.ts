@@ -19,6 +19,7 @@ export default defineConfig(({ mode }) => {
         { find: /^@career-fair$/, replacement: path.resolve(__dirname, "./src/features/career-fair/index.ts") },
         { find: /^@reimbursement$/, replacement: path.resolve(__dirname, "./src/features/reimbursement/index.ts") },
         { find: /^@org-funding$/, replacement: path.resolve(__dirname, "./src/features/org-funding/index.ts") },
+        { find: /^@esoc$/, replacement: path.resolve(__dirname, "./src/features/esoc/index.ts") },
         { find: /^@dashboard$/, replacement: path.resolve(__dirname, "./src/features/dashboard/index.ts") },
         { find: /^@home$/, replacement: path.resolve(__dirname, "./src/features/home/index.ts") },
         { find: /^@ai$/, replacement: path.resolve(__dirname, "./src/features/ai/index.ts") },

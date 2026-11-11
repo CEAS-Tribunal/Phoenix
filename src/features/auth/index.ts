@@ -8,6 +8,7 @@ export const AdminChangePasswordPage = lazy(
 export { AdminGuard } from "./components/AdminGuard";
 export { TreasurerGuard } from "./components/TreasurerGuard";
 export { OrgFundingChairGuard } from "./components/OrgFundingChairGuard";
+export { EsocChairGuard } from "./components/EsocChairGuard";
 export { CareerDevGuard } from "./components/CareerDevGuard";
 export { AuthProvider } from "./components/AuthProvider";
 export { useAuthMe } from "./hooks/useAuthMe";
@@ -19,6 +20,7 @@ export {
   getAuthMeQueryKey,
   getCachedUsername,
   getIsOrgFundingChairUser,
+  getIsEsocChairUser,
   getIsStaffUser,
   getIsTreasurerUser,
   getMustChangePassword,

@@ -16,13 +16,19 @@ import Footer from "@shared/components/layout/Footer";
 import { Button } from "@shared/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@shared/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@shared/ui/tabs";
-import { getIsOrgFundingChairUser, getIsTreasurerUser, useAuthMe } from "@auth";
+import {
+  getIsEsocChairUser,
+  getIsOrgFundingChairUser,
+  getIsTreasurerUser,
+  useAuthMe,
+} from "@auth";
 
-type DashboardLinkCategory = "general" | "org-funding" | "career-dev" | "ic";
+type DashboardLinkCategory = "general" | "org-funding" | "esoc" | "career-dev" | "ic";
 
 const DASHBOARD_CATEGORIES: { id: DashboardLinkCategory; label: string }[] = [
   { id: "general", label: "General" },
   { id: "org-funding", label: "Org Funding" },
+  { id: "esoc", label: "ESOC" },
   { id: "career-dev", label: "Career Development" },
   { id: "ic", label: "Innovation Challenge" }
 ];
@@ -35,6 +41,7 @@ type DashboardLinkItem = {
   category: DashboardLinkCategory;
   treasurerOnly?: boolean;
   orgFundingChairOnly?: boolean;
+  esocChairOnly?: boolean;
 };
 
 const DASHBOARD_LINKS: DashboardLinkItem[] = [
@@ -62,6 +69,15 @@ const DASHBOARD_LINKS: DashboardLinkItem[] = [
     icon: HandCoins,
     category: "org-funding",
     orgFundingChairOnly: true,
+  },
+  {
+    href: "/admin/esoc",
+    title: "ESOC (chair)",
+    description:
+      "ESOC dashboard: review submissions, verify required documents against the checklist, and update request status.",
+    icon: HandCoins,
+    category: "esoc",
+    esocChairOnly: true,
   },
   {
     href: "/career-fair/representative-sign-in",
@@ -93,9 +109,12 @@ export default function AdminDashboardPage() {
     const showTreasurer = (meQuery.data?.is_treasurer ?? getIsTreasurerUser()) === true;
     const showOrgFundingChair =
       (meQuery.data?.is_org_funding_chair ?? getIsOrgFundingChairUser()) === true;
+    const showEsocChair =
+      (meQuery.data?.is_esoc_chair ?? getIsEsocChairUser()) === true;
     return DASHBOARD_LINKS.filter((item) => {
       if (item.treasurerOnly && !showTreasurer) return false;
       if (item.orgFundingChairOnly && !showOrgFundingChair) return false;
+      if (item.esocChairOnly && !showEsocChair) return false;
       return true;
     });
   }, [meQuery.data]);
