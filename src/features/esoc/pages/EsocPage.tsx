@@ -382,10 +382,10 @@ export default function EsocPage() {
             >
               <div className="inline-flex items-center gap-2 text-[#E00122] text-xs font-semibold uppercase tracking-wide">
                 <HandCoins className="h-4 w-4" />
-                Organization Funding
+                ESOC Funding
               </div>
               <h1 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-[#333333]">
-                Request funding for your organization
+                Request funding for your Event
               </h1>
               <p className="mt-4 text-base leading-relaxed text-gray-600">
                 CEAS Tribunal helps fund student organizations across the College of
