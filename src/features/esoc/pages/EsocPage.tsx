@@ -359,7 +359,7 @@ export default function EsocPage() {
                   </p>
                 </div>
                 <a
-                  href="/esoc/ESOC_Template.pptx"
+                  href="/esoc_files/ESOC_Template.pptx"
                   download="ESOC_Template.pptx"
                   className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-[#E00122] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#B8011C] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E00122] focus-visible:ring-offset-2"
                 >
