@@ -280,7 +280,7 @@ export default function JudgingRubricPage() {
                                 Final Competition Judging Rubric
                             </h1>
                             <p className="mt-4 text-base leading-relaxed text-gray-600 text-center">
-                                Select your assigned judge and room, choose a team, and score each
+                                Select your name and room, choose a team, and score each
                                 required criterion from 1 to 10.
                             </p>
                         </motion.div>

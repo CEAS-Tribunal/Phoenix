@@ -89,6 +89,13 @@ const TRIBUNAL_RESOURCES = [
     to: "/org-funding",
     icon: DollarSign,
   },
+  {
+    title: "ESOC Funding",
+    description:
+      "Submit an ESOC funding request with your organization details and supporting documents.",
+    to: "/esoc",
+    icon: DollarSign,
+  },
   /* {
     title: "TV Ad Submission",
     description: "Submit ads for display on CEAS building TVs.",

@@ -28,8 +28,10 @@ let isStaffUser = false;
 let isTreasurerUser = false;
 /** Mirrors /dashboard/auth/me/ is_org_funding_chair — can manage org funding submissions/dates. */
 let isOrgFundingChairUser = false;
+/** Mirrors /dashboard/auth/me/ is_esoc_chair — can manage ESOC submissions/dates. */
+let isEsocChairUser = false;
 /** Mirrors /dashboard/auth/me/ is_innovation_challenge — can manage innovation challenge submissions/dates. */
-let isInnovationChallengeUser = false;
+let isInnovationChairUser = false;
 /** Username from last /me response (for client-side password rules). */
 let cachedUsername: string | null = null;
 
@@ -99,7 +101,8 @@ export function logout(): void {
   isStaffUser = false;
   isTreasurerUser = false;
   isOrgFundingChairUser = false;
-  isInnovationChallengeUser = false;
+  isEsocChairUser = false;
+  isInnovationChairUser = false;
   cachedUsername = null;
 }
 
@@ -129,6 +132,8 @@ export interface AuthMeResponse {
    * Backend should expose this on `/dashboard/auth/me/`; defaults to false when absent.
    */
   is_org_funding_chair: boolean;
+  /** True when the account holds the ESOC exec role (or is a superuser). */
+  is_esoc_chair: boolean;
 }
 
 function setMustChangePassword(value: boolean): void {
@@ -159,8 +164,12 @@ export function getIsOrgFundingChairUser(): boolean {
   return isOrgFundingChairUser;
 }
 
-export function getIsInnovationChallengeUser(): boolean {
-  return isInnovationChallengeUser;
+export function getIsEsocChairUser(): boolean {
+  return isEsocChairUser;
+}
+
+export function getIsInnovationChairUser(): boolean {
+  return isInnovationChairUser;
 }
 
 export function getCachedUsername(): string | null {
@@ -185,10 +194,11 @@ export async function refreshMe(): Promise<AuthMeResponse> {
   isStaffUser = !!data.is_staff;
   isTreasurerUser = !!data.is_treasurer;
   isOrgFundingChairUser = !!data.is_org_funding_chair;
+  isEsocChairUser = !!data.is_esoc_chair;
   const innovationChallengeRoles = new Set(
     INNOVATION_CHALLENGE_ROLES.map((role) => role.trim().toLowerCase())
   );
-  isInnovationChallengeUser = data.exec_roles.some((role) =>
+  isInnovationChairUser = data.exec_roles.some((role) =>
     innovationChallengeRoles.has(role.trim().toLowerCase())
   );
   return data;

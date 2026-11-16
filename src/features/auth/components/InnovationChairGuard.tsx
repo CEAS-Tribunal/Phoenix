@@ -2,18 +2,18 @@ import { Navigate, useLocation } from "react-router-dom";
 
 import LoadingFallback from "@shared/components/LoadingFallback";
 import { useAuthMe } from "../hooks/useAuthMe";
-import { getIsInnovationChallengeUser } from "../services/authService";
+import { getIsInnovationChairUser } from "../services/authService";
 
-interface InnovationChallengeGuardProps {
+interface InnovationChairGuardProps {
   children: React.ReactNode;
 }
 
-export function InnovationChallengeGuard({
+export function InnovationChairGuard({
   children,
-}: InnovationChallengeGuardProps) {
+}: InnovationChairGuardProps) {
   const location = useLocation();
   const meQuery = useAuthMe();
-  const hasAccess = getIsInnovationChallengeUser();
+  const hasAccess = getIsInnovationChairUser();
 
   if (meQuery.isPending && !hasAccess) {
     return <LoadingFallback />;

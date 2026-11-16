@@ -9,9 +9,10 @@ import {
   AdminGuard,
   AdminLoginPage,
   OrgFundingChairGuard,
+  EsocChairGuard,
   TreasurerGuard,
   CareerDevGuard,
-  InnovationChallengeGuard,
+  InnovationChairGuard,
 } from '@auth';
 import { AlumniPage, HomePage, ResourcesPage, ExpoPage } from '@home';
 import { CommitteesPage } from '@committees';
@@ -34,6 +35,11 @@ import {
   AdminOrgFundingPage,
   OrgFundingPage,
 } from '@org-funding';
+import {
+  AdminEsocDatesPage,
+  AdminEsocPage,
+  EsocPage,
+} from '@esoc';
 import {
   JudgingRubricPage,
   JudgingDashboardPage,
@@ -126,6 +132,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: 'esoc',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <EsocPage />
+          </Suspense>
+        ),
+      },
+      {
         path: 'resources',
         element: (
           <Suspense fallback={<LoadingFallback />}>
@@ -209,6 +223,30 @@ export const router = createBrowserRouter([
           </AdminGuard>
         ),
       },
+      {
+        path: 'admin/esoc',
+        element: (
+          <AdminGuard>
+            <EsocChairGuard>
+              <Suspense fallback={<LoadingFallback />}>
+                <AdminEsocPage />
+              </Suspense>
+            </EsocChairGuard>
+          </AdminGuard>
+        ),
+      },
+      {
+        path: 'admin/esoc/dates',
+        element: (
+          <AdminGuard>
+            <EsocChairGuard>
+              <Suspense fallback={<LoadingFallback />}>
+                <AdminEsocDatesPage />
+              </Suspense>
+            </EsocChairGuard>
+          </AdminGuard>
+        ),
+      },
 
       {
         path: 'admin/career-fair/tags',
@@ -236,11 +274,11 @@ export const router = createBrowserRouter([
         path: 'innovation/admin/judging-dashboard',
         element: (
           <AdminGuard>
-            <InnovationChallengeGuard>
+            <InnovationChairGuard>
               <Suspense fallback={<LoadingFallback />}>
                 <JudgingDashboardPage />
               </Suspense>
-            </InnovationChallengeGuard>
+            </InnovationChairGuard>
           </AdminGuard>
         ),
       },
@@ -248,11 +286,11 @@ export const router = createBrowserRouter([
         path: 'innovation/admin/manage-judging',
         element: (
           <AdminGuard>
-            <InnovationChallengeGuard>
+            <InnovationChairGuard>
               <Suspense fallback={<LoadingFallback />}>
                 <ManageJudgingPage />
               </Suspense>
-            </InnovationChallengeGuard>
+            </InnovationChairGuard>
           </AdminGuard>
         ),
       },
