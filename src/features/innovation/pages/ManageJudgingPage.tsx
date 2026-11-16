@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import {
     ArrowLeft,
     LayoutList,
+    MapPin,
     Pencil,
     Trash2,
     UserRound,
@@ -36,10 +37,12 @@ import {
     createTeam,
     deleteJudge,
     deleteTeam,
+    getInnovationRoomConfiguration,
     listInnovationRooms,
     listJudges,
     listTeams,
     updateJudge,
+    updateInnovationRoomConfiguration,
     updateTeam,
     type InnovationJudge,
     type InnovationTeam,
@@ -138,6 +141,10 @@ export default function ManageJudgingPage() {
         queryKey: innovationKeys.rooms(),
         queryFn: listInnovationRooms,
     });
+    const roomConfigurationQuery = useQuery({
+        queryKey: innovationKeys.roomConfiguration(),
+        queryFn: getInnovationRoomConfiguration,
+    });
     const teamsQuery = useQuery({
         queryKey: innovationKeys.teams(),
         queryFn: listTeams,
@@ -151,6 +158,30 @@ export default function ManageJudgingPage() {
     const [teamRoom, setTeamRoom] = useState("");
     const [editingTeamId, setEditingTeamId] = useState<number | null>(null);
     const [teamClientError, setTeamClientError] = useState<string | null>(null);
+    const updateRoomConfigurationMutation = useMutation({
+        mutationFn: updateInnovationRoomConfiguration,
+        onSuccess: async () => {
+            await Promise.all([
+                queryClient.invalidateQueries({
+                    queryKey: innovationKeys.roomConfiguration(),
+                }),
+                queryClient.invalidateQueries({ queryKey: innovationKeys.rooms() }),
+            ]);
+        },
+    });
+    const roomOptions = roomsQuery.data ?? [];
+    const judgeRoomOptions =
+        editingJudgeId !== null &&
+            judgeRoom &&
+            !roomOptions.some((room) => room.value === judgeRoom)
+            ? [{ value: judgeRoom, label: judgeRoom }, ...roomOptions]
+            : roomOptions;
+    const teamRoomOptions =
+        editingTeamId !== null &&
+            teamRoom &&
+            !roomOptions.some((room) => room.value === teamRoom)
+            ? [{ value: teamRoom, label: teamRoom }, ...roomOptions]
+            : roomOptions;
 
     function invalidateJudges() {
         void queryClient.invalidateQueries({ queryKey: innovationKeys.judges() });
@@ -352,16 +383,72 @@ export default function ManageJudgingPage() {
                                 </Link>
                             </div>
 
-                            <div className="mb-8">
-                                <div className="flex items-center gap-2 text-[#E00122]">
-                                    <Users className="h-6 w-6" />
-                                    <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
-                                        Manage Judges and Teams
-                                    </h1>
+                            <div className="mb-8 grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-center">
+                                <div className="flex flex-col justify-center lg:min-h-20">
+                                    <div className="flex items-center gap-2 text-[#E00122]">
+                                        <Users className="h-6 w-6" />
+                                        <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+                                            Manage Judges and Teams
+                                        </h1>
+                                    </div>
+                                    <p className="mt-1 max-w-3xl text-sm text-gray-600">
+                                        Add, edit, or remove judges and Innovation Challenge teams.
+                                    </p>
                                 </div>
-                                <p className="mt-1 max-w-3xl text-sm text-gray-600">
-                                    Add, edit, or remove judges and Innovation Challenge teams.
-                                </p>
+                                <div className="flex flex-col justify-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-1.5 shadow-sm">
+                                    <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+                                        <div className="min-w-0">
+                                            <div className="flex items-center gap-2">
+                                                <MapPin className="h-4 w-4 shrink-0 text-[#E00122]" aria-hidden="true" />
+                                                <p className="text-sm font-semibold text-gray-900">
+                                                    Judging rooms
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div
+                                            className="inline-flex w-fit shrink-0 rounded-full bg-gray-100 p-1"
+                                            role="group"
+                                            aria-label="Choose number of competition rooms"
+                                        >
+                                            {([2, 3] as const).map((roomCount) => (
+                                                <Button
+                                                    key={roomCount}
+                                                    type="button"
+                                                    variant="ghost"
+                                                    aria-pressed={
+                                                        roomConfigurationQuery.data?.room_count === roomCount
+                                                    }
+                                                    disabled={
+                                                        roomConfigurationQuery.isPending ||
+                                                        roomConfigurationQuery.isError ||
+                                                        updateRoomConfigurationMutation.isPending
+                                                    }
+                                                    onClick={() =>
+                                                        updateRoomConfigurationMutation.mutate(roomCount)
+                                                    }
+                                                    className={`h-8 rounded-full px-3 text-sm ${roomConfigurationQuery.data?.room_count === roomCount
+                                                        ? "bg-[#E00122] text-white shadow-sm hover:bg-[#B8011C] hover:text-white"
+                                                        : "text-gray-700 hover:bg-gray-200"
+                                                        }`}
+                                                >
+                                                    {roomCount} rooms
+                                                </Button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    {roomConfigurationQuery.isError ? (
+                                        <p className="rounded-md bg-rose-50 px-3 py-2 text-xs text-rose-700" role="alert">
+                                            Could not load room settings:{" "}
+                                            {formatErrorMessage(roomConfigurationQuery.error)}
+                                        </p>
+                                    ) : null}
+                                    {updateRoomConfigurationMutation.isError ? (
+                                        <p className="rounded-md bg-rose-50 px-3 py-2 text-xs text-rose-700" role="alert">
+                                            Could not update room settings:{" "}
+                                            {formatErrorMessage(updateRoomConfigurationMutation.error)}
+                                        </p>
+                                    ) : null}
+                                </div>
                             </div>
 
                             <div className="space-y-12">
@@ -418,7 +505,7 @@ export default function ManageJudgingPage() {
                                             )}
                                         </div>
 
-                                        <Card className="h-fit border-gray-200 shadow-sm lg:sticky lg:top-24">
+                                        <Card className="h-fit border-gray-200 shadow-sm">
                                             <CardHeader>
                                                 <div className="flex items-center gap-2 text-[#E00122]">
                                                     <UserRound className="h-5 w-5" />
@@ -470,7 +557,7 @@ export default function ManageJudgingPage() {
                                                                 />
                                                             </SelectTrigger>
                                                             <SelectContent className="border-gray-300 outline-none focus:outline-none focus-visible:outline-none">
-                                                                {(roomsQuery.data ?? []).map((room) => (
+                                                                {judgeRoomOptions.map((room) => (
                                                                     <SelectItem key={room.value} value={room.value}>
                                                                         {room.label}
                                                                     </SelectItem>
@@ -508,7 +595,7 @@ export default function ManageJudgingPage() {
                                                             <Button
                                                                 type="button"
                                                                 variant="outline"
-                                                                className="border-gray-200"
+                                                                className="w-full border-gray-300 focus-visible:border-gray-400 focus-visible:ring-gray-300/60"
                                                                 disabled={isSavingJudge}
                                                                 onClick={resetJudgeForm}
                                                             >
@@ -575,7 +662,7 @@ export default function ManageJudgingPage() {
                                             )}
                                         </div>
 
-                                        <Card className="h-fit border-gray-200 shadow-sm lg:sticky lg:top-24">
+                                        <Card className="h-fit border-gray-200 shadow-sm">
                                             <CardHeader>
                                                 <div className="flex items-center gap-2 text-[#E00122]">
                                                     <Users className="h-5 w-5" />
@@ -597,7 +684,7 @@ export default function ManageJudgingPage() {
                                                             onChange={(event) => setTeamName(event.target.value)}
                                                             maxLength={160}
                                                             placeholder="e.g. AeroSense"
-                                                            className="border-gray-200"
+                                                            className="w-full border-gray-300 focus-visible:border-gray-400 focus-visible:ring-gray-300/60"
                                                             disabled={isSavingTeam}
                                                         />
                                                     </div>
@@ -627,7 +714,7 @@ export default function ManageJudgingPage() {
                                                                 />
                                                             </SelectTrigger>
                                                             <SelectContent className="border-gray-300 outline-none focus:outline-none focus-visible:outline-none">
-                                                                {(roomsQuery.data ?? []).map((room) => (
+                                                                {teamRoomOptions.map((room) => (
                                                                     <SelectItem key={room.value} value={room.value}>
                                                                         {room.label}
                                                                     </SelectItem>
