@@ -10,17 +10,20 @@ export { TreasurerGuard } from "./components/TreasurerGuard";
 export { OrgFundingChairGuard } from "./components/OrgFundingChairGuard";
 export { EsocChairGuard } from "./components/EsocChairGuard";
 export { CareerDevGuard } from "./components/CareerDevGuard";
+export { InnovationChairGuard } from "./components/InnovationChairGuard";
 export { AuthProvider } from "./components/AuthProvider";
 export { useAuthMe } from "./hooks/useAuthMe";
 
 export {
   AUTH_ME_QUERY_ROOT,
+  INNOVATION_CHALLENGE_ROLES,
   changePassword,
   getAccessToken,
   getAuthMeQueryKey,
   getCachedUsername,
   getIsOrgFundingChairUser,
   getIsEsocChairUser,
+  getIsInnovationChairUser,
   getIsStaffUser,
   getIsTreasurerUser,
   getMustChangePassword,

@@ -15,6 +15,7 @@ export default defineConfig(({ mode }) => {
         { find: /^@assets\//, replacement: `${path.resolve(__dirname, "./src/assets")}/` },
         { find: /^@auth$/, replacement: path.resolve(__dirname, "./src/features/auth/index.ts") },
         { find: /^@committees$/, replacement: path.resolve(__dirname, "./src/features/committees/index.ts") },
+        { find: /^@innovation$/, replacement: path.resolve(__dirname, "./src/features/innovation/index.ts") },
         { find: /^@resume-review$/, replacement: path.resolve(__dirname, "./src/features/resume-review/index.ts") },
         { find: /^@career-fair$/, replacement: path.resolve(__dirname, "./src/features/career-fair/index.ts") },
         { find: /^@reimbursement$/, replacement: path.resolve(__dirname, "./src/features/reimbursement/index.ts") },

@@ -6,9 +6,11 @@ import {
   ArrowRight,
   ClipboardList,
   HandCoins,
+  Lightbulb,
   Printer,
   Receipt,
   Table2,
+  Trophy,
   UserPlus,
 } from "lucide-react";
 import Navbar from "@shared/components/layout/Navbar";
@@ -20,7 +22,11 @@ import {
   getIsEsocChairUser,
   getIsOrgFundingChairUser,
   getIsTreasurerUser,
+  getIsInnovationChairUser,
   useAuthMe,
+} from "@auth";
+import {
+
 } from "@auth";
 
 type DashboardLinkCategory = "general" | "org-funding" | "esoc" | "career-dev" | "ic";
@@ -42,6 +48,7 @@ type DashboardLinkItem = {
   treasurerOnly?: boolean;
   orgFundingChairOnly?: boolean;
   esocChairOnly?: boolean;
+  innovationChairOnly?: boolean;
 };
 
 const DASHBOARD_LINKS: DashboardLinkItem[] = [
@@ -100,6 +107,21 @@ const DASHBOARD_LINKS: DashboardLinkItem[] = [
     icon: ClipboardList,
     category: "career-dev",
   },
+  {
+    href: "/innovation/judging-rubric",
+    title: "Final Competition Judging",
+    description: "Judge Innovation Challenge teams for the Final Competition.",
+    icon: Lightbulb,
+    category: "ic",
+  },
+  {
+    href: "/innovation/admin/judging-dashboard",
+    title: "Final Competition Dashboard",
+    description: "View judging results and team scores for the Innovation Challenge Final Competition.",
+    icon: Trophy,
+    category: "ic",
+    innovationChairOnly: true,
+  }
 ];
 
 export default function AdminDashboardPage() {
@@ -111,10 +133,12 @@ export default function AdminDashboardPage() {
       (meQuery.data?.is_org_funding_chair ?? getIsOrgFundingChairUser()) === true;
     const showEsocChair =
       (meQuery.data?.is_esoc_chair ?? getIsEsocChairUser()) === true;
+    const showInnovationChair = getIsInnovationChairUser();
     return DASHBOARD_LINKS.filter((item) => {
       if (item.treasurerOnly && !showTreasurer) return false;
       if (item.orgFundingChairOnly && !showOrgFundingChair) return false;
       if (item.esocChairOnly && !showEsocChair) return false;
+      if (item.innovationChairOnly && !showInnovationChair) return false;
       return true;
     });
   }, [meQuery.data]);

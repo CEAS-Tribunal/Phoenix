@@ -9,6 +9,13 @@ const baseURL =
 const STORAGE_ACCESS = "tribunal_staff_access_jwt";
 const STORAGE_REFRESH = "tribunal_staff_refresh_jwt";
 
+export const INNOVATION_CHALLENGE_ROLES = [
+  "Innovation Challenge Chair",
+  "Technology Chair",
+  "Chief of Staff",
+  "President",
+] as const;
+
 /** Current access JWT (mirrors localStorage when persisted). */
 let accessToken: string | null = null;
 /** Refresh JWT for `/api/token/refresh/`; kept in memory + localStorage. */
@@ -23,6 +30,8 @@ let isTreasurerUser = false;
 let isOrgFundingChairUser = false;
 /** Mirrors /dashboard/auth/me/ is_esoc_chair — can manage ESOC submissions/dates. */
 let isEsocChairUser = false;
+/** Mirrors /dashboard/auth/me/ is_innovation_challenge — can manage innovation challenge submissions/dates. */
+let isInnovationChairUser = false;
 /** Username from last /me response (for client-side password rules). */
 let cachedUsername: string | null = null;
 
@@ -93,6 +102,7 @@ export function logout(): void {
   isTreasurerUser = false;
   isOrgFundingChairUser = false;
   isEsocChairUser = false;
+  isInnovationChairUser = false;
   cachedUsername = null;
 }
 
@@ -158,6 +168,10 @@ export function getIsEsocChairUser(): boolean {
   return isEsocChairUser;
 }
 
+export function getIsInnovationChairUser(): boolean {
+  return isInnovationChairUser;
+}
+
 export function getCachedUsername(): string | null {
   return cachedUsername;
 }
@@ -181,6 +195,12 @@ export async function refreshMe(): Promise<AuthMeResponse> {
   isTreasurerUser = !!data.is_treasurer;
   isOrgFundingChairUser = !!data.is_org_funding_chair;
   isEsocChairUser = !!data.is_esoc_chair;
+  const innovationChallengeRoles = new Set(
+    INNOVATION_CHALLENGE_ROLES.map((role) => role.trim().toLowerCase())
+  );
+  isInnovationChairUser = data.exec_roles.some((role) =>
+    innovationChallengeRoles.has(role.trim().toLowerCase())
+  );
   return data;
 }
 

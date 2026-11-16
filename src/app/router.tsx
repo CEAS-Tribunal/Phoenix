@@ -12,6 +12,7 @@ import {
   EsocChairGuard,
   TreasurerGuard,
   CareerDevGuard,
+  InnovationChairGuard,
 } from '@auth';
 import { AlumniPage, HomePage, ResourcesPage, ExpoPage } from '@home';
 import { CommitteesPage } from '@committees';
@@ -39,9 +40,14 @@ import {
   AdminEsocPage,
   EsocPage,
 } from '@esoc';
+import {
+  JudgingRubricPage,
+  JudgingDashboardPage,
+  ManageJudgingPage,
+} from '@innovation';
 import { AdminDashboardPage } from '@dashboard';
 
-import {AiPage} from '@ai';
+import { AiPage } from '@ai';
 
 
 export const router = createBrowserRouter([
@@ -184,7 +190,7 @@ export const router = createBrowserRouter([
         element: (
           <AdminGuard>
             <Suspense fallback={<LoadingFallback />}>
-              <AdminReimbursementsPage/>
+              <AdminReimbursementsPage />
             </Suspense>
           </AdminGuard>
         ),
@@ -255,6 +261,40 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: 'innovation/judging-rubric',
+        element: (
+          <AdminGuard>
+            <Suspense fallback={<LoadingFallback />}>
+              <JudgingRubricPage />
+            </Suspense>
+          </AdminGuard>
+        ),
+      },
+      {
+        path: 'innovation/admin/judging-dashboard',
+        element: (
+          <AdminGuard>
+            <InnovationChairGuard>
+              <Suspense fallback={<LoadingFallback />}>
+                <JudgingDashboardPage />
+              </Suspense>
+            </InnovationChairGuard>
+          </AdminGuard>
+        ),
+      },
+      {
+        path: 'innovation/admin/manage-judging',
+        element: (
+          <AdminGuard>
+            <InnovationChairGuard>
+              <Suspense fallback={<LoadingFallback />}>
+                <ManageJudgingPage />
+              </Suspense>
+            </InnovationChairGuard>
+          </AdminGuard>
+        ),
+      },
+      {
         path: 'admin/resume-review-day/roster',
         element: (
           <AdminGuard>
@@ -269,9 +309,9 @@ export const router = createBrowserRouter([
       {
         path: 'ai',
         element: (
-              <Suspense fallback={<LoadingFallback />}>
-                <AiPage />
-              </Suspense>
+          <Suspense fallback={<LoadingFallback />}>
+            <AiPage />
+          </Suspense>
         ),
       },
       {
