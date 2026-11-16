@@ -11,6 +11,7 @@ import {
   OrgFundingChairGuard,
   TreasurerGuard,
   CareerDevGuard,
+  InnovationChallengeGuard,
 } from '@auth';
 import { AlumniPage, HomePage, ResourcesPage, ExpoPage } from '@home';
 import { CommitteesPage } from '@committees';
@@ -40,7 +41,7 @@ import {
 } from '@innovation';
 import { AdminDashboardPage } from '@dashboard';
 
-import {AiPage} from '@ai';
+import { AiPage } from '@ai';
 
 
 export const router = createBrowserRouter([
@@ -235,9 +236,11 @@ export const router = createBrowserRouter([
         path: 'innovation/admin/judging-dashboard',
         element: (
           <AdminGuard>
-            <Suspense fallback={<LoadingFallback />}>
-              <JudgingDashboardPage />
-            </Suspense>
+            <InnovationChallengeGuard>
+              <Suspense fallback={<LoadingFallback />}>
+                <JudgingDashboardPage />
+              </Suspense>
+            </InnovationChallengeGuard>
           </AdminGuard>
         ),
       },
@@ -245,9 +248,11 @@ export const router = createBrowserRouter([
         path: 'innovation/admin/manage-judging',
         element: (
           <AdminGuard>
-            <Suspense fallback={<LoadingFallback />}>
-              <ManageJudgingPage />
-            </Suspense>
+            <InnovationChallengeGuard>
+              <Suspense fallback={<LoadingFallback />}>
+                <ManageJudgingPage />
+              </Suspense>
+            </InnovationChallengeGuard>
           </AdminGuard>
         ),
       },
@@ -266,9 +271,9 @@ export const router = createBrowserRouter([
       {
         path: 'ai',
         element: (
-              <Suspense fallback={<LoadingFallback />}>
-                <AiPage />
-              </Suspense>
+          <Suspense fallback={<LoadingFallback />}>
+            <AiPage />
+          </Suspense>
         ),
       },
       {

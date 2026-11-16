@@ -18,7 +18,12 @@ import Footer from "@shared/components/layout/Footer";
 import { Button } from "@shared/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@shared/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@shared/ui/tabs";
-import { getIsOrgFundingChairUser, getIsTreasurerUser, useAuthMe } from "@auth";
+import {
+  getIsInnovationChallengeUser,
+  getIsOrgFundingChairUser,
+  getIsTreasurerUser,
+  useAuthMe,
+} from "@auth";
 
 type DashboardLinkCategory = "general" | "org-funding" | "career-dev" | "ic";
 
@@ -37,6 +42,7 @@ type DashboardLinkItem = {
   category: DashboardLinkCategory;
   treasurerOnly?: boolean;
   orgFundingChairOnly?: boolean;
+  innovationChallengeOnly?: boolean;
 };
 
 const DASHBOARD_LINKS: DashboardLinkItem[] = [
@@ -99,6 +105,7 @@ const DASHBOARD_LINKS: DashboardLinkItem[] = [
     description: "View judging results and team scores for the Innovation Challenge Final Competition.",
     icon: Trophy,
     category: "ic",
+    innovationChallengeOnly: true,
   }
 ];
 
@@ -109,9 +116,11 @@ export default function AdminDashboardPage() {
     const showTreasurer = (meQuery.data?.is_treasurer ?? getIsTreasurerUser()) === true;
     const showOrgFundingChair =
       (meQuery.data?.is_org_funding_chair ?? getIsOrgFundingChairUser()) === true;
+    const showInnovationChallenge = getIsInnovationChallengeUser();
     return DASHBOARD_LINKS.filter((item) => {
       if (item.treasurerOnly && !showTreasurer) return false;
       if (item.orgFundingChairOnly && !showOrgFundingChair) return false;
+      if (item.innovationChallengeOnly && !showInnovationChallenge) return false;
       return true;
     });
   }, [meQuery.data]);
