@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import {
   Banknote,
   CalendarDays,
-  Download,
   HandCoins,
   Plus,
   Trash2,
@@ -22,9 +21,11 @@ import { cn } from "@shared/lib/utils";
 import { formatErrorMessage } from "@shared/lib/formatError";
 import {
   ESOC_CONTACT_EMAIL,
+  ESOC_CHAIR_ROLE_TERMS,
   ESOC_PROCESS_STEPS,
   ESOC_TEMPLATES,
 } from "../data/esocContent";
+import { CommitteesService, committeesKeys } from "../../committees";
 import {
   listOpenEsocDates,
   submitEsocRequest,
@@ -95,6 +96,25 @@ export default function EsocPage() {
     retry: false,
   });
   const openDates = useMemo(() => datesQuery.data ?? [], [datesQuery.data]);
+  const committeesQuery = useQuery({
+    queryKey: committeesKeys.execRoleWithMembers,
+    queryFn: CommitteesService.getExecRoleSectionsWithMembers,
+    retry: false,
+  });
+  const contactEmails = useMemo(() => {
+    const dynamicEmails =
+      committeesQuery.data
+        ?.flatMap((section) => section.roles)
+        .filter((role) => {
+          const roleName = role.role.toLowerCase();
+          return ESOC_CHAIR_ROLE_TERMS.every((term) => roleName.includes(term));
+        })
+        .flatMap((role) => role.members ?? [])
+        .map((member) => member.email.trim())
+        .filter(Boolean) ?? [];
+    const uniqueDynamicEmails = [...new Set(dynamicEmails)];
+    return uniqueDynamicEmails.length > 0 ? uniqueDynamicEmails : ESOC_CONTACT_EMAIL;
+  }, [committeesQuery.data]);
 
   useEffect(() => {
     const dialog = successDialogRef.current;
@@ -341,36 +361,6 @@ export default function EsocPage() {
           </div>
         </dialog>
 
-        {/* Presentation template */}
-        <section className="border-b border-gray-100 bg-white py-8 lg:py-10">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-            <Card className="border-[#E00122]/20 bg-red-50/40">
-              <CardContent className="flex flex-col items-start justify-between gap-5 p-6 sm:flex-row sm:items-center sm:p-8">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-[#E00122]">
-                    Presentation template
-                  </p>
-                  <h2 className="mt-2 text-xl font-semibold text-[#333333]">
-                    Download the ESOC presentation template
-                  </h2>
-                  <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-600">
-                    Use this template to prepare the slides you will present to the ESOC
-                    committee with your funding request.
-                  </p>
-                </div>
-                <a
-                  href="/esoc_files/ESOC_Template.pptx"
-                  download="ESOC_Template.pptx"
-                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-[#E00122] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#B8011C] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E00122] focus-visible:ring-offset-2"
-                >
-                  <Download className="h-4 w-4" aria-hidden="true" />
-                  Download presentation template
-                </a>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-
         {/* Intro / process */}
         <section className="bg-linear-to-b from-slate-50 to-white py-16 lg:py-24">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -385,23 +375,26 @@ export default function EsocPage() {
                 ESOC Funding
               </div>
               <h1 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-[#333333]">
-                Request funding for your Event
+                ESOC Collab Funding
               </h1>
               <p className="mt-4 text-base leading-relaxed text-gray-600">
-                CEAS Tribunal helps fund student organizations across the College of
-                Engineering and Applied Science. This page replaces the back-and-forth email
+                CEAS Tribunal - ESOC helps fund student organizations across the College of Engineering and Applied Science who are hosting collaboration events with other student organizations. This page replaces the back-and-forth email
                 chains: submit your request and all of your documents in one place, and the
                 ESOC committee will take it from there.
               </p>
               <p className="mt-3 text-sm text-gray-600">
-                Questions? Reach out at{" "}
-                <a
-                  href={`mailto:${ESOC_CONTACT_EMAIL}`}
-                  className="text-[#E00122] hover:underline"
-                >
-                  {ESOC_CONTACT_EMAIL}
-                </a>
-                .
+                Questions? Reach out at:{" "}
+                {contactEmails.map((email, index) => (
+                  <span key={email}>
+                    {index > 0 ? " | " : null}
+                    <a
+                      href={`mailto:${email}`}
+                      className="text-[#E00122] hover:underline"
+                    >
+                      {email}
+                    </a>
+                  </span>
+                ))}
               </p>
             </motion.div>
 
@@ -788,7 +781,14 @@ export default function EsocPage() {
                       <div className="space-y-2">
                         <Label htmlFor="slides">Presentation slides (required)</Label>
                         <p className="text-sm text-gray-500">
-                          The slide deck you will present to the committee. PDF preferred.
+                          The slide deck you will present to the committee. PDF preferred.{" "}
+                          <a
+                            href="/esoc_files/ESOC_Template.pptx"
+                            download="ESOC_Template.pptx"
+                            className="font-medium text-[#E00122] hover:underline"
+                          >
+                            Download template
+                          </a>
                         </p>
                         <Input
                           id="slides"

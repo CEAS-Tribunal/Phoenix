@@ -2,8 +2,11 @@ import type { EsocDocumentKey } from "../services/esocService";
 import w9TemplateUrl from "../media/w9_updated.pdf";
 import FundingAndSponsorshipsApplicationOrgsTemplateUrl from "../media/FundingAndSponsorshipsApplication_Orgs.pdf";
 
-/** Contact shown on the public page and in submission confirmations. */
-export const ESOC_CONTACT_EMAIL = "ecos@mail.uc.edu";
+/** Fallback contacts shown when the committees API has no ESOC Chair data. */
+export const ESOC_CONTACT_EMAIL = ["nguyejk@mail.uc.edu","mason2a9@mail.uc.edu"];
+
+/** Terms used to identify the ESOC Chair role from the committees API. */
+export const ESOC_CHAIR_ROLE_TERMS = ["ESOC","chair"] as const;
 
 /** Blank templates applicants should fill out before uploading. */
 export const ESOC_TEMPLATES = {
