@@ -261,7 +261,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'innovation/judging-rubric',
+        path: 'admin/innovation/judging-rubric',
         element: (
           <AdminGuard>
             <Suspense fallback={<LoadingFallback />}>
@@ -271,7 +271,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'innovation/admin/judging-dashboard',
+        path: 'admin/innovation/judging-dashboard',
         element: (
           <AdminGuard>
             <InnovationChairGuard>
@@ -283,7 +283,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'innovation/admin/manage-judging',
+        path: 'admin/innovation/manage-judging',
         element: (
           <AdminGuard>
             <InnovationChairGuard>
