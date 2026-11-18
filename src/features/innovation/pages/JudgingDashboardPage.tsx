@@ -288,7 +288,7 @@ export default function JudgingDashboardPage() {
                                     |
                                 </span>
                                 <Link
-                                    to="/innovation/admin/manage-judging"
+                                    to="/admin/innovation/manage-judging"
                                     className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-[#E00122] hover:underline"
                                 >
                                     <Users className="h-4 w-4" />

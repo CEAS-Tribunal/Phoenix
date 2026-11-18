@@ -198,9 +198,11 @@ export async function refreshMe(): Promise<AuthMeResponse> {
   const innovationChallengeRoles = new Set(
     INNOVATION_CHALLENGE_ROLES.map((role) => role.trim().toLowerCase())
   );
-  isInnovationChairUser = data.exec_roles.some((role) =>
-    innovationChallengeRoles.has(role.trim().toLowerCase())
-  );
+  isInnovationChairUser =
+    data.is_superuser ||
+    data.exec_roles.some((role) =>
+      innovationChallengeRoles.has(role.trim().toLowerCase())
+    );
   return data;
 }
 
