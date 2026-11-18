@@ -1,6 +1,6 @@
 /**
- * ExpoPage - CEAS EXPO 2026 event page
- * Content source: https://tribunal.uc.edu/ceasexpo
+ * ExpoPage - CEAS EXPO 2027 event page
+ * Content source: https://tribunal.uc.edu/expo
  */
 
 import { useRef } from "react";
@@ -10,7 +10,7 @@ import {
   Calendar,
   ExternalLink,
   GraduationCap,
-  Handshake,
+  Hammer,
   Lightbulb,
   MapPin,
   Mail,
@@ -55,10 +55,10 @@ const JUDGING_CATEGORIES = [
     icon: Users,
   },
   {
-    title: "Interdisciplinary Collaboration",
+    title: "Construction and Design Excellence Category",
     description:
-      "Focuses on the intersection of multiple engineering disciplines, recognizing successful collaboration and balanced contribution of each field.",
-    icon: Handshake,
+      "Recognizes projects that seamlessly integrate design, engineering, and construction management to deliver practical, buildable, and efficiently executed solutions.",
+    icon: Hammer,
   },
   {
     title: "Student Organization Project",
@@ -134,7 +134,7 @@ export default function ExpoPage() {
                 CEAS EXPO
               </div>
               <h1 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-[#333333]">
-                CEAS EXPO 2026
+                CEAS EXPO 2027
               </h1>
               <p className="mt-2 text-lg text-gray-600">
                 Brought to you by CEAS Tribunal and the College of Engineering
@@ -143,7 +143,7 @@ export default function ExpoPage() {
               <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-gray-600">
                 <span className="inline-flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-[#E00122]" />
-                  Tuesday, April 7th, 2026
+                  Tuesday, April 13th, 2027
                 </span>
                 <span className="inline-flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-[#E00122]" />
@@ -160,7 +160,7 @@ export default function ExpoPage() {
                 </Button>
                 <Button asChild className="bg-[#E00122] hover:bg-[#B8011C] text-white">
                   <a
-                    href="https://tribunal.uc.edu/ceasexpo"
+                    href="https://tribunal.uc.edu/expo"
                     target="_blank"
                     rel="noreferrer"
                   >
@@ -185,7 +185,7 @@ export default function ExpoPage() {
               <SectionHeader
                 eyebrow="About"
                 title="A large-scale showcase event"
-                description="The CEAS EXPO is a large-scale showcase event where graduating seniors present their final capstone projects. EXPO brings together 200+ student groups across all undergraduate departments. There are several ways to support our students as they showcase their final projects, including sponsorships, donations and judging. For more details on how to get involved visit the CEAS EXPO webpage."
+                description="The CEAS EXPO is a large-scale showcase event where graduating seniors present their final capstone projects. EXPO brings together 300+ student groups across all undergraduate departments. There are several ways to support our students as they showcase their final projects, including sponsorships, donations and judging. For more details on how to get involved visit the CEAS EXPO webpage."
               />
             </motion.div>
 
@@ -218,7 +218,7 @@ export default function ExpoPage() {
                     Logistics
                   </h3>
                   <p className="mt-2 text-sm leading-relaxed text-gray-600">
-                    The 2026 CEAS EXPO will be hosted on campus at Fifth Third
+                    The 2027 CEAS EXPO will be hosted on campus at Fifth Third
                     Arena. We welcome all members of the UC and Cincinnati
                     communities to attend. Undergraduate students, faculty,
                     staff, family members, and friends are encouraged to join us
@@ -312,12 +312,12 @@ export default function ExpoPage() {
                   title="Support our students"
                   description="Sponsorship plays a key role in making this event a success. Your support helps us deliver high-impact experiences for attendees and celebrate the hard work and innovation of our fifth-year students as they showcase their capstone projects. Sponsorship opportunities are available through tiered packages. Full details of company sponsorship opportunities and the sponsorship packet can be found on the CEAS EXPO webpage under Company Sponsorship."
                 />
-                <Button
+                <a
                   className="mt-6 bg-[#E00122] hover:bg-[#B8011C] text-white"
-                  disabled
+                  href=""
                 >
-                  Sponsorship info (coming soon)
-                </Button>
+                  Sponsorship info
+                </a>
               </motion.div>
 
               <motion.div
