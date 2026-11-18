@@ -10,7 +10,7 @@ interface OrgFundingChairGuardProps {
 const REQUIRED_ORG_FUNDING_CHAIR_ROLES = [
   "Technology Chair",
   "Treasurer",
-  "Org Funding Chair",
+  "Organizational Funding",
 ];
 
 function normalizeRole(role: string): string {
