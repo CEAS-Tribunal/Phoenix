@@ -154,18 +154,19 @@ export default function ExpoPage() {
                 <Button
                   variant="outline"
                   className="border-[#E5E7EB] text-[#333333]"
+                  // className="bg-[#E00122] hover:bg-[#B8011C] text-white"
                   disabled
                 >
-                  Registration (coming soon)
+                  Judge Registration (coming soon)
                 </Button>
-                <Button asChild className="bg-[#E00122] hover:bg-[#B8011C] text-white">
-                  <a
-                    href="https://tribunal.uc.edu/expo"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Legacy EXPO page <ExternalLink className="h-4 w-4 ml-1" />
-                  </a>
+
+                <Button
+                  variant="outline"
+                  className="border-[#E5E7EB] text-[#333333]"
+                  // className="bg-[#E00122] hover:bg-[#B8011C] text-white"
+                  disabled
+                >
+                  Student Registration (closed)
                 </Button>
               </div>
             </motion.div>
@@ -313,8 +314,10 @@ export default function ExpoPage() {
                   description="Sponsorship plays a key role in making this event a success. Your support helps us deliver high-impact experiences for attendees and celebrate the hard work and innovation of our fifth-year students as they showcase their capstone projects. Sponsorship opportunities are available through tiered packages. Full details of company sponsorship opportunities and the sponsorship packet can be found on the CEAS EXPO webpage under Company Sponsorship."
                 />
                 <a
-                  className="mt-6 bg-[#E00122] hover:bg-[#B8011C] text-white"
-                  href=""
+                  className="py-2 px-3 rounded-md inline-flex items-center gap-2 bg-[#E00122] hover:bg-[#B8011C] text-white"
+                  href="https://www.uc.edu/content/dam/refresh/ceas-62/documents/about/expo/2027/EXPO%20Sponsorship%20Packet%202027.pdf"
+                  target="_blank"
+                  rel="noreferrer"
                 >
                   Sponsorship info
                 </a>
