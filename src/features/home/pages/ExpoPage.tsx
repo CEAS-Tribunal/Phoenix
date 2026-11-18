@@ -8,7 +8,6 @@ import { motion, useInView } from "framer-motion";
 import {
   Award,
   Calendar,
-  ExternalLink,
   GraduationCap,
   Hammer,
   Lightbulb,
