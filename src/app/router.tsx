@@ -199,13 +199,11 @@ export const router = createBrowserRouter([
         path: 'admin/org-funding',
         element: (
           <AdminGuard>
-            <TreasurerGuard>
               <OrgFundingChairGuard>
                 <Suspense fallback={<LoadingFallback />}>
                   <AdminOrgFundingPage />
                 </Suspense>
               </OrgFundingChairGuard>
-            </TreasurerGuard>
           </AdminGuard>
         ),
       },
@@ -214,11 +212,9 @@ export const router = createBrowserRouter([
         element: (
           <AdminGuard>
             <OrgFundingChairGuard>
-              <TreasurerGuard>
                 <Suspense fallback={<LoadingFallback />}>
                   <AdminOrgFundingDatesPage />
                 </Suspense>
-              </TreasurerGuard>
             </OrgFundingChairGuard>
           </AdminGuard>
         ),
