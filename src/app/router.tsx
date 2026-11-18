@@ -261,7 +261,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'admin/innovation/judging-rubric',
+        path: 'innovation/judging-rubric',
         element: (
           <AdminGuard>
             <Suspense fallback={<LoadingFallback />}>
