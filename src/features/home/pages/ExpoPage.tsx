@@ -17,6 +17,7 @@ import {
   Users,
 } from "lucide-react";
 
+import expoBanner from "@assets/expo_2026.jpeg";
 import Navbar from "@shared/components/layout/Navbar";
 import Footer from "@shared/components/layout/Footer";
 import { Button } from "@shared/ui/button";
@@ -117,58 +118,71 @@ export default function ExpoPage() {
       <Navbar />
       <main className="min-h-screen bg-white">
         {/* Hero */}
-        <section className="py-16 lg:py-24 bg-[#F9FAFB]">
-          <div
-            ref={heroRef}
-            className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8"
-          >
-            <motion.div
-              initial="hidden"
-              animate={inView ? "visible" : "hidden"}
-              variants={fadeInUp}
-              transition={{ duration: 0.6 }}
-              className="max-w-3xl"
-            >
-              <div className="text-[#E00122] text-xs font-semibold uppercase tracking-wide">
-                CEAS EXPO
-              </div>
-              <h1 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-[#333333]">
-                CEAS EXPO 2027
-              </h1>
-              <p className="mt-2 text-lg text-gray-600">
-                Brought to you by CEAS Tribunal and the College of Engineering
-                and Applied Science
-              </p>
-              <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                <span className="inline-flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-[#E00122]" />
-                  Tuesday, April 13th, 2027
-                </span>
-                <span className="inline-flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-[#E00122]" />
-                  Fifth Third Arena
-                </span>
-              </div>
-              <div className="mt-8 flex flex-wrap items-center gap-3">
-                <Button
-                  variant="outline"
-                  className="border-[#E5E7EB] text-[#333333]"
-                  // className="bg-[#E00122] hover:bg-[#B8011C] text-white"
-                  disabled
-                >
-                  Judge Registration (coming soon)
-                </Button>
+        <section className="relative overflow-hidden">
+          <div className="absolute inset-0">
+            <img
+              src={expoBanner}
+              alt="CEAS EXPO 2027"
+              className="h-full w-full object-cover"
+              loading="eager"
+            />
+            <div className="absolute inset-0 bg-black/55" />
+          </div>
 
-                <Button
-                  variant="outline"
-                  className="border-[#E5E7EB] text-[#333333]"
-                  // className="bg-[#E00122] hover:bg-[#B8011C] text-white"
-                  disabled
-                >
-                  Student Registration (closed)
-                </Button>
-              </div>
-            </motion.div>
+          <div className="relative py-16 lg:py-24">
+            <div
+              ref={heroRef}
+              className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8"
+            >
+              <motion.div
+                initial="hidden"
+                animate={inView ? "visible" : "hidden"}
+                variants={fadeInUp}
+                transition={{ duration: 0.6 }}
+                className="max-w-3xl"
+              >
+                <div className="text-white text-xs font-semibold uppercase tracking-wide">
+                  CEAS EXPO
+                </div>
+                <h1 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-white">
+                  CEAS EXPO 2027
+                </h1>
+                <p className="mt-2 text-lg text-white">
+                  Brought to you by CEAS Tribunal and the College of Engineering
+                  and Applied Science
+                </p>
+                <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-white">
+                  <span className="inline-flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-[#E00122]" />
+                    Tuesday, April 13th, 2027
+                  </span>
+                  <span className="inline-flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-[#E00122]" />
+                    Fifth Third Arena
+                  </span>
+                </div>
+                <div className="mt-8 flex flex-wrap items-center gap-3">
+                  <Button
+                    variant="outline"
+                    className="border-white text-white bg-white/10 backdrop-blur-lg hover:bg-white/20 hover:text-white"
+                    //className="bg-[#E00122] hover:bg-[#B8011C] text-white"
+                    disabled
+                  >
+                    Judge Registration (coming soon)
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    className="border-white text-white bg-white/10 backdrop-blur-lg hover:bg-white/20 hover:text-white"
+                    //className="bg-[#E00122] hover:bg-[#B8011C] text-white" 
+                    disabled
+                    
+                  >
+                    Student Registration (closed)
+                  </Button>
+                </div>
+              </motion.div>
+            </div>
           </div>
         </section>
 
