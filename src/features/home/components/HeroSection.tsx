@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import CountUp from "react-countup";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
-import coverPage from "@assets/cover_page.JPEG";
+import coverPage from "@assets/cover_page.jpeg";
 
 interface HeroSectionProps {
   className?: string;
