@@ -11,7 +11,9 @@ import {
   GraduationCap,
   BookOpen,
   HandCoins,
+  ChevronDown,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Button } from "@shared/ui/button";
 import {
   Sheet,
@@ -21,16 +23,142 @@ import {
 } from "@shared/ui/sheet";
 import tribunalLogo from "@assets/tribunal_logo_color.png";
 
-const NAV_LINKS = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/career-fair", label: "Career Fair", icon: Briefcase },
-  { href: "/expo", label: "CEAS EXPO", icon: Award },
-  { href: "/committees", label: "Committees", icon: Users },
-  { href: "/alumni", label: "Alumni", icon: GraduationCap },
-  { href: "/org-funding", label: "Org Funding", icon: HandCoins },
-  // { href: "/esoc", label: "ESOC", icon: HandCoins },
-  { href: "/resources", label: "Resources", icon: BookOpen },
+type NavLinkItem = {
+  type: "link";
+  href: string;
+  label: string;
+  icon: LucideIcon;
+};
+
+type NavGroupItem = {
+  type: "group";
+  id: string;
+  label: string;
+  links: NavLinkItem[];
+};
+
+type NavItem = NavLinkItem | NavGroupItem;
+type IsActiveRoute = (href: string) => boolean;
+
+const NAV_ITEMS: NavItem[] = [
+  { type: "link", href: "/", label: "Home", icon: Home },
+  { type: "link", href: "/career-fair", label: "Career Fair", icon: Briefcase },
+  { type: "link", href: "/expo", label: "CEAS EXPO", icon: Award },
+  { type: "link", href: "/committees", label: "Committees", icon: Users },
+  { type: "link", href: "/alumni", label: "Alumni", icon: GraduationCap },
+  {
+    type: "group",
+    id: "funding",
+    label: "Funding",
+    links: [
+      { type: "link", href: "/org-funding", label: "Org Funding", icon: HandCoins },
+      { type: "link", href: "/esoc", label: "ESOC", icon: HandCoins },
+    ],
+  },
+  { type: "link", href: "/resources", label: "Resources", icon: BookOpen },
 ];
+
+const MOBILE_NAV_LINKS = NAV_ITEMS.flatMap((item) =>
+  item.type === "link" ? [item] : item.links,
+);
+
+const DesktopNavLink: React.FC<{
+  link: NavLinkItem;
+  isActiveRoute: IsActiveRoute;
+}> = ({ link, isActiveRoute }) => {
+  const isActive = isActiveRoute(link.href);
+
+  return (
+    <li>
+      <Link
+        to={link.href}
+        className={`text-[15px] font-medium transition-colors duration-200 relative ${
+          isActive ? "text-[#E00122]" : "text-gray-700 hover:text-[#E00122]"
+        }`}
+      >
+        {link.label}
+        {isActive && (
+          <motion.div
+            className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#E00122]"
+            layoutId="navbar-underline"
+            transition={{ duration: 0.2 }}
+          />
+        )}
+      </Link>
+    </li>
+  );
+};
+
+const DesktopNavGroup: React.FC<{
+  group: NavGroupItem;
+  isActiveRoute: IsActiveRoute;
+}> = ({ group, isActiveRoute }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const isActive = group.links.some(({ href }) => isActiveRoute(href));
+  const menuId = `navbar-${group.id}-menu`;
+
+  return (
+    <li
+      className="relative"
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+      onFocusCapture={() => setIsOpen(true)}
+      onBlurCapture={(event) => {
+        if (
+          !(event.relatedTarget instanceof Node) ||
+          !event.currentTarget.contains(event.relatedTarget)
+        ) {
+          setIsOpen(false);
+        }
+      }}
+    >
+      <button
+        type="button"
+        aria-expanded={isOpen}
+        aria-controls={menuId}
+        className={`text-[15px] font-medium transition-colors duration-200 relative focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#E00122] ${
+          isActive ? "text-[#E00122]" : "text-gray-700 hover:text-[#E00122]"
+        }`}
+      >
+        {group.label}
+        <ChevronDown
+          aria-hidden="true"
+          className={`ml-1 inline-block h-4 w-4 transition-transform ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        />
+        {isActive && (
+          <motion.div
+            className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#E00122]"
+            layoutId="navbar-underline"
+            transition={{ duration: 0.2 }}
+          />
+        )}
+      </button>
+      <ul
+        id={menuId}
+        className={`absolute left-0 top-full z-50 min-w-48 rounded-md bg-white py-2 shadow-lg ring-1 ring-black/5 ${
+          isOpen ? "block" : "hidden"
+        }`}
+      >
+        {group.links.map((link) => (
+          <li key={link.href}>
+            <Link
+              to={link.href}
+              className={`block px-4 py-2 text-sm transition-colors ${
+                isActiveRoute(link.href)
+                  ? "text-[#E00122]"
+                  : "text-gray-700 hover:bg-gray-100 hover:text-[#E00122]"
+              }`}
+            >
+              {link.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </li>
+  );
+};
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -122,26 +250,21 @@ const Navbar: React.FC = () => {
             role="navigation"
             aria-label="Main navigation"
           >
-            {NAV_LINKS.map(({ href, label }) => (
-              <li key={href}>
-                <Link
-                  to={href}
-                  className={`text-[15px] font-medium transition-colors duration-200 relative ${isActiveRoute(href)
-                      ? "text-[#E00122]"
-                      : "text-gray-700 hover:text-[#E00122]"
-                    }`}
-                >
-                  {label}
-                  {isActiveRoute(href) && (
-                    <motion.div
-                      className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#E00122]"
-                      layoutId="navbar-underline"
-                      transition={{ duration: 0.2 }}
-                    />
-                  )}
-                </Link>
-              </li>
-            ))}
+            {NAV_ITEMS.map((item) =>
+              item.type === "link" ? (
+                <DesktopNavLink
+                  key={item.href}
+                  link={item}
+                  isActiveRoute={isActiveRoute}
+                />
+              ) : (
+                <DesktopNavGroup
+                  key={item.id}
+                  group={item}
+                  isActiveRoute={isActiveRoute}
+                />
+              ),
+            )}
           </ul>
 
           {/* Desktop CTA / Log out */}
@@ -204,7 +327,7 @@ const Navbar: React.FC = () => {
 
           {/* Mobile Navigation Links */}
           <nav className="flex flex-col gap-2" role="navigation">
-            {NAV_LINKS.map(({ href, label, icon: Icon }) => (
+            {MOBILE_NAV_LINKS.map(({ href, label, icon: Icon }) => (
               <Link
                 key={href}
                 to={href}
