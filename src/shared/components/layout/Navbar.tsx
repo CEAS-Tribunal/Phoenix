@@ -282,18 +282,11 @@ const Navbar: React.FC = () => {
               <div className="flex flex-row gap-2">
                 <Button
                   asChild
-                  className="bg-white text-[#E00122] hover:bg-[#E00122]/10 border border-[#E00122] px-6 rounded-full transition-colors"
+                  className="bg-[#E00122] text-white hover:bg-[#c00115] px-6 rounded-full transition-colors"
                 >
                   <Link to="/admin/login" onClick={() => setIsMenuOpen(false)}>
-                  Login
+                    Login
                   </Link>
-                </Button>
-                
-                <Button
-                  asChild
-                  className="bg-[#E00122] text-white hover:bg-[#c00115] rounded-full px-6 transition-colors"
-                >
-                  <Link to="/committees">Get Involved</Link>
                 </Button>
               </div>
               
@@ -358,18 +351,10 @@ const Navbar: React.FC = () => {
               <div className="flex flex-col gap-2">
                 <Button
                   asChild
-                  className="w-full bg-white text-[#E00122] border border-[#E00122] hover:bg-[#c00115] rounded-full transition-colors"
+                  className="w-full bg-[#E00122] text-white hover:bg-[#c00115] rounded-full transition-colors"
                 >
                   <Link to="/admin/login" onClick={() => setIsMenuOpen(false)}>
                     Login
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  className="w-full bg-[#E00122] text-white hover:bg-[#c00115] rounded-full transition-colors"
-                >
-                  <Link to="/committees" onClick={() => setIsMenuOpen(false)}>
-                    Get Involved
                   </Link>
                 </Button>
               </div>
