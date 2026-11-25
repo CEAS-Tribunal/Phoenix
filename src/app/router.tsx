@@ -47,7 +47,9 @@ import {
 } from '@innovation';
 import { AdminDashboardPage } from '@dashboard';
 
-import { AiPage } from '@ai';
+import { ExpoAssignmentsPage, JudgeRegistrationPage } from '@expo';
+
+import {AiPage} from '@ai';
 
 
 export const router = createBrowserRouter([
@@ -92,6 +94,22 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<LoadingFallback />}>
             <ExpoPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'expo/judges/register',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <JudgeRegistrationPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'admin/expo/assignments',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <ExpoAssignmentsPage />
           </Suspense>
         ),
       },

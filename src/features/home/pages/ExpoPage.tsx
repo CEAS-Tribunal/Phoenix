@@ -4,10 +4,12 @@
  */
 
 import { useRef } from "react";
+import { Link } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 import {
   Award,
   Calendar,
+  Gavel,
   GraduationCap,
   Hammer,
   Lightbulb,
@@ -273,8 +275,14 @@ export default function ExpoPage() {
               <SectionHeader
                 eyebrow="Volunteer Judging"
                 title="Judging categories"
-                description="The EXPO relies on the support of alumni, industry partners, and individuals with engineering or technical backgrounds to serve as judges. Volunteers receive a schedule, rubric, and set of expectations. Please check back at a later date for judge registration."
+                description="The EXPO relies on the support of alumni, industry partners, and individuals with engineering or technical backgrounds to serve as judges. Volunteers receive a schedule, rubric, and set of expectations."
               />
+              <Button asChild className="mt-6 bg-[#E00122] hover:bg-[#B8011C] text-white">
+                <Link to="/expo/judges/register">
+                  <Gavel className="h-4 w-4" />
+                  Sign up to judge
+                </Link>
+              </Button>
             </motion.div>
 
             <motion.div

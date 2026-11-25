@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowRight,
+  CalendarClock,
   ClipboardList,
   HandCoins,
   Lightbulb,
@@ -29,14 +30,15 @@ import {
 
 } from "@auth";
 
-type DashboardLinkCategory = "general" | "org-funding" | "esoc" | "career-dev" | "ic";
+type DashboardLinkCategory = "general" | "org-funding" | "esoc" | "career-dev" | "ic" | "expo";
 
 const DASHBOARD_CATEGORIES: { id: DashboardLinkCategory; label: string }[] = [
   { id: "general", label: "General" },
   { id: "org-funding", label: "Org Funding" },
   { id: "esoc", label: "ESOC" },
   { id: "career-dev", label: "Career Development" },
-  { id: "ic", label: "Innovation Challenge" }
+  { id: "ic", label: "Innovation Challenge" },
+  { id: "expo", label: "EXPO" },
 ];
 
 type DashboardLinkItem = {
@@ -121,7 +123,14 @@ const DASHBOARD_LINKS: DashboardLinkItem[] = [
     icon: Trophy,
     category: "ic",
     innovationChairOnly: true,
-  }
+  },
+  {
+    href: "/admin/expo/assignments",
+    title: "EXPO Judge Assignments",
+    description: "Generate and review the judging schedule so every team gets at least 5 judges.",
+    icon: CalendarClock,
+    category: "expo",
+  },
 ];
 
 export default function AdminDashboardPage() {
