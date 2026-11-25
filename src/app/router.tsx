@@ -217,13 +217,11 @@ export const router = createBrowserRouter([
         path: 'admin/org-funding',
         element: (
           <AdminGuard>
-            <TreasurerGuard>
               <OrgFundingChairGuard>
                 <Suspense fallback={<LoadingFallback />}>
                   <AdminOrgFundingPage />
                 </Suspense>
               </OrgFundingChairGuard>
-            </TreasurerGuard>
           </AdminGuard>
         ),
       },
@@ -232,11 +230,9 @@ export const router = createBrowserRouter([
         element: (
           <AdminGuard>
             <OrgFundingChairGuard>
-              <TreasurerGuard>
                 <Suspense fallback={<LoadingFallback />}>
                   <AdminOrgFundingDatesPage />
                 </Suspense>
-              </TreasurerGuard>
             </OrgFundingChairGuard>
           </AdminGuard>
         ),
@@ -289,7 +285,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'innovation/admin/judging-dashboard',
+        path: 'admin/innovation/judging-dashboard',
         element: (
           <AdminGuard>
             <InnovationChairGuard>
@@ -301,7 +297,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'innovation/admin/manage-judging',
+        path: 'admin/innovation/manage-judging',
         element: (
           <AdminGuard>
             <InnovationChairGuard>

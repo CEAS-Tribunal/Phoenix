@@ -117,7 +117,7 @@ const DASHBOARD_LINKS: DashboardLinkItem[] = [
     category: "ic",
   },
   {
-    href: "/innovation/admin/judging-dashboard",
+    href: "/admin/innovation/judging-dashboard",
     title: "Final Competition Dashboard",
     description: "View judging results and team scores for the Innovation Challenge Final Competition.",
     icon: Trophy,

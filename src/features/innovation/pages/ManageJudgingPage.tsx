@@ -375,7 +375,7 @@ export default function ManageJudgingPage() {
                                     |
                                 </span>
                                 <Link
-                                    to="/innovation/admin/judging-dashboard"
+                                    to="/admin/innovation/judging-dashboard"
                                     className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-[#E00122] hover:underline"
                                 >
                                     <LayoutList className="h-4 w-4" />
@@ -595,7 +595,7 @@ export default function ManageJudgingPage() {
                                                             <Button
                                                                 type="button"
                                                                 variant="outline"
-                                                                className="w-full border-gray-300 focus-visible:border-gray-400 focus-visible:ring-gray-300/60"
+                                                                className="border-gray-300 focus-visible:border-gray-400 focus-visible:ring-gray-300/60"
                                                                 disabled={isSavingJudge}
                                                                 onClick={resetJudgeForm}
                                                             >
